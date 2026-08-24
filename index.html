@@ -1204,6 +1204,9 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 .round-card-score.empty { color: var(--ink-mute); font-size: 18px; }
 .round-card-score.absent { color: var(--ink-mute); font-style: italic; font-size: 17px; }
 .round-card-avg { font-size: 10.5px; color: var(--ink-mute); font-weight: 500; margin-top: 4px; }
+.round-card-rate { font-size: 9.5px; color: var(--ink-mute); font-weight: 600; margin-top: 3px; letter-spacing: 0.2px; opacity: 0.85; }
+.report-hero-stat-rate { font-size: 11.5px; color: rgba(255,255,255,0.72); margin-top: 7px; letter-spacing: -0.1px; }
+.report-hero-stat-rate strong { color: var(--orange-light); font-weight: 800; }
 .round-card-delta { font-size: 10.5px; font-weight: 700; margin-top: 3px; }
 .delta-up { color: var(--green); }
 .delta-down { color: var(--red); }
@@ -1974,6 +1977,8 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   .report-hero { background: #fafaf7 !important; color: #1a1a2e !important; }
   .report-hero-title, .report-hero-meta-name { color: #1a1a2e !important; }
   .report-hero-stat-value { color: var(--orange-deep) !important; }
+  .report-hero-stat-rate { color: #555570 !important; }
+  .report-hero-stat-rate strong { color: var(--orange-deep) !important; }
   .page { break-inside: avoid; }
 }
 
@@ -5753,6 +5758,10 @@ function buildSharedReportDOM(sid) {
   }
   const validScores = myRounds.map(rd => getScore(rd)).filter(x => x != null);
   const myAvg = avg(validScores);
+  // 본인 응시 현황 (전체 학생 수는 노출하지 않고 회차 기준으로만 계산)
+  const myTaken = validScores.length;
+  const myAbsent = myRounds.filter(rd => isAbsent(rd)).length;
+  const myRate = ROUNDS > 0 ? Math.round(myTaken / ROUNDS * 100) : null;
   const firstScore = validScores[0];
   const lastScore = validScores[validScores.length - 1];
 
@@ -5805,6 +5814,10 @@ function buildSharedReportDOM(sid) {
         el('div', { className: 'report-hero-stat-label' }, '평균 점수'),
         el('div', { className: 'report-hero-stat-value' }, myAvg != null ? fmt(myAvg) : '—',
           myAvg != null ? el('span', { style: { fontSize: '14px', opacity: '0.8', marginLeft: '2px' } }, '점') : null
+        ),
+        el('div', { className: 'report-hero-stat-rate' },
+          '응시율 ', el('strong', null, myRate != null ? myRate + '%' : '—'),
+          el('span', { style: { opacity: '0.75' } }, `  (${ROUNDS}회 중 ${myTaken}회 응시${myAbsent > 0 ? ' · 결시 ' + myAbsent + '회' : ''})`)
         )
       )
     )
@@ -5830,7 +5843,7 @@ function buildSharedReportDOM(sid) {
     const rd = myRounds[r-1];
     const ga = gradeAvgs[r-1];
     const gst = gradeStats[r-1];
-    let scoreClass = 'empty', scoreText = '—', deltaNode = null, avgNode = null;
+    let scoreClass = 'empty', scoreText = '—', deltaNode = null, avgNode = null, rateNode = null;
     let hasData = false;
 
     if (rd) {
@@ -5850,6 +5863,10 @@ function buildSharedReportDOM(sid) {
               className: 'round-card-delta ' + (d >= 0 ? 'delta-up' : 'delta-down')
             }, (d >= 0 ? '▲' : '▼') + Math.abs(d).toFixed(1));
             avgNode = el('div', { className: 'round-card-avg' }, '평균 ' + fmt(ga));
+            const gRate = attendanceRate(gst);
+            if (gRate != null) {
+              rateNode = el('div', { className: 'round-card-rate' }, '학년 응시율 ' + Math.round(gRate * 100) + '%');
+            }
           }
         }
       }
@@ -5863,7 +5880,8 @@ function buildSharedReportDOM(sid) {
           el('span', { style: { fontSize: '12px', opacity: '0.8', marginLeft: '1px' } }, '점') : null
       ),
       avgNode,
-      deltaNode
+      deltaNode,
+      rateNode
     ));
   }
 
@@ -6375,6 +6393,17 @@ function generateStudentAnalysisLines(sid) {
     else if (diff > 0) lines.push(`📊 ${s.name} 학생은 ${s.grade} 평균(${fmt(gradeAvg)}점)을 약간 상회하고 있습니다.`);
     else if (diff > -5) lines.push(`📊 ${s.name} 학생은 ${s.grade} 평균(${fmt(gradeAvg)}점)에 근접한 점수를 유지하고 있습니다.`);
     else lines.push(`📉 ${s.name} 학생은 ${s.grade} 평균(${fmt(gradeAvg)}점)보다 ${fmt(Math.abs(diff))}점 낮습니다. 보완이 필요합니다.`);
+  }
+
+  // 응시율 (전체 학생 수는 노출하지 않고 본인 회차 기준으로만)
+  const takenCount = validScores.length;
+  const absentCount = countAbsent(sid);
+  const rate = ROUNDS > 0 ? Math.round(takenCount / ROUNDS * 100) : null;
+  if (rate != null) {
+    if (rate >= 100) lines.push(`🗓 ${ROUNDS}회 전 회차에 모두 응시했습니다 (응시율 100%). 성실한 참여가 성적 향상의 바탕이 됩니다.`);
+    else if (rate >= 75) lines.push(`🗓 응시율 ${rate}% (${ROUNDS}회 중 ${takenCount}회 응시${absentCount ? ' · 결시 ' + absentCount + '회' : ''}) — 꾸준히 참여하고 있습니다.`);
+    else if (rate >= 50) lines.push(`🗓 응시율 ${rate}% (${ROUNDS}회 중 ${takenCount}회 응시${absentCount ? ' · 결시 ' + absentCount + '회' : ''}) — 남은 회차 응시가 성적 흐름 파악에 중요합니다.`);
+    else lines.push(`⚠ 응시율 ${rate}% (${ROUNDS}회 중 ${takenCount}회 응시${absentCount ? ' · 결시 ' + absentCount + '회' : ''}) — 응시 횟수가 적어 분석의 정확도가 낮습니다. 남은 회차 참여를 부탁드립니다.`);
   }
 
   // 추세
