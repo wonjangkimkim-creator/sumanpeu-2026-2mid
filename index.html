@@ -7454,7 +7454,8 @@ function detectColumnMap(headers) {
   headers.forEach((h, idx) => {
     if (!h) return;
     const norm = String(h).trim().replace(/\s+/g, '');
-    if (/^번호$|^문항번호$|^No$/i.test(norm)) map.no = idx;
+    if (/^회차$|^차수$|^회$|^round$/i.test(norm)) map.round = idx;
+    else if (/^번호$|^문항번호$|^No$/i.test(norm)) map.no = idx;
     else if (/문항요약|요약|내용/.test(norm)) map.summary = idx;
     else if (/^과정$|^학년$/.test(norm)) map.gradeCol = idx;
     else if (/^대단원$|^단원$/.test(norm)) map.unit = idx;
@@ -7505,60 +7506,106 @@ function parseSheetToProblems(rows, colMap) {
   return problems;
 }
 
-// Excel 파일에서 시트 정보 파싱
+// 시트명에서 버전 라벨 추출:  "중1-2 V1 (1~8회)" → "V1",  "고1-2 대수 (1~8회)" → "대수"
+function detectVersionLabelFromSheet(sheetName) {
+  let t = String(sheetName || '');
+  t = t.replace(/\([^)]*\)/g, ' ');              // (1~8회) 제거
+  t = t.replace(/[\d]+\s*~\s*[\d]+\s*회/g, ' '); // 1~8회 제거
+  t = t.replace(/[중고]\s*\d\s*-?\s*\d?/g, ' '); // 중1-2 / 고1-2 제거
+  t = t.replace(/\s+/g, ' ').trim();
+  return t;
+}
+
+// 감지된 버전 라벨 → 설정된 버전 키 (없으면 null)
+function resolveVersionKey(grade, label) {
+  if (!label) return null;
+  const m = String(label).match(/^V\s*(\d+)$/i);
+  const keys = getVersionKeysForGrade(grade);
+  if (m) {
+    const k = 'v' + m[1];
+    return keys.includes(k) ? k : null;
+  }
+  return versionKeyFromLabel(grade, label) || null;
+}
+
+// 회차 문자열 → 숫자 ("3회" → 3)
+function parseRoundValue(v) {
+  if (v == null) return null;
+  const m = String(v).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+// Excel 파일에서 시트 정보 파싱 (회차 컬럼이 있으면 회차별로 분리)
 async function parseExcelFile(file) {
   if (typeof XLSX === 'undefined') {
     throw new Error('Excel 라이브러리(XLSX)가 로드되지 않았습니다');
   }
   const data = await file.arrayBuffer();
   const wb = XLSX.read(data, { type: 'array' });
-  
+
   const sheets = [];
   for (const sheetName of wb.SheetNames) {
     const ws = wb.Sheets[sheetName];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
     if (rows.length < 2) continue;
-    
-    // 헤더 행 찾기 (보통 첫 줄이지만, '번호'가 포함된 행을 찾음)
-    let headerRowIdx = 0;
-    for (let i = 0; i < Math.min(5, rows.length); i++) {
-      if (rows[i] && rows[i].some(c => String(c).trim() === '번호')) {
-        headerRowIdx = i;
-        break;
-      }
+
+    // 헤더 행 찾기 ('번호'가 포함된 행)
+    let headerRowIdx = -1;
+    for (let i = 0; i < Math.min(8, rows.length); i++) {
+      if (rows[i] && rows[i].some(c => String(c).trim() === '번호')) { headerRowIdx = i; break; }
     }
-    
+    if (headerRowIdx < 0) continue;
+
     const headers = rows[headerRowIdx];
     const colMap = detectColumnMap(headers);
-    
-    // 데이터 행이 너무 적거나 번호 컬럼이 없으면 스킵
     if (colMap.no == null) continue;
-    
+
     const dataRows = rows.slice(headerRowIdx + 1);
-    const problems = parseSheetToProblems(dataRows, colMap);
-    
-    if (problems.length === 0) continue;
-    
-    // 학년 자동 감지 (학년 컬럼 또는 시트명에서)
+
+    // 학년 감지 (과정 컬럼 → 시트명)
     let detectedGrade = '';
-    if (colMap.gradeCol != null && dataRows[0]) {
-      detectedGrade = normalizeGrade(dataRows[0][colMap.gradeCol]);
+    if (colMap.gradeCol != null) {
+      for (const r of dataRows) {
+        const g = normalizeGrade(r[colMap.gradeCol]);
+        if (g) { detectedGrade = g; break; }
+      }
     }
     if (!detectedGrade) detectedGrade = normalizeGrade(sheetName);
-    
+
+    // 회차별 분리
+    const blocks = [];
+    if (colMap.round != null) {
+      const byRound = {};
+      dataRows.forEach(r => {
+        const rn = parseRoundValue(r[colMap.round]);
+        if (rn == null) return;
+        (byRound[rn] = byRound[rn] || []).push(r);
+      });
+      Object.keys(byRound).map(Number).sort((a, b) => a - b).forEach(rn => {
+        const problems = parseSheetToProblems(byRound[rn], colMap);
+        if (problems.length) blocks.push({ round: rn, problems: problems });
+      });
+    } else {
+      const problems = parseSheetToProblems(dataRows, colMap);
+      if (problems.length) blocks.push({ round: null, problems: problems });
+    }
+    if (!blocks.length) continue;
+
+    const versionLabel = detectVersionLabelFromSheet(sheetName);
     sheets.push({
       name: sheetName,
       grade: detectedGrade,
-      problemCount: problems.length,
-      problems: problems,
+      versionLabel: versionLabel,
+      hasRoundColumn: colMap.round != null,
+      blocks: blocks,
+      problemCount: blocks.reduce((a, b) => a + b.problems.length, 0),
       colMap: colMap
     });
   }
-  
+
   return sheets;
 }
 
-// Excel 가져오기 모달 — 시트→회차 매핑 UI
 async function openExcelImportModal(file) {
   let sheets;
   try {
@@ -7569,204 +7616,224 @@ async function openExcelImportModal(file) {
     showToast('Excel 파일을 읽을 수 없습니다: ' + err.message, 'error');
     return;
   }
-  
+
   if (!sheets || sheets.length === 0) {
     showToast('가져올 수 있는 시트가 없습니다. "번호" 컬럼이 포함된 시트를 확인하세요', 'error');
     return;
   }
-  
-  // 시트별 회차 매핑 설정 (기본값 자동 추정)
-  const mappings = sheets.map((sheet, idx) => {
-    // 시트명에서 회차 힌트 찾기
-    let suggestedRound = idx + 1;
-    let suggestedGrade = sheet.grade || ui.papersGrade || '중2';
-    
-    // "중간" 키워드면 중간 회차 (4회), "기말" 키워드면 후반 회차 (8회)
-    if (/중간/.test(sheet.name)) suggestedRound = 4;
-    else if (/기말/.test(sheet.name)) suggestedRound = 8;
-    
-    // 시트명에서 버전 힌트 찾기 (모든 학년)
-    let suggestedVersion = 'v1';
-    const sn = sheet.name;
-    // 고1 키워드 (3버전)
-    if (/v3|V3|버전3|version3|방정식과\s*부등식|방부행/.test(sn)) suggestedVersion = 'v3';
-    else if (/v2|V2|버전2|version2|부등식.*행렬|부행/i.test(sn)) suggestedVersion = 'v2';
-    else if (/v1|V1|버전1|version1|방정식.*행렬|방행/i.test(sn)) suggestedVersion = 'v1';
-    // 중등 키워드 (난이도)
-    else if (/난이도\s*하|난도\s*하|쉬운|기본/.test(sn)) suggestedVersion = 'v2';
-    else if (/난이도\s*상|난도\s*상|어려운|표준|심화/.test(sn)) suggestedVersion = 'v1';
-    
+
+  // 시트별 매핑 (학년 · 버전은 시트 단위, 회차는 파일에서 자동)
+  const maps = sheets.map(sheet => {
+    const grade = GRADES.includes(sheet.grade) ? sheet.grade : (ui.papersGrade || GRADES[0]);
+    let key = resolveVersionKey(grade, sheet.versionLabel);
+    if (!key && !sheet.versionLabel) key = getVersionKeysForGrade(grade)[0] || null;  // 버전 표기가 없는 시트 → V1
     return {
       sheet: sheet,
-      grade: suggestedGrade,
-      round: suggestedRound,
-      version: suggestedVersion,
-      enabled: true
+      grade: grade,
+      versionKey: key,                       // null = 설정에 없는 새 버전
+      newLabel: key ? '' : (sheet.versionLabel || ''),
+      enabled: true,
+      rounds: sheet.blocks.map(b => ({ round: b.round, use: true, count: b.problems.length }))
     };
   });
-  
+
+  const maxRound = Math.max(...maps.flatMap(m => m.rounds.map(r => r.round || 0)), 0);
+  const unresolved = maps.filter(m => !m.versionKey && m.newLabel);
+
   openModal({
     title: '📥 Excel 문항 분류표 가져오기',
+    size: 'lg',
     body: () => {
       const wrap = el('div');
-      
-      // 안내
-      wrap.appendChild(el('div', { className: 'notice notice-warn mb-12', style: { fontSize: '12px' } },
-        el('strong', null, `✓ ${sheets.length}개 시트 인식됨. `),
-        '각 시트를 어느 학년·회차·버전에 적용할지 선택하세요. (중1/중2/중3: V1 표준, V2 난이도 ↓ / 고1: V1~V3) 기존 데이터가 있으면 덮어쓰여집니다.'
+      const totalBlocks = maps.reduce((a, m) => a + m.rounds.length, 0);
+      const totalProblems = maps.reduce((a, m) => a + m.sheet.problemCount, 0);
+
+      wrap.appendChild(el('div', { className: 'notice mb-12', style: { fontSize: '12px' } },
+        el('strong', null, `✓ 시트 ${sheets.length}개 · 회차 ${totalBlocks}개 · 문항 ${totalProblems}개 인식`),
+        el('br'),
+        maps.some(m => m.sheet.hasRoundColumn)
+          ? '「회차」 열을 읽어 한 시트 안의 여러 회차를 자동으로 나눴습니다. 학년·버전만 확인해 주세요.'
+          : '회차 열이 없어 시트별로 회차를 직접 지정해야 합니다.'
       ));
-      
-      // 매핑 테이블 (고1 지원을 위해 버전 컬럼 추가)
-      const table = el('div', { style: { border: '1px solid var(--line)', borderRadius: '8px', overflow: 'hidden' } });
-      const cols = '32px 1fr 70px 70px 70px 90px';  // 체크 / 시트명 / 문항수 / 학년 / 회차 / 버전
-      
-      // 헤더
-      table.appendChild(el('div', {
-        style: {
-          display: 'grid',
-          gridTemplateColumns: cols,
-          gap: '8px',
-          padding: '10px 12px',
-          background: 'var(--bg-elevated)',
-          fontSize: '12px',
-          fontWeight: 700,
-          color: 'var(--ink-3)',
-          borderBottom: '1px solid var(--line)'
-        }
-      },
-        el('div', null, ''),
-        el('div', null, '시트명'),
-        el('div', null, '문항수'),
-        el('div', null, '학년'),
-        el('div', null, '회차'),
-        el('div', null, '버전')
-      ));
-      
-      mappings.forEach((m, idx) => {
-        const checkbox = el('input', { type: 'checkbox', checked: m.enabled });
-        checkbox.addEventListener('change', e => { m.enabled = e.target.checked; });
-        
-        // 학년에 맞는 버전 옵션 빌드
-        function buildVersionOptions(grade, currentVersion) {
-          const versions = getVersionsForGrade(grade);
-          const keys = getVersionKeysForGrade(grade);
-          return keys.map((k, i) => el('option', { 
-            value: k, 
-            selected: currentVersion === k 
-          }, `V${i+1} ${versions[i]}`));
-        }
-        
-        const versionSelect = el('select', { className: 'select', style: { padding: '4px 6px', fontSize: '12px' } },
-          ...buildVersionOptions(m.grade, m.version)
-        );
-        versionSelect.addEventListener('change', e => { m.version = e.target.value; });
-        
-        const gradeSelect = el('select', { className: 'select', style: { padding: '4px 6px', fontSize: '12px' } },
+
+      // 설정에 없는 버전 안내 + 자동 반영
+      if (unresolved.length) {
+        const byGrade = {};
+        maps.forEach(m => {
+          if (!m.newLabel) return;
+          (byGrade[m.grade] = byGrade[m.grade] || []).push(m.newLabel);
+        });
+        wrap.appendChild(el('div', { className: 'notice notice-warn mb-12', style: { fontSize: '12px' } },
+          el('strong', null, '⚠ 설정에 없는 시험지 버전이 있습니다: '),
+          Object.keys(byGrade).map(g => g + ' → ' + byGrade[g].join(', ')).join('  |  '),
+          el('br'),
+          el('button', {
+            className: 'btn btn-sm btn-orange', style: { marginTop: '8px' },
+            onClick: () => {
+              // 엑셀에서 감지된 구성대로 설정(버전 목록 · 회차 수) 갱신
+              const detected = {};
+              maps.forEach(m => {
+                const label = m.newLabel || (getVersionLabelsForGrade(m.grade)[m.versionKey] || '');
+                if (!label) return;
+                detected[m.grade] = detected[m.grade] || [];
+                if (!detected[m.grade].includes(label)) detected[m.grade].push(label);
+              });
+              Object.keys(detected).forEach(g => {
+                const cur = (state.config.versions[g] || []).slice();
+                const def = DEFAULT_VERSIONS[g] || [];
+                const isUntouched = cur.length === def.length && cur.every((x, i) => x === def[i]);
+                const namedOnly = detected[g].every(lb => !/^V\s*\d+$/i.test(lb));
+                if (isUntouched && namedOnly) {
+                  // 아직 기본값이고 엑셀에 실제 범위명이 있으면 그대로 교체 (예: 고1 → 공통수학2 / 대수)
+                  state.config.versions[g] = detected[g].slice();
+                } else {
+                  detected[g].forEach(lb => { if (!cur.includes(lb)) cur.push(lb); });
+                  state.config.versions[g] = cur;
+                }
+              });
+              if (maxRound > ROUNDS) state.config.rounds = maxRound;
+              applyConfig();
+              saveState();
+              closeModal();
+              showToast('설정을 엑셀 구성에 맞게 업데이트했습니다. 다시 가져오기를 눌러주세요.', 'success');
+              render();
+            }
+          }, '⚙ 엑셀 구성대로 설정 업데이트')
+        ));
+      }
+
+      // 시트별 카드
+      const list = el('div', { style: { maxHeight: '420px', overflowY: 'auto' } });
+      maps.forEach(m => {
+        const gradeSelect = el('select', { className: 'select', style: { width: '80px', padding: '4px 6px', fontSize: '12px' } },
           ...GRADES.map(g => el('option', { value: g, selected: g === m.grade }, g))
         );
+        const versionSelect = el('select', { className: 'select', style: { width: '190px', padding: '4px 6px', fontSize: '12px' } });
+
+        function paintVersions() {
+          versionSelect.innerHTML = '';
+          const labels = getVersionsForGrade(m.grade);
+          getVersionKeysForGrade(m.grade).forEach((k, i) => {
+            versionSelect.appendChild(el('option', { value: k, selected: m.versionKey === k }, `V${i + 1} · ${labels[i]}`));
+          });
+          if (!m.versionKey) {
+            versionSelect.appendChild(el('option', { value: '', selected: true },
+              m.newLabel ? `⚠ ${m.newLabel} (설정에 없음)` : '버전 선택'));
+          }
+        }
+        paintVersions();
+        versionSelect.addEventListener('change', e => { m.versionKey = e.target.value || null; });
         gradeSelect.addEventListener('change', e => {
           m.grade = e.target.value;
-          // 학년이 변경되면 버전 옵션 재구성
-          const newKeys = getVersionKeysForGrade(m.grade);
-          // m.version이 새 학년에 유효하지 않으면 첫 번째 키로
-          if (!newKeys.includes(m.version)) m.version = newKeys[0];
-          // 버전 select 옵션 갱신
-          versionSelect.innerHTML = '';
-          buildVersionOptions(m.grade, m.version).forEach(opt => versionSelect.appendChild(opt));
+          m.versionKey = resolveVersionKey(m.grade, m.sheet.versionLabel);
+          paintVersions();
         });
-        
-        const roundSelect = el('select', { className: 'select', style: { padding: '4px 6px', fontSize: '12px' } },
-          ...Array.from({length: ROUNDS}, (_, i) => i + 1).map(r =>
-            el('option', { value: r, selected: r === m.round }, `${r}회`)
-          )
-        );
-        roundSelect.addEventListener('change', e => { m.round = parseInt(e.target.value); });
-        
-        table.appendChild(el('div', {
-          style: {
-            display: 'grid',
-            gridTemplateColumns: cols,
-            gap: '8px',
-            padding: '10px 12px',
-            borderBottom: idx < mappings.length - 1 ? '1px solid var(--line)' : 'none',
-            alignItems: 'center'
+
+        const check = el('input', { type: 'checkbox', checked: m.enabled });
+        check.addEventListener('change', e => { m.enabled = e.target.checked; });
+
+        // 회차 칩
+        const roundChips = el('div', { className: 'filter-chips', style: { marginTop: '10px' } });
+        m.rounds.forEach((r, i) => {
+          const chip = el('button', {
+            className: 'chip active',
+            onClick: () => {
+              r.use = !r.use;
+              chip.className = 'chip' + (r.use ? ' active' : '');
+            }
+          }, (r.round ? r.round + '회' : '회차 미지정') + ' · ' + r.count + '문항');
+          if (!r.round) {
+            // 회차 열이 없는 시트는 직접 지정
+            const sel = el('select', { className: 'select', style: { width: '80px', padding: '4px 6px', fontSize: '12px', marginLeft: '6px' } },
+              ...roundNumbers().map(n => el('option', { value: n, selected: n === (i + 1) }, n + '회'))
+            );
+            sel.addEventListener('change', e => { r.round = parseInt(e.target.value, 10); });
+            r.round = i + 1;
+            roundChips.appendChild(el('div', { className: 'flex gap-8', style: { alignItems: 'center' } }, chip, sel));
+          } else {
+            roundChips.appendChild(chip);
           }
+        });
+
+        list.appendChild(el('div', {
+          style: { padding: '14px 14px', borderBottom: '1px solid var(--line)' }
         },
-          checkbox,
-          el('div', null,
-            el('div', { style: { fontWeight: 700, fontSize: '12.5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, m.sheet.name),
-            el('div', { style: { fontSize: '10.5px', color: 'var(--ink-3)', marginTop: '2px' } },
-              `컬럼: ${Object.keys(m.sheet.colMap).filter(k => m.sheet.colMap[k] != null).length}개 인식`
-            )
+          el('div', { className: 'flex gap-8', style: { alignItems: 'center', flexWrap: 'wrap' } },
+            check,
+            el('div', { style: { fontWeight: 700, fontSize: '13px', flex: '1 1 240px' } }, m.sheet.name),
+            el('div', { className: 'text-sm muted' }, m.sheet.problemCount + '문항'),
+            gradeSelect,
+            versionSelect
           ),
-          el('div', { style: { fontSize: '13px', fontWeight: 700 } }, m.sheet.problemCount + '개'),
-          gradeSelect,
-          roundSelect,
-          versionSelect
+          roundChips
         ));
       });
-      
-      wrap.appendChild(table);
-      
-      // 미리보기 (첫 시트의 첫 3문항)
-      if (sheets[0] && sheets[0].problems.length > 0) {
+      wrap.appendChild(el('div', { style: { border: '1px solid var(--line)', borderRadius: '10px', overflow: 'hidden' } }, list));
+
+      // 미리보기
+      const firstBlock = sheets[0].blocks[0];
+      if (firstBlock) {
         wrap.appendChild(el('div', { className: 'mt-12', style: { padding: '10px 12px', background: 'var(--bg-elevated)', borderRadius: '8px', fontSize: '11.5px' } },
-          el('div', { style: { fontWeight: 700, marginBottom: '6px' } }, '👀 미리보기 (' + sheets[0].name + ' 시트의 첫 3문항):'),
-          ...sheets[0].problems.slice(0, 3).map(p =>
+          el('div', { style: { fontWeight: 700, marginBottom: '6px' } },
+            `👀 미리보기 — ${sheets[0].name}${firstBlock.round ? ' ' + firstBlock.round + '회' : ''}`),
+          ...firstBlock.problems.slice(0, 3).map(p =>
             el('div', { style: { marginBottom: '4px', lineHeight: '1.5' } },
               el('strong', null, `${p.no}번: `),
-              p.unit ? `${p.unit}` : '',
-              p.subUnit ? ` › ${p.subUnit}` : '',
-              p.soUnit ? ` › ${p.soUnit}` : '',
-              p.type ? ` · ${p.type}` : '',
-              p.difficulty ? ` · ${p.difficulty}` : ''
+              p.unit || '', p.subUnit ? ` › ${p.subUnit}` : '', p.soUnit ? ` › ${p.soUnit}` : '',
+              p.type ? ` · ${p.type}` : '', p.difficulty ? ` · ${p.difficulty}` : ''
             )
           )
         ));
       }
-      
-      // 액션
+
       wrap.appendChild(el('div', { className: 'modal-actions' },
         el('button', { className: 'btn btn-ghost', onClick: closeModal }, '취소'),
         el('button', {
           className: 'btn btn-orange',
-          onClick: async () => {
-            const enabled = mappings.filter(m => m.enabled);
-            if (enabled.length === 0) {
-              showToast('적용할 시트를 선택하세요', 'error');
-              return;
+          onClick: () => {
+            const targets = [];
+            for (const m of maps) {
+              if (!m.enabled) continue;
+              if (!m.versionKey && gradeHasVersions(m.grade)) {
+                showToast(`"${m.sheet.name}" 의 버전을 선택하거나 설정에 추가해 주세요`, 'error');
+                return;
+              }
+              m.rounds.forEach((r, i) => {
+                if (!r.use || !r.round) return;
+                targets.push({ grade: m.grade, round: r.round, version: m.versionKey, block: m.sheet.blocks[i], sheetName: m.sheet.name });
+              });
             }
-            
-            // 중복 매핑 검증 (모든 학년이 버전 포함)
+            if (!targets.length) { showToast('적용할 회차를 선택하세요', 'error'); return; }
+
+            // 중복 검사
             const seen = new Set();
-            for (const m of enabled) {
-              const key = m.grade + '|' + m.round + '|' + (m.version || '');
+            for (const t of targets) {
+              const key = t.grade + '|' + t.round + '|' + (t.version || '');
               if (seen.has(key)) {
-                const dup = m.grade + ' ' + m.round + '회' + (m.version ? ' ' + m.version.toUpperCase() : '');
-                showToast(`중복 매핑: ${dup}이 여러 시트에 매핑되어 있습니다`, 'error');
+                showToast(`중복: ${t.grade} ${t.round}회 (${t.version || '-'})가 두 번 매핑되었습니다`, 'error');
                 return;
               }
               seen.add(key);
             }
-            
-            // 적용
+
+            const overRound = targets.filter(t => t.round > ROUNDS);
+            if (overRound.length) {
+              showToast(`설정된 회차(${ROUNDS}회)를 넘는 데이터가 있습니다. [설정 ①]에서 회차 수를 늘려주세요.`, 'error');
+              return;
+            }
+
             let totalApplied = 0;
-            for (const m of enabled) {
-              const grade = m.grade;
-              const round = m.round;
-              const versionLabels = getVersionLabelsForGrade(grade);
-              const pKey = m.version ? ('r' + round + '_' + m.version) : ('r' + round);
-              if (!state.testPapers[grade]) state.testPapers[grade] = {};
-              
-              const problems = m.sheet.problems.map(p => ({ ...p }));
-              
-              const existing = state.testPapers[grade][pKey] || {};
-              
-              state.testPapers[grade][pKey] = {
-                version: m.version || '',
-                versionLabel: m.version ? versionLabels[m.version] : '',
+            targets.forEach(t => {
+              const versionLabels = getVersionLabelsForGrade(t.grade);
+              const pKey = t.version ? ('r' + t.round + '_' + t.version) : ('r' + t.round);
+              if (!state.testPapers[t.grade]) state.testPapers[t.grade] = {};
+              const existing = state.testPapers[t.grade][pKey] || {};
+              const problems = t.block.problems.map(p => ({ ...p }));
+              state.testPapers[t.grade][pKey] = {
+                version: t.version || '',
+                versionLabel: t.version ? versionLabels[t.version] : '',
                 problemCount: problems.length,
-                topic: m.sheet.name,
+                topic: t.sheetName,
                 paperPdf: existing.paperPdf || null,
                 problems: problems,
                 comment: existing.comment || '',
@@ -7775,16 +7842,16 @@ async function openExcelImportModal(file) {
                 uploadedAt: dateStr()
               };
               totalApplied += problems.length;
-            }
-            
+            });
+
             saveState();
             closeModal();
             render();
-            showToast(`✅ ${enabled.length}개 시트 · 총 ${totalApplied}개 문항 가져오기 완료`, 'success');
+            showToast(`✅ ${targets.length}개 회차 · 총 ${totalApplied}개 문항 가져오기 완료`, 'success');
           }
         }, '✅ 가져오기')
       ));
-      
+
       return wrap;
     }
   });
