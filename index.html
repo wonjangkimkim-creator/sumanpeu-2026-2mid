@@ -2278,6 +2278,13 @@ table.dt .btn.btn-orange { background: linear-gradient(180deg, #c9a468, var(--or
 .goal-progress-bar { border-radius: 99px; box-shadow: inset 0 1px 2px rgba(31,27,20,0.06); }
 .goal-progress-fill { border-radius: 99px; }
 
+/* 점수 입력 — 학년 그룹 헤더 */
+.score-group-head {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.score-group-head .sub-title { flex: 0 0 auto; }
+
 /* 점수 입력 — 저장 대기 표시 & 하단 저장 바 */
 .score-row.dirty { background: rgba(181, 146, 79, 0.07); }
 .score-row.dirty:hover { background: rgba(181, 146, 79, 0.11); }
@@ -2454,6 +2461,7 @@ body {
 .card-title { color: var(--navy); }
 .card-title-accent { background: linear-gradient(180deg, var(--gold-2), var(--gold-3)); }
 .chip.active { background: var(--navy); border-color: var(--navy); }
+.btn { white-space: nowrap; }
 .btn:not(.btn-ghost):not(.btn-orange):not(.btn-danger) { background: var(--navy-2); }
 .btn:not(.btn-ghost):not(.btn-orange):not(.btn-danger):hover { background: var(--navy); }
 .btn-orange {
@@ -3128,7 +3136,9 @@ function parseErrors(str) {
   return String(str).split(/[,\s]+/).map(s => s.trim()).filter(s => /^\d+$/.test(s)).map(Number);
 }
 
-function commonWrongs(grade, round, top) {
+// 같은 회차라도 학생마다 응시한 시험지 버전이 다를 수 있으므로
+// version을 넘기면 그 버전 응시자만 집계한다 (문항 번호가 버전마다 다른 문제이기 때문)
+function commonWrongs(grade, round, top, version) {
   top = top || 5;
   const ids = state.students.filter(s => s.grade === grade).map(s => s.id);
   const counter = {};
@@ -3136,10 +3146,34 @@ function commonWrongs(grade, round, top) {
   ids.forEach(id => {
     const rd = getRoundData(id, round);
     if (!rd || isAbsent(rd) || !rd.errors) return;
+    if (version !== undefined && (rd.version || '') !== version) return;
     total++;
     parseErrors(rd.errors).forEach(e => { counter[e] = (counter[e] || 0) + 1; });
   });
   return { entries: Object.entries(counter).sort((a,b) => b[1] - a[1]).slice(0, top), total };
+}
+
+// 해당 회차에 실제로 응시 기록이 있는 버전 목록 (많이 응시한 순)
+function versionsUsedInRound(grade, round) {
+  const counts = {};
+  state.students.filter(s => s.grade === grade).forEach(s => {
+    const rd = getRoundData(s.id, round);
+    if (!rd || isAbsent(rd) || (rd.score == null || rd.score === '')) return;
+    const v = rd.version || '';
+    counts[v] = (counts[v] || 0) + 1;
+  });
+  return Object.keys(counts)
+    .map(v => ({ label: v, count: counts[v] }))
+    .sort((a, b) => b.count - a.count);
+}
+
+// 문항 번호 → 단원명 (해당 버전 시험지 기준)
+function problemUnitLabel(grade, round, versionLabel, no) {
+  const paper = getPaperForStudent(grade, round, versionLabel);
+  if (!paper || !paper.problems) return '';
+  const p = paper.problems[no - 1];
+  if (!p) return '';
+  return p.subUnit || p.unit || '';
 }
 
 // ============================================================
@@ -4451,12 +4485,18 @@ function renderStudents() {
   wrap.appendChild(el('div', { className: 'page-header flex-between flex-wrap', style: { gap: '12px' } },
     el('div', null,
       el('div', { className: 'page-title' }, '학생 관리'),
-      el('div', { className: 'page-subtitle' }, '학생 명단, 사전 입력 (전학기 점수 · 목표 점수)')
+      el('div', { className: 'page-subtitle' }, (function () {
+        const all = state.students.filter(s => GRADES.includes(s.grade));
+        const done = all.filter(s => ['prevScore','studentGoal','teacherPossible','teacherGoal']
+          .every(k => String(s[k] || '').trim() !== '')).length;
+        const pct = all.length ? Math.round(done / all.length * 100) : 0;
+        return `학생 ${all.length}명 · 사전 입력(전학기 · 목표 점수) ${done}명 완료 (${pct}%)`;
+      })())
     ),
     el('div', { className: 'flex gap-8' },
       el('button', { className: 'btn btn-orange', onClick: () => openStudentModal(null) }, '+ 신규 학생'),
       el('button', { className: 'btn btn-ghost', onClick: openBulkImportModal }, '⬆ 일괄 가져오기'),
-      el('button', { className: 'btn btn-ghost', onClick: openPreInputModal }, '📝 사전 입력 일괄')
+      el('button', { className: 'btn btn-ghost', onClick: openPreInputModal }, '📝 사전 입력 (전학기 · 목표)')
     )
   ));
 
@@ -4560,7 +4600,6 @@ function openStudentModal(studentId) {
     { key: 'school', label: '학교', type: 'text' },
     { key: 'grade', label: '학년', type: 'select', options: GRADES },
     { key: 'teacher', label: '담당 선생님', type: 'text', placeholder: '예: 이영운T' },
-    { key: 'version', label: '기본 응시 버전', type: 'select', options: [''].concat(getVersionsForGrade(s.grade || GRADES[0])) },
     { divider: '사전 입력 (선택)' },
     { key: 'prevScore', label: '전학기 점수', type: 'text', placeholder: '0~100 또는 X (해당없음)' },
     { key: 'studentGoal', label: '학생 목표 점수', type: 'number', placeholder: '0~100' },
@@ -4630,7 +4669,6 @@ function openBulkImportModal() {
     studentGoal: ['학생목표', '목표점수', '학생목표점수', 'studentgoal'],
     teacherGoal: ['선생님목표', '교사목표', '선생님목표점수', 'teachergoal'],
     teacherPossible: ['가능점수', '예상점수', '선생님가능점수', 'teacherpossible'],
-    version: ['버전', '응시버전', '시험지', 'version']
   };
   function normKey(h) { return String(h == null ? '' : h).replace(/\s|·|\(|\)|\.|_/g, '').toLowerCase(); }
   function mapHeaders(headers) {
@@ -4656,6 +4694,7 @@ function openBulkImportModal() {
 
   let rows = null;      // [{grade,name,...}]
   let sourceName = '';
+  const opts = { updateExisting: true };
   const preview = el('div', { className: 'text-sm', style: { marginTop: '12px' } });
   const ta = el('textarea', { className: 'textarea', rows: 7, placeholder: '학년,학생명,학교,선생님,전학기점수,학생목표,선생님목표,가능점수\n중1,홍길동,서울중,이영운T,82,95,90,88' });
 
@@ -4674,7 +4713,6 @@ function openBulkImportModal() {
         name: name, school: get('school'), teacher: get('teacher'),
         prevScore: get('prevScore'), studentGoal: get('studentGoal'),
         teacherGoal: get('teacherGoal'), teacherPossible: get('teacherPossible'),
-        version: get('version')
       });
     }
     return out;
@@ -4751,9 +4789,13 @@ function openBulkImportModal() {
       el('div', { className: 'notice' },
         el('strong', null, '엑셀 업로드'), ' — 첫 줄이 열 제목인 .xlsx / .xls / .csv 파일을 올리세요. 여러 시트도 함께 읽습니다.',
         el('br'),
-        el('strong', null, '인식하는 열'), ' 학년 · 이름(학생명) · 학교 · 선생님 · 전학기점수 · 학생목표 · 선생님목표 · 가능점수 · 버전 (순서 무관, 없는 열은 비워둠)'
+        el('strong', null, '인식하는 열'), ' 학년 · 이름(학생명) · 학교 · 선생님 · 전학기점수 · 학생목표 · 선생님목표 · 가능점수 (순서 무관, 없는 열은 비워둠)'
       ),
       fileInput,
+      el('label', { className: 'flex gap-8', style: { alignItems: 'center', marginTop: '12px' } },
+        el('input', { type: 'checkbox', checked: true, onChange: e => { opts.updateExisting = e.target.checked; } }),
+        el('span', { className: 'text-sm' }, '이미 등록된 학생은 건너뛰지 않고 정보 갱신 (전학기 점수 · 목표 점수 채우기)')
+      ),
       el('div', { className: 'text-sm', style: { margin: '14px 0 6px', fontWeight: 700 } }, '또는 직접 붙여넣기 (CSV)'),
       ta,
       preview,
@@ -4761,14 +4803,24 @@ function openBulkImportModal() {
         el('button', { className: 'btn btn-ghost', onClick: closeModal }, '취소'),
         el('button', { className: 'btn btn-orange', onClick: () => {
           if (!rows || !rows.length) { showToast('가져올 학생이 없습니다.', 'error'); return; }
-          let added = 0, skipped = 0, dup = 0;
+          let added = 0, skipped = 0, dup = 0, updated = 0;
           rows.forEach(r => {
             if (!GRADES.includes(r.grade) || !r.name) { skipped++; return; }
-            if (state.students.some(s => s.name === r.name && s.grade === r.grade && (s.school || '') === (r.school || ''))) { dup++; return; }
+            const exist = state.students.find(s => s.name === r.name && s.grade === r.grade && (s.school || '') === (r.school || ''));
+            if (exist) {
+              if (opts.updateExisting) {
+                let changed = false;
+                ['teacher', 'prevScore', 'studentGoal', 'teacherGoal', 'teacherPossible'].forEach(k => {
+                  const v = String(r[k] == null ? '' : r[k]).trim();
+                  if (v && exist[k] !== v) { exist[k] = v; changed = true; }
+                });
+                if (changed) updated++; else dup++;
+              } else dup++;
+              return;
+            }
             state.students.push({
               id: 'stu_' + Date.now() + '_' + (added++),
               name: r.name, school: r.school || '', grade: r.grade, teacher: r.teacher || '',
-              version: r.version || '',
               prevScore: r.prevScore || '', studentGoal: r.studentGoal || '',
               teacherGoal: r.teacherGoal || '', teacherPossible: r.teacherPossible || ''
             });
@@ -4776,7 +4828,7 @@ function openBulkImportModal() {
           saveState();
           closeModal();
           render();
-          showToast(added + '명 추가 · 중복 ' + dup + '명 · 제외 ' + skipped + '명', 'success');
+          showToast(added + '명 추가 · ' + updated + '명 정보 갱신 · 변화 없음 ' + dup + '명 · 제외 ' + skipped + '명', 'success');
         }}, '가져오기')
       )
     )
@@ -4784,98 +4836,192 @@ function openBulkImportModal() {
 }
 
 function openPreInputModal() {
-  // 학년/선생님으로 필터된 학생들의 사전 입력값을 한꺼번에 입력
+  // 학년/선생님으로 걸러 사전 입력값(전학기 · 목표 점수)을 표에서 바로 입력
+  if (!ui.preInputFilter) ui.preInputFilter = { grade: 'all', teacher: 'all', onlyEmpty: false };
+  const f = ui.preInputFilter;
+  const draft = {};                     // sid → { prevScore, studentGoal, teacherPossible, teacherGoal }
+  const FIELDS = ['prevScore', 'studentGoal', 'teacherPossible', 'teacherGoal'];
+
+  function valueOf(s, k) {
+    return (draft[s.id] && draft[s.id][k] != null) ? draft[s.id][k] : (s[k] || '');
+  }
+  function isDone(s) {
+    return FIELDS.every(k => String(valueOf(s, k)).trim() !== '');
+  }
+  function dirtyCount() {
+    return Object.keys(draft).filter(sid => {
+      const s = getStudent(sid); if (!s) return false;
+      return FIELDS.some(k => draft[sid][k] != null && String(draft[sid][k]) !== String(s[k] || ''));
+    }).length;
+  }
+
   openModal({
-    title: '📝 사전 입력 일괄 편집',
+    title: '📝 사전 입력 — 전학기 점수 · 목표 점수',
     size: 'lg',
     body: () => {
       const gradeFilter = el('select', { className: 'select', style: { width: '110px' } },
-        el('option', { value: 'all' }, '전체'),
-        ...GRADES.map(g => el('option', { value: g }, g))
+        el('option', { value: 'all', selected: f.grade === 'all' }, '전체 학년'),
+        ...GRADES.map(g => el('option', { value: g, selected: f.grade === g }, g))
       );
-      const teacherFilter = el('select', { className: 'select', style: { width: '140px' } },
-        el('option', { value: 'all' }, '전체 선생님'),
-        ...getAllTeachers().map(t => el('option', { value: t }, t))
+      const teacherFilter = el('select', { className: 'select', style: { width: '150px' } },
+        el('option', { value: 'all', selected: f.teacher === 'all' }, '전체 선생님'),
+        ...getAllTeachers().map(t => el('option', { value: t, selected: f.teacher === t }, t))
       );
-      const list = el('div', { className: 'mt-12', style: { maxHeight: '450px', overflowY: 'auto' } });
-      const inputs = new Map();
+      const onlyEmpty = el('input', { type: 'checkbox', checked: f.onlyEmpty });
+      const progress = el('div', { className: 'text-sm', style: { fontWeight: 700 } });
+      const bar = el('div', { className: 'goal-progress-bar', style: { height: '6px', margin: '8px 0 4px' } });
+      const barFill = el('div', { className: 'goal-progress-fill', style: { height: '100%', width: '0%', background: 'linear-gradient(90deg, var(--gold-2), var(--gold))' } });
+      bar.appendChild(barFill);
+      const list = el('div', { className: 'mt-12', style: { maxHeight: '430px', overflowY: 'auto' } });
+      const saveInfo = el('div', { className: 'text-sm', style: { marginRight: 'auto', color: 'var(--ink-3)' } });
+      const GRID = '38px 1fr 92px 78px 78px 78px 78px';
+
+      function scope() {
+        return state.students.filter(s => {
+          if (!GRADES.includes(s.grade)) return false;
+          if (f.grade !== 'all' && s.grade !== f.grade) return false;
+          if (f.teacher !== 'all' && s.teacher !== f.teacher) return false;
+          return true;
+        });
+      }
+
+      function paintProgress() {
+        const all = scope();
+        const done = all.filter(isDone).length;
+        const pct = all.length ? Math.round(done / all.length * 100) : 0;
+        progress.textContent = `${all.length}명 중 ${done}명 입력 완료 (${pct}%)`;
+        barFill.style.width = pct + '%';
+        const d = dirtyCount();
+        saveInfo.textContent = d ? `저장되지 않은 변경 ${d}명` : '변경 사항 없음';
+        saveInfo.style.color = d ? 'var(--gold-3)' : 'var(--ink-mute)';
+      }
 
       function renderList() {
         list.innerHTML = '';
-        const filtered = state.students.filter(s => {
-          if (!GRADES.includes(s.grade)) return false;
-          if (gradeFilter.value !== 'all' && s.grade !== gradeFilter.value) return false;
-          if (teacherFilter.value !== 'all' && s.teacher !== teacherFilter.value) return false;
-          return true;
-        });
+        let rows = scope();
+        if (f.onlyEmpty) rows = rows.filter(s => !isDone(s));
 
-        const header = el('div', { style: { display: 'grid', gridTemplateColumns: '40px 1fr 90px 70px 70px 70px 70px', gap: '8px', padding: '8px 12px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius)', fontSize: '11.5px', fontWeight: 700, color: 'var(--ink-3)', textTransform: 'uppercase', letterSpacing: '0.5px' } },
+        list.appendChild(el('div', {
+          style: { display: 'grid', gridTemplateColumns: GRID, gap: '8px', padding: '9px 12px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius)', fontSize: '11px', fontWeight: 700, color: 'var(--ink-mute)', letterSpacing: '0.6px', position: 'sticky', top: '0', zIndex: '2' }
+        },
           el('div', null, '학년'), el('div', null, '학생'), el('div', null, '선생님'),
           el('div', null, '전학기'), el('div', null, '학생목표'), el('div', null, '강사가능'), el('div', null, '강사목표')
-        );
-        list.appendChild(header);
+        ));
 
-        filtered.forEach(s => {
-          const ps = el('input', { className: 'input', type: 'text', value: s.prevScore || '', style: { padding: '5px 8px', fontSize: '12.5px' } });
-          const sg = el('input', { className: 'input', type: 'number', value: s.studentGoal || '', style: { padding: '5px 8px', fontSize: '12.5px' } });
-          const tp = el('input', { className: 'input', type: 'number', value: s.teacherPossible || '', style: { padding: '5px 8px', fontSize: '12.5px' } });
-          const tg = el('input', { className: 'input', type: 'number', value: s.teacherGoal || '', style: { padding: '5px 8px', fontSize: '12.5px' } });
-          inputs.set(s.id, { prevScore: ps, studentGoal: sg, teacherPossible: tp, teacherGoal: tg });
+        if (!rows.length) {
+          list.appendChild(el('div', { className: 'empty muted', style: { padding: '30px' } },
+            f.onlyEmpty ? '이 조건의 학생은 모두 입력이 끝났습니다 ✓' : '해당 조건의 학생이 없습니다'));
+          return;
+        }
+
+        rows.forEach(s => {
+          const cells = FIELDS.map((k, ci) => {
+            const inp = el('input', {
+              className: 'input pre-input-cell',
+              type: 'text',
+              inputMode: 'numeric',
+              value: valueOf(s, k),
+              placeholder: k === 'prevScore' ? '0~100 / X' : '0~100',
+              style: { padding: '5px 8px', fontSize: '12.5px', textAlign: 'center' }
+            });
+            inp.dataset.col = String(ci);
+            inp.addEventListener('input', e => {
+              draft[s.id] = draft[s.id] || {};
+              draft[s.id][k] = e.target.value;
+              paintProgress();
+            });
+            // Enter → 같은 열 아래 학생으로 이동 (세로로 죽 입력)
+            inp.addEventListener('keydown', e => {
+              if (e.key !== 'Enter') return;
+              e.preventDefault();
+              const same = Array.from(list.querySelectorAll(`.pre-input-cell[data-col="${ci}"]`));
+              const i = same.indexOf(e.target);
+              if (i >= 0 && same[i + 1]) { same[i + 1].focus(); same[i + 1].select(); }
+              else e.target.blur();
+            });
+            return inp;
+          });
 
           list.appendChild(el('div', {
-            style: { display: 'grid', gridTemplateColumns: '40px 1fr 90px 70px 70px 70px 70px', gap: '8px', padding: '6px 12px', borderBottom: '1px solid var(--line)', alignItems: 'center' }
+            style: { display: 'grid', gridTemplateColumns: GRID, gap: '8px', padding: '6px 12px', borderBottom: '1px solid var(--line)', alignItems: 'center' }
           },
             el('span', { className: 'badge badge-grade-' + s.grade }, s.grade),
-            el('div', { style: { fontWeight: 600 } }, s.name, el('div', { className: 'text-sm muted' }, s.school || '')),
+            el('div', null,
+              el('div', { style: { fontWeight: 600 } }, s.name),
+              el('div', { className: 'text-sm muted' }, s.school || '')),
             el('div', { className: 'text-sm' }, s.teacher || '—'),
-            ps, sg, tp, tg
+            ...cells
           ));
         });
-        if (filtered.length === 0) list.appendChild(el('div', { className: 'empty muted' }, '해당 조건의 학생이 없습니다'));
       }
 
-      gradeFilter.addEventListener('change', renderList);
-      teacherFilter.addEventListener('change', renderList);
-      renderList();
+      function applyDraft() {
+        let updated = 0;
+        Object.keys(draft).forEach(sid => {
+          const s = getStudent(sid); if (!s) return;
+          let changed = false;
+          FIELDS.forEach(k => {
+            if (draft[sid][k] == null) return;
+            const v = String(draft[sid][k]).trim();
+            if (String(s[k] || '') !== v) { s[k] = v; changed = true; }
+          });
+          if (changed) updated++;
+        });
+        Object.keys(draft).forEach(k => delete draft[k]);
+        saveState();
+        return updated;
+      }
+
+      gradeFilter.addEventListener('change', e => { f.grade = e.target.value; renderList(); paintProgress(); });
+      teacherFilter.addEventListener('change', e => { f.teacher = e.target.value; renderList(); paintProgress(); });
+      onlyEmpty.addEventListener('change', e => { f.onlyEmpty = e.target.checked; renderList(); paintProgress(); });
+
+      renderList(); paintProgress();
 
       return el('div', null,
-        el('div', { className: 'flex gap-12 mb-12' },
-          el('div', { className: 'flex gap-8 flex-wrap' }, el('span', { className: 'filter-label' }, '필터'), gradeFilter, teacherFilter)
+        el('div', { className: 'notice mb-12', style: { fontSize: '12px' } },
+          el('strong', null, '입력 방법'), ' 선생님 이름으로 걸러 담당 학생만 보시면 편합니다. 숫자를 넣고 ',
+          el('strong', null, 'Enter'), ' 를 누르면 같은 칸의 다음 학생으로 내려갑니다. 전학기 점수가 없으면 ',
+          el('strong', null, 'X'), ' 를 넣으세요. 필터를 바꿔도 입력한 값은 유지되며, ',
+          el('strong', null, '저장'), ' 을 눌러야 반영됩니다.'
         ),
+        el('div', { className: 'flex gap-8 flex-wrap', style: { alignItems: 'center' } },
+          el('span', { className: 'filter-label' }, '필터'), gradeFilter, teacherFilter,
+          el('label', { className: 'flex gap-8', style: { alignItems: 'center', marginLeft: '6px' } },
+            onlyEmpty, el('span', { className: 'text-sm' }, '미입력 학생만 보기')),
+          el('div', { style: { marginLeft: 'auto' } }, progress)
+        ),
+        bar,
         list,
-        el('div', { className: 'modal-actions' },
-          el('button', { className: 'btn btn-ghost', onClick: closeModal }, '취소'),
-          el('button', { className: 'btn btn-orange', onClick: () => {
-            let updated = 0;
-            inputs.forEach((fields, sid) => {
-              const s = getStudent(sid);
-              if (!s) return;
-              let changed = false;
-              Object.keys(fields).forEach(k => {
-                if (s[k] !== fields[k].value) { s[k] = fields[k].value; changed = true; }
-              });
-              if (changed) updated++;
-            });
-            saveState();
-            closeModal();
-            render();
-            showToast(`${updated}명 사전 입력 저장`);
-          }}, '💾 일괄 저장')
+        el('div', { className: 'modal-actions', style: { alignItems: 'center' } },
+          saveInfo,
+          el('button', {
+            className: 'btn btn-ghost',
+            onClick: () => {
+              if (dirtyCount() > 0) {
+                confirmDialog('저장하지 않은 입력이 있습니다. 저장하지 않고 닫을까요?', () => { closeModal(); });
+              } else closeModal();
+            }
+          }, '닫기'),
+          el('button', {
+            className: 'btn btn-orange',
+            onClick: () => {
+              const n = applyDraft();
+              renderList(); paintProgress();
+              showToast(n + '명 저장 완료 ✓', 'success');
+            }
+          }, '💾 저장하고 계속')
         )
       );
     }
   });
 }
 
-
-// ============================================================
-// 점수 입력
-// ============================================================
 function renderScores() {
   const wrap = el('div');
   wrap.appendChild(el('div', { className: 'page-header' },
     el('div', { className: 'page-title' }, '점수 입력'),
-    el('div', { className: 'page-subtitle' }, '회차별로 점수와 오답 문항을 입력한 뒤 아래 [저장] 버튼을 누르세요. 입력 중에는 화면이 바뀌지 않습니다.')
+    el('div', { className: 'page-subtitle' }, '회차별로 점수 · 버전 · 오답 문항을 입력한 뒤 아래 [저장] 버튼을 누르세요. 버전이 여러 개인 학년은 학년 제목 옆에서 회차별로 일괄 지정할 수 있습니다.')
   ));
 
   wrap.appendChild(renderQuoteCard());
@@ -4938,7 +5084,7 @@ function renderScores() {
   GRADES.forEach(g => {
     if (!groups[g]) return;
     wrap.appendChild(el('div', { className: 'sub-section mt-18' },
-      el('div', { className: 'sub-title' }, `${g}  ·  ${groups[g].length}명`),
+      renderScoreGroupHeader(g, groups[g], ui.scoreFilters.round),
       renderScoreTable(groups[g], ui.scoreFilters.round)
     ));
   });
@@ -4946,6 +5092,54 @@ function renderScores() {
   wrap.appendChild(renderScoreSaveBar());
   setTimeout(updateSaveBar, 0);
   return wrap;
+}
+
+// 학년 그룹 헤더 — 이 회차의 버전을 한 번에 지정
+function renderScoreGroupHeader(grade, students, round) {
+  const versions = getVersionsForGrade(grade);
+  const noVersion = students.filter(s => {
+    const rd = mergedRoundData(s.id, round);
+    const hasScore = (rd.score != null && rd.score !== '') || isAbsent(rd);
+    return hasScore && !rd.version;
+  }).length;
+
+  const head = el('div', { className: 'score-group-head' },
+    el('div', { className: 'sub-title', style: { margin: '0' } }, `${grade}  ·  ${students.length}명`),
+    noVersion > 0
+      ? el('span', { className: 'badge badge-warning' }, `버전 미선택 ${noVersion}명`)
+      : null
+  );
+
+  if (versions.length > 1) {
+    const sel = el('select', { className: 'select', style: { minWidth: '200px', maxWidth: '320px' } },
+      el('option', { value: '' }, `${round}회 버전 일괄 지정...`),
+      ...versions.map(v => el('option', { value: v }, v))
+    );
+    const apply = el('button', {
+      className: 'btn btn-sm btn-ghost',
+      onClick: () => {
+        if (!sel.value) { showToast('지정할 버전을 선택하세요', 'error'); return; }
+        students.forEach(s => setDraft(s.id, round, { version: sel.value }));
+        render();
+        showToast(`${grade} ${students.length}명 · ${round}회 버전을 「${sel.value}」로 지정했습니다. 저장을 눌러주세요.`);
+      }
+    }, '적용');
+    const applyEmpty = el('button', {
+      className: 'btn btn-sm btn-ghost',
+      onClick: () => {
+        if (!sel.value) { showToast('지정할 버전을 선택하세요', 'error'); return; }
+        let n = 0;
+        students.forEach(s => {
+          if (!mergedRoundData(s.id, round).version) { setDraft(s.id, round, { version: sel.value }); n++; }
+        });
+        render();
+        showToast(`미선택 ${n}명만 「${sel.value}」로 지정했습니다. 저장을 눌러주세요.`);
+      }
+    }, '빈 칸만');
+    head.appendChild(el('div', { className: 'flex gap-8', style: { marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' } },
+      sel, apply, applyEmpty));
+  }
+  return head;
 }
 
 // 하단 고정 저장 바
@@ -5080,9 +5274,9 @@ function renderScoreTable(students, round) {
       }
     }, absent ? '✓ 결시' : '결시');
 
-    // 학년별 버전 옵션 (학생 기본 버전 → 회차 버전 미지정 시 자동 적용)
+    // 학년별 버전 옵션 (회차마다 선생님이 직접 선택)
     const versions = getVersionsForGrade(s.grade);
-    const curVersion = rd.version || (versions.includes(s.version) ? s.version : '');
+    const curVersion = rd.version || '';
     const versionSelect = el('select', {
       className: 'version-select',
       value: curVersion,
@@ -5422,34 +5616,51 @@ function renderWrongsTab() {
           el('thead', null,
             el('tr', null,
               el('th', null, '회차'),
+              el('th', null, '시험지 버전'),
               el('th', null, '응시 인원'),
-              el('th', null, '공통 오답 (문항번호 · 빈도)')
+              el('th', null, '공통 오답 (문항번호 · 빈도 · 단원)')
             )
           ),
           el('tbody', null,
-            ...roundNumbers().map(r => {
-              const { entries, total } = commonWrongs(g, r, 5);
-              return el('tr', null,
-                el('td', null, r + '회'),
-                el('td', { className: 'num muted' }, total ? total + '명' : '—'),
-                el('td', null,
-                  entries.length === 0 ?
-                    el('span', { className: 'muted' }, '—') :
-                    el('div', { className: 'flex gap-8 flex-wrap' },
-                      ...entries.map(([num, cnt]) => {
-                        const ratio = cnt / total;
-                        return el('span', {
-                          className: 'badge',
-                          style: {
-                            background: ratio > 0.5 ? 'var(--red-soft)' : ratio > 0.3 ? 'var(--orange-soft)' : 'var(--bg-elevated)',
-                            color: ratio > 0.5 ? 'var(--red)' : ratio > 0.3 ? 'var(--orange-deep)' : 'var(--ink-3)',
-                            padding: '4px 10px', fontSize: '12px'
-                          }
-                        }, `${num}번 · ${cnt}/${total}명 (${Math.round(ratio*100)}%)`);
-                      })
-                    )
-                )
-              );
+            ...roundNumbers().flatMap(r => {
+              const used = versionsUsedInRound(g, r);
+              if (!used.length) {
+                return [el('tr', null,
+                  el('td', null, r + '회'),
+                  el('td', { className: 'muted' }, '—'),
+                  el('td', { className: 'num muted' }, '—'),
+                  el('td', { className: 'muted' }, '—')
+                )];
+              }
+              return used.map((v, vi) => {
+                const { entries, total } = commonWrongs(g, r, 5, v.label);
+                return el('tr', null,
+                  el('td', null, vi === 0 ? r + '회' : ''),
+                  el('td', null, v.label
+                    ? el('span', { className: 'badge badge-orange' }, v.label)
+                    : el('span', { className: 'badge badge-warning' }, '버전 미선택')),
+                  el('td', { className: 'num muted' }, total ? total + '명' : '—'),
+                  el('td', null,
+                    entries.length === 0 ?
+                      el('span', { className: 'muted' }, '—') :
+                      el('div', { className: 'flex gap-8 flex-wrap' },
+                        ...entries.map(([num, cnt]) => {
+                          const ratio = cnt / total;
+                          const unit = problemUnitLabel(g, r, v.label, Number(num));
+                          return el('span', {
+                            className: 'badge',
+                            title: unit || '',
+                            style: {
+                              background: ratio > 0.5 ? 'var(--red-soft)' : ratio > 0.3 ? 'var(--orange-soft)' : 'var(--bg-elevated)',
+                              color: ratio > 0.5 ? 'var(--red)' : ratio > 0.3 ? 'var(--orange-deep)' : 'var(--ink-3)',
+                              padding: '4px 10px', fontSize: '12px'
+                            }
+                          }, `${num}번 · ${cnt}/${total}명 (${Math.round(ratio*100)}%)` + (unit ? ' · ' + unit : ''));
+                        })
+                      )
+                  )
+                );
+              });
             })
           )
         )
@@ -5808,11 +6019,13 @@ function renderTeacherGradeComment(teacher, grade, students) {
   if (upMovers.length > 0) lines.push(`📈 상승 학생: ${upMovers.map(m => `${m.name} (+${m.diff.toFixed(1)})`).join(', ')}`);
   if (downMovers.length > 0) lines.push(`📉 하락 학생: ${downMovers.map(m => `${m.name} (${m.diff.toFixed(1)})`).join(', ')} — 추가 점검 권장`);
 
-  // 공통 오답 TOP 3 (1회 기준)
-  const w1 = commonWrongs(grade, 1, 3);
-  if (w1.entries.length > 0) {
-    lines.push(`🔴 1회 공통 오답 TOP3: ${w1.entries.map(([n,c]) => `${n}번(${c}/${w1.total}명)`).join(', ')}`);
-  }
+  // 공통 오답 TOP 3 (1회 기준) — 버전별로 나눠서 표시
+  versionsUsedInRound(grade, 1).forEach(v => {
+    const w1 = commonWrongs(grade, 1, 3, v.label);
+    if (!w1.entries.length) return;
+    const tag = v.label ? ` [${v.label}]` : ' [버전 미선택]';
+    lines.push(`🔴 1회 공통 오답 TOP3${tag}: ${w1.entries.map(([n,c]) => `${n}번(${c}/${w1.total}명)`).join(', ')}`);
+  });
 
   // 종합 코멘트
   const overallAvg = avg(tAvgs);
