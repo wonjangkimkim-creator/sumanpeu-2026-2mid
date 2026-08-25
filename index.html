@@ -76,11 +76,11 @@
   --line-2: #d8cdb3;
   --line-strong: #b8a87a;
 
-  --orange: #e88836;
-  --orange-deep: #d47020;
-  --orange-light: #f7b87a;
-  --orange-soft: #fde6cf;
-  --orange-bg: #fbf4e9;
+  --orange: #b5924f;
+  --orange-deep: #8c6c33;
+  --orange-light: #d9bd82;
+  --orange-soft: #f2e7d1;
+  --orange-bg: #faf6ea;
 
   --navy: #0f2742;
   --navy-2: #1e3a5f;
@@ -130,7 +130,7 @@ body {
 }
 body {
   background-image:
-    radial-gradient(1200px 500px at 0% -10%, rgba(232,136,54,0.05), transparent 60%),
+    radial-gradient(1200px 500px at 0% -10%, rgba(181,146,79,0.05), transparent 60%),
     radial-gradient(900px 600px at 100% 0%, rgba(15,39,66,0.03), transparent 60%);
   background-attachment: fixed;
 }
@@ -418,7 +418,7 @@ input, select, textarea { font-family: inherit; }
 .input:focus, .select:focus, .textarea:focus {
   outline: none;
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(232,136,54,0.15);
+  box-shadow: 0 0 0 3px rgba(181,146,79,0.15);
 }
 .textarea { resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.6; }
 .input[type="number"] { font-family: 'JetBrains Mono', monospace; }
@@ -683,7 +683,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   font-size: 12px;
   color: var(--ink-2);
   padding: 6px 10px;
-  background: rgba(232, 136, 54, 0.06);
+  background: rgba(181, 146, 79, 0.06);
   border-radius: 6px;
   border-left: 2px solid var(--orange);
   line-height: 1.55;
@@ -692,9 +692,9 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 
 /* === 공통 약점 단원 박스 === */
 .weak-units-box {
-  background: rgba(232, 136, 54, 0.05);
-  border: 1px solid rgba(232, 136, 54, 0.22);
-  border-left: 5px solid #d47020;
+  background: rgba(181, 146, 79, 0.05);
+  border: 1px solid rgba(181, 146, 79, 0.22);
+  border-left: 5px solid #8c6c33;
   border-radius: 12px;
   padding: 16px 18px;
 }
@@ -704,7 +704,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   gap: 10px;
   margin-bottom: 14px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(232, 136, 54, 0.18);
+  border-bottom: 1px solid rgba(181, 146, 79, 0.18);
 }
 .weak-units-title {
   font-family: 'Noto Serif KR', serif;
@@ -804,7 +804,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   font-weight: 600;
   text-align: center;
 }
-.score-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(232,136,54,0.15); }
+.score-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 2px rgba(181,146,79,0.15); }
 .score-input.absent { background: var(--red-soft); border-color: var(--red); color: var(--red); }
 .errors-input {
   width: 100%;
@@ -934,7 +934,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   line-height: 1.65;
 }
 .notice strong { color: var(--navy); font-weight: 800; }
-.notice-warn { background: var(--orange-soft); border-color: rgba(232,136,54,0.35); color: var(--ink-2); }
+.notice-warn { background: var(--orange-soft); border-color: rgba(181,146,79,0.35); color: var(--ink-2); }
 .notice-warn strong { color: var(--orange-deep); }
 .notice-success { background: var(--green-soft); border-color: rgba(21,128,61,0.25); color: var(--ink-2); }
 .notice-success strong { color: var(--green); }
@@ -945,7 +945,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 .report-page {
   background: var(--bg);
   min-height: 100vh;
-  background-image: radial-gradient(1200px 600px at 50% -20%, rgba(232,136,54,0.06), transparent 60%);
+  background-image: radial-gradient(1200px 600px at 50% -20%, rgba(181,146,79,0.06), transparent 60%);
 }
 .report-topbar {
   background: rgba(255,255,255,0.92);
@@ -992,7 +992,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   position: absolute;
   top: -120px; right: -80px;
   width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(232,136,54,0.25), transparent 65%);
+  background: radial-gradient(circle, rgba(181,146,79,0.25), transparent 65%);
   pointer-events: none;
 }
 .report-hero::after {
@@ -1000,14 +1000,14 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   position: absolute;
   bottom: -100px; left: -60px;
   width: 280px; height: 280px;
-  background: radial-gradient(circle, rgba(232,136,54,0.15), transparent 70%);
+  background: radial-gradient(circle, rgba(181,146,79,0.15), transparent 70%);
   pointer-events: none;
 }
 .report-hero-tag {
   display: inline-block;
   padding: 5px 13px;
-  background: rgba(232,136,54,0.2);
-  border: 1px solid rgba(232,136,54,0.4);
+  background: rgba(181,146,79,0.2);
+  border: 1px solid rgba(181,146,79,0.4);
   border-radius: 20px;
   font-size: 11.5px;
   font-weight: 700;
@@ -1056,7 +1056,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   font-size: 24px;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(232,136,54,0.4);
+  box-shadow: 0 4px 14px rgba(181,146,79,0.4);
 }
 .report-hero-meta { flex: 1; min-width: 0; }
 .report-hero-meta-name {
@@ -1347,7 +1347,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 }
 .wrong-unit-row:hover {
   border-left-color: var(--orange-deep);
-  box-shadow: 0 2px 8px rgba(232, 136, 54, 0.08);
+  box-shadow: 0 2px 8px rgba(181, 146, 79, 0.08);
 }
 .wrong-unit-info {
   flex: 1;
@@ -1381,7 +1381,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   background: var(--orange-bg);
   color: var(--orange-deep);
   border-radius: 5px;
-  border: 1px solid rgba(232, 136, 54, 0.18);
+  border: 1px solid rgba(181, 146, 79, 0.18);
 }
 .wrong-unit-diff {
   font-size: 14px;
@@ -1463,7 +1463,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 .pq-tag-diff {
   background: var(--orange-soft);
   color: var(--orange-deep);
-  border: 1px solid rgba(212, 112, 32, 0.18);
+  border: 1px solid rgba(140, 108, 51, 0.18);
 }
 .pq-tag-geom {
   background: rgba(99, 102, 241, 0.10);
@@ -1491,7 +1491,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   font-style: italic;
   margin-top: 10px;
   padding: 8px 12px;
-  background: rgba(232, 136, 54, 0.06);
+  background: rgba(181, 146, 79, 0.06);
   border-left: 2px solid var(--orange-light);
   border-radius: 0 6px 6px 0;
   line-height: 1.55;
@@ -1544,8 +1544,8 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   align-items: center;
   gap: 16px;
   padding: 18px 22px;
-  background: linear-gradient(135deg, rgba(232, 136, 54, 0.08) 0%, rgba(212, 112, 32, 0.04) 100%);
-  border: 1px solid rgba(232, 136, 54, 0.25);
+  background: linear-gradient(135deg, rgba(181, 146, 79, 0.08) 0%, rgba(140, 108, 51, 0.04) 100%);
+  border: 1px solid rgba(181, 146, 79, 0.25);
   border-left: 5px solid var(--orange);
   border-radius: 12px;
   margin-bottom: 20px;
@@ -1726,7 +1726,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   position: absolute;
   top: -40%; right: -15%;
   width: 60%; height: 200%;
-  background: radial-gradient(ellipse, rgba(232,136,54,0.18), transparent 60%);
+  background: radial-gradient(ellipse, rgba(181,146,79,0.18), transparent 60%);
   pointer-events: none;
 }
 .search-hero::after {
@@ -1734,7 +1734,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   position: absolute;
   bottom: -50%; left: -10%;
   width: 50%; height: 180%;
-  background: radial-gradient(ellipse, rgba(232,136,54,0.08), transparent 65%);
+  background: radial-gradient(ellipse, rgba(181,146,79,0.08), transparent 65%);
   pointer-events: none;
 }
 .search-hero-logo {
@@ -1751,9 +1751,9 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
 .search-hero-tag {
   display: inline-block;
   padding: 5px 14px;
-  background: rgba(232, 136, 54, 0.18);
+  background: rgba(181, 146, 79, 0.18);
   color: var(--orange-light);
-  border: 1px solid rgba(232, 136, 54, 0.35);
+  border: 1px solid rgba(181, 146, 79, 0.35);
   border-radius: 20px;
   font-size: 11px;
   font-weight: 700;
@@ -1815,7 +1815,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   outline: none;
   border-color: var(--orange);
   background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 0 4px rgba(232,136,54,0.20);
+  box-shadow: 0 0 0 4px rgba(181,146,79,0.20);
 }
 .search-input::placeholder { color: rgba(255, 255, 255, 0.4); }
 
@@ -1889,7 +1889,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   font-size: 22px;
   color: white;
   flex-shrink: 0;
-  box-shadow: 0 3px 10px rgba(232,136,54,0.3);
+  box-shadow: 0 3px 10px rgba(181,146,79,0.3);
 }
 
 .toast {
@@ -2068,7 +2068,7 @@ table.dt td.absent { color: var(--ink-mute); font-style: italic; }
   --shadow-sm: 0 1px 2px rgba(31, 27, 20, 0.04), 0 2px 8px rgba(31, 27, 20, 0.035);
   --shadow: 0 1px 2px rgba(31, 27, 20, 0.04), 0 8px 24px rgba(31, 27, 20, 0.06);
   --shadow-lg: 0 2px 6px rgba(31, 27, 20, 0.06), 0 24px 60px rgba(31, 27, 20, 0.12);
-  --ring: 0 0 0 3px rgba(232, 136, 54, 0.16);
+  --ring: 0 0 0 3px rgba(181, 146, 79, 0.16);
 }
 
 html { font-size: 14.5px; }
@@ -2077,11 +2077,11 @@ body {
   font-variant-numeric: tabular-nums;
   text-rendering: optimizeLegibility;
   background-image:
-    radial-gradient(1100px 460px at 0% -12%, rgba(232, 136, 54, 0.045), transparent 62%),
+    radial-gradient(1100px 460px at 0% -12%, rgba(181, 146, 79, 0.045), transparent 62%),
     radial-gradient(900px 560px at 100% -4%, rgba(15, 39, 66, 0.032), transparent 60%),
     linear-gradient(180deg, rgba(255,255,255,0.6), transparent 240px);
 }
-::selection { background: rgba(232, 136, 54, 0.22); }
+::selection { background: rgba(181, 146, 79, 0.22); }
 :focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
 
 /* 스크롤바 */
@@ -2114,7 +2114,7 @@ body {
 .nav-item.active {
   background: linear-gradient(180deg, #ffffff, var(--orange-bg));
   color: var(--orange-deep);
-  box-shadow: 0 0 0 1px rgba(232, 136, 54, 0.28), 0 1px 2px rgba(31, 27, 20, 0.06);
+  box-shadow: 0 0 0 1px rgba(181, 146, 79, 0.28), 0 1px 2px rgba(31, 27, 20, 0.06);
 }
 .icon-btn { border-radius: 999px; border-color: var(--line); box-shadow: var(--shadow-xs); }
 .icon-btn:hover { box-shadow: var(--shadow-sm); }
@@ -2154,7 +2154,7 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   background-image:
-    radial-gradient(420px 160px at 100% 0%, rgba(232, 136, 54, 0.05), transparent 70%),
+    radial-gradient(420px 160px at 100% 0%, rgba(181, 146, 79, 0.05), transparent 70%),
     linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
   transition: transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s ease;
 }
@@ -2186,7 +2186,7 @@ table.dt th {
 }
 table.dt td { padding: 12px 16px; border-bottom: 1px solid rgba(31, 27, 20, 0.05); }
 table.dt tbody tr:last-child td { border-bottom: none; }
-table.dt tbody tr:hover { background: rgba(232, 136, 54, 0.045); }
+table.dt tbody tr:hover { background: rgba(181, 146, 79, 0.045); }
 table.dt td.num { font-weight: 600; letter-spacing: -0.3px; }
 
 /* 버튼 */
@@ -2199,10 +2199,10 @@ table.dt td.num { font-weight: 600; letter-spacing: -0.3px; }
 }
 .btn:hover { box-shadow: var(--shadow-sm); }
 .btn-orange {
-  background: linear-gradient(180deg, #ee9648, var(--orange-deep));
+  background: linear-gradient(180deg, #c9a468, var(--orange-deep));
   box-shadow: 0 1px 2px rgba(184, 96, 24, 0.28), inset 0 1px 0 rgba(255,255,255,0.28);
 }
-.btn-orange:hover { background: linear-gradient(180deg, var(--orange), #c2661a); }
+.btn-orange:hover { background: linear-gradient(180deg, var(--orange), #8c6c33); }
 .btn-ghost { background: var(--bg-card); border: 1px solid var(--line-2); color: var(--ink-2); }
 .btn-ghost:hover { background: var(--bg-card); border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
 
@@ -2272,15 +2272,15 @@ table.dt .btn:hover {
   color: var(--ink);
   transform: none;
 }
-table.dt .btn.btn-orange { background: linear-gradient(180deg, #ee9648, var(--orange-deep)); color: #fff; border-color: transparent; }
+table.dt .btn.btn-orange { background: linear-gradient(180deg, #c9a468, var(--orange-deep)); color: #fff; border-color: transparent; }
 
 /* 목표 진행 바 */
 .goal-progress-bar { border-radius: 99px; box-shadow: inset 0 1px 2px rgba(31,27,20,0.06); }
 .goal-progress-fill { border-radius: 99px; }
 
 /* 점수 입력 — 저장 대기 표시 & 하단 저장 바 */
-.score-row.dirty { background: rgba(232, 136, 54, 0.07); }
-.score-row.dirty:hover { background: rgba(232, 136, 54, 0.11); }
+.score-row.dirty { background: rgba(181, 146, 79, 0.07); }
+.score-row.dirty:hover { background: rgba(181, 146, 79, 0.11); }
 .score-row.dirty .score-input,
 .score-row.dirty .errors-input { border-color: var(--orange); }
 .score-row.is-absent { background: rgba(185, 28, 60, 0.045); }
@@ -2309,12 +2309,12 @@ table.dt .btn.btn-orange { background: linear-gradient(180deg, #ee9648, var(--or
 .save-bar-dot {
   width: 8px; height: 8px; border-radius: 99px;
   background: var(--orange);
-  box-shadow: 0 0 0 4px rgba(232, 136, 54, 0.18);
+  box-shadow: 0 0 0 4px rgba(181, 146, 79, 0.18);
   animation: savePulse 1.8s ease-in-out infinite;
 }
 @keyframes savePulse {
-  0%, 100% { box-shadow: 0 0 0 3px rgba(232, 136, 54, 0.16); }
-  50% { box-shadow: 0 0 0 6px rgba(232, 136, 54, 0.10); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(181, 146, 79, 0.16); }
+  50% { box-shadow: 0 0 0 6px rgba(181, 146, 79, 0.10); }
 }
 @media (max-width: 720px) {
   .save-bar { left: 12px; right: 12px; transform: translateY(140%); border-radius: var(--radius-lg); padding: 12px 14px; }
@@ -2327,6 +2327,288 @@ table.dt .btn.btn-orange { background: linear-gradient(180deg, #ee9648, var(--or
   body { background-image: none; }
   .save-bar { display: none; }
   .card, .table-wrap, .stat-card { box-shadow: none; }
+}
+
+
+/* ============================================================
+   REFINEMENT LAYER v2 — 네이비 + 금박, 좌측 사이드바
+   ============================================================ */
+:root {
+  --navy: #10283f;
+  --navy-2: #1b3d5e;
+  --navy-3: #0a1c2e;
+  --gold: #b5924f;
+  --gold-2: #d9bd82;
+  --gold-3: #8c6c33;
+  --gold-soft: rgba(181, 146, 79, 0.16);
+  --sidebar-w: 238px;
+  --ring: 0 0 0 3px rgba(181, 146, 79, 0.20);
+}
+
+/* ---------- 좌측 사이드바 ---------- */
+.topbar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: linear-gradient(180deg, #143148 0%, var(--navy) 55%, var(--navy-3) 100%);
+  border-bottom: none;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 2px 0 24px rgba(10, 28, 46, 0.10);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  z-index: 200;
+  overflow-y: auto;
+}
+.topbar::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(217, 189, 130, 0.35), transparent);
+}
+.topbar-inner {
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+  max-width: none;
+  padding: 24px 16px 18px;
+  gap: 18px;
+}
+.brand {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 0 4px 18px;
+  border-right: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+.brand-logo {
+  height: 30px;
+  background: #fff;
+  padding: 7px 11px;
+  border-radius: 9px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+.brand-name-ko { color: #ffffff; font-size: 15px; letter-spacing: -0.2px; }
+.brand-tagline { color: var(--gold-2); letter-spacing: 3px; font-size: 9.5px; }
+
+.nav { flex-direction: column; gap: 3px; flex: 1; }
+.nav-item {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 10px 13px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.70);
+  font-size: 13px;
+  font-weight: 600;
+}
+.nav-item:hover { background: rgba(255, 255, 255, 0.07); color: #fff; box-shadow: none; }
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(217, 189, 130, 0.20), rgba(217, 189, 130, 0.04));
+  color: var(--gold-2);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(217, 189, 130, 0.32);
+}
+.nav-item.active::before {
+  content: '';
+  width: 3px; height: 16px; border-radius: 99px;
+  background: var(--gold-2);
+  margin-right: 2px;
+  margin-left: -6px;
+}
+.topbar-actions { gap: 8px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.icon-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: none;
+}
+.icon-btn:hover { background: rgba(217, 189, 130, 0.18); border-color: rgba(217, 189, 130, 0.45); color: #fff; }
+
+.main {
+  margin-left: var(--sidebar-w);
+  max-width: 1340px;
+  padding: 40px 44px 72px;
+}
+.save-bar { left: calc(50% + (var(--sidebar-w) / 2)); }
+
+@media (max-width: 1000px) {
+  .topbar { position: sticky; width: auto; inset: auto; border-right: none; overflow: visible; }
+  .topbar::after { display: none; }
+  .topbar-inner { flex-direction: row; align-items: center; height: auto; padding: 12px 16px; }
+  .brand { flex-direction: row; align-items: center; border-bottom: none; padding: 0 16px 0 0; }
+  .nav { flex-direction: row; overflow-x: auto; }
+  .nav-item { width: auto; }
+  .nav-item.active::before { display: none; }
+  .topbar-actions { border-top: none; padding-top: 0; }
+  .main { margin-left: 0; padding: 24px 16px 60px; }
+  .save-bar { left: 12px; right: 12px; }
+}
+
+/* ---------- 공통 톤 ---------- */
+body {
+  background-image:
+    radial-gradient(1100px 460px at 12% -12%, rgba(181, 146, 79, 0.05), transparent 62%),
+    radial-gradient(900px 560px at 100% -4%, rgba(16, 40, 63, 0.045), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.6), transparent 240px);
+}
+.page-title { color: var(--navy); }
+.card-title { color: var(--navy); }
+.card-title-accent { background: linear-gradient(180deg, var(--gold-2), var(--gold-3)); }
+.chip.active { background: var(--navy); border-color: var(--navy); }
+.btn:not(.btn-ghost):not(.btn-orange):not(.btn-danger) { background: var(--navy-2); }
+.btn:not(.btn-ghost):not(.btn-orange):not(.btn-danger):hover { background: var(--navy); }
+.btn-orange {
+  background: linear-gradient(180deg, #c9a468, var(--gold-3));
+  box-shadow: 0 1px 2px rgba(140, 108, 51, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-orange:hover { background: linear-gradient(180deg, var(--gold), #7d5f2b); }
+table.dt th { color: var(--navy); opacity: 0.62; }
+
+/* ---------- 지표 카드 ---------- */
+.stat-card::before { background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+.stat-card.navy::before { background: linear-gradient(90deg, var(--navy-2), #4a7099); }
+.stat-value { color: var(--navy); }
+.stat-label { color: var(--gold-3); opacity: 0.85; }
+
+/* ---------- 관리자 대시보드: 학년 현황 카드 ---------- */
+.grade-snap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.grade-snap {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 16px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.grade-snap::after {
+  content: '';
+  position: absolute; inset: auto 0 0 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold-2), transparent);
+  opacity: 0.5;
+}
+.grade-snap-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.grade-snap-count { font-size: 11px; color: var(--ink-mute); font-weight: 700; }
+.grade-snap-avg {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px; font-weight: 700; color: var(--navy); letter-spacing: -1.2px; line-height: 1;
+}
+.grade-snap-avg span { font-size: 12px; color: var(--ink-3); margin-left: 3px; letter-spacing: 0; }
+.grade-snap-delta { font-size: 11.5px; font-weight: 800; margin-top: 6px; }
+.grade-snap-meta { font-size: 11px; color: var(--ink-mute); margin-top: 10px; display: flex; justify-content: space-between; }
+.grade-snap-bar { height: 5px; border-radius: 99px; background: rgba(16, 40, 63, 0.07); margin-top: 6px; overflow: hidden; }
+.grade-snap-bar > div { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+
+/* ---------- 학부모 리포트 고급화 ---------- */
+.report-hero {
+  border: 1px solid rgba(217, 189, 130, 0.28);
+  box-shadow: 0 20px 50px rgba(10, 28, 46, 0.22);
+}
+.report-hero::before { display: none; }
+.report-monogram {
+  font-size: 9.5px;
+  letter-spacing: 5px;
+  color: var(--gold-2);
+  opacity: 0.9;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.report-hero-rule {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(217,189,130,0.75), rgba(217,189,130,0.12) 60%, transparent);
+  margin: 18px 0 16px;
+}
+.report-hero-tag {
+  background: rgba(217, 189, 130, 0.12);
+  border: 1px solid rgba(217, 189, 130, 0.42);
+  color: var(--gold-2);
+}
+.report-section { border-radius: var(--radius-lg); }
+.report-section-title { color: var(--navy); letter-spacing: -0.3px; }
+.report-section-header { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.report-section-header::after {
+  content: '';
+  position: absolute; left: 0; bottom: -1px; width: 46px; height: 2px;
+  background: linear-gradient(90deg, var(--gold-2), transparent);
+}
+.report-section-header { position: relative; }
+.round-card { border-radius: 12px; }
+.round-card.has-data { border-color: rgba(181, 146, 79, 0.30); }
+.goal-box { border-radius: 12px; }
+
+/* ---------- 오늘의 문장 ---------- */
+.quote-card {
+  position: relative;
+  background: linear-gradient(135deg, #143148 0%, var(--navy) 60%, var(--navy-3) 100%);
+  border: 1px solid rgba(217, 189, 130, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px 18px 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(10, 28, 46, 0.16);
+  overflow: hidden;
+}
+.quote-card::before {
+  content: '';
+  position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px;
+  background: linear-gradient(180deg, var(--gold-2), rgba(217, 189, 130, 0.1));
+  border-radius: 0 99px 99px 0;
+}
+.quote-card::after {
+  content: '”';
+  position: absolute; right: 18px; top: -14px;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 96px; color: rgba(217, 189, 130, 0.12); line-height: 1;
+  pointer-events: none;
+}
+.quote-head { position: relative; z-index: 2; }
+.quote-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.quote-label {
+  font-size: 9.5px; letter-spacing: 2.6px; font-weight: 800;
+  color: var(--gold-2); text-transform: uppercase;
+}
+.quote-date { font-size: 10.5px; color: rgba(255, 255, 255, 0.45); font-family: 'JetBrains Mono', monospace; }
+.quote-next {
+  margin-left: auto;
+  width: 26px; height: 26px; border-radius: 99px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px; line-height: 1;
+  transition: all .15s ease;
+}
+.quote-next:hover { background: rgba(217, 189, 130, 0.2); border-color: rgba(217, 189, 130, 0.45); color: #fff; }
+.quote-text {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 17px; font-weight: 500; line-height: 1.65;
+  color: #fff; letter-spacing: -0.4px;
+  position: relative; z-index: 1;
+}
+.quote-by { font-size: 12px; color: var(--gold-2); margin-top: 8px; font-weight: 600; }
+.quote-phase {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  font-size: 12.5px; color: rgba(255, 255, 255, 0.72); letter-spacing: -0.1px;
+}
+.gate-quote {
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 13px; line-height: 1.7; color: var(--ink-3);
+}
+@media (max-width: 720px) {
+  .quote-card { padding: 16px 18px 14px 22px; }
+  .quote-text { font-size: 15px; }
+}
+
+@media print {
+  .quote-card { display: none; }
+  .topbar { display: none !important; }
+  .main { margin-left: 0 !important; }
 }
 
 </style>
@@ -3201,7 +3483,7 @@ function confirmDialog(msg, onYes) {
 // ============================================================
 
 const ROUTES = {
-  'home': { label: '홈', icon: '🏛', render: renderHome },
+  'home': { label: '관리자', icon: '🏛', render: () => isAdmin() ? renderHome() : renderAdminLock() },
   'students': { label: '학생 관리', icon: '👥', render: renderStudents },
   'scores': { label: '점수 입력', icon: '✏️', render: renderScores },
   'stats': { label: '회차 통계', icon: '📊', render: renderStats },
@@ -3218,6 +3500,10 @@ function navigate(page) {
   render();
 }
 
+function defaultLandingPage() {
+  return isAdmin() ? 'home' : 'scores';
+}
+
 function checkSharedReport() {
   const hash = location.hash || '';
   const m = hash.match(/^#\/share\/(.+)$/);
@@ -3228,6 +3514,7 @@ function checkSharedReport() {
   }
   const r = hash.match(/^#\/([^/]+)$/);
   if (r && ROUTES[r[1]]) ui.currentPage = r[1];
+  else ui.currentPage = defaultLandingPage();
   return false;
 }
 
@@ -3263,7 +3550,7 @@ function renderTopbar() {
           el('button', {
             className: 'nav-item' + (ui.currentPage === k ? ' active' : ''),
             onClick: () => navigate(k)
-          }, r.icon + ' ' + r.label)
+          }, (k === 'home' && !isAdmin() ? '🔒' : r.icon) + ' ' + r.label)
         )
       ),
       el('div', { className: 'topbar-actions' },
@@ -3287,6 +3574,7 @@ function openHelpModal() {
         el('div', null, el('strong', null, '🏛 홈'), ' - 전체 진행 현황, 학년별 평균 추이 한눈에'),
         el('div', null, el('strong', null, '👥 학생 관리'), ' - 명단, 사전 입력, 신규/일괄 추가'),
         el('div', null, el('strong', null, '✏️ 점수 입력'), ' - 회차/학년/선생님 필터 → 점수·결시·오답 입력 (자동 저장)'),
+        el('div', null, el('strong', null, '🏛 관리자'), ' - 전체 현황·선생님별 담당 평균 (관리자 비밀번호 필요)'),
         el('div', null, el('strong', null, '📊 회차 통계'), ' - 학년별/선생님별 평균, 공통 오답'),
         el('div', null, el('strong', null, '📋 선생님 리포트'), ' - 선생님별 담당 학생 분석 리포트 (인쇄 가능)'),
         el('div', null, el('strong', null, '💌 학부모 리포트'), ' - 학생 이름 검색 → 개인 리포트 → 이미지(PNG) 저장 후 카톡 전송'),
@@ -3420,6 +3708,9 @@ function renderHome() {
     )
   ));
 
+  // 학년별 현황 스냅샷
+  wrap.appendChild(renderGradeSnapshots(eligible));
+
   // 차트 + 진행률
   wrap.appendChild(el('div', { className: 'grid grid-2' },
     el('div', { className: 'card' },
@@ -3442,6 +3733,174 @@ function renderHome() {
   return wrap;
 }
 
+// ============================================================
+// 오늘의 문장 — 매일 자동 교체 (선생님 지도용 명언 · 코칭 문구)
+// [설정 > ⑦]에서 학원 문장을 직접 추가/교체할 수 있습니다.
+// ============================================================
+const DAILY_QUOTES = [
+  { t: '오답은 실패의 기록이 아니라, 다음 수업의 설계도입니다.' },
+  { t: '아이는 자기를 믿어주는 어른의 눈빛을 오래 기억합니다.' },
+  { t: '점수를 고치기 전에 아이의 마음부터 회복시켜 주세요.' },
+  { t: '모르는 것을 모른다고 말할 수 있는 교실이 가장 빨리 자랍니다.' },
+  { t: '진도를 나가는 것과 아이가 따라오는 것은 다른 일입니다.' },
+  { t: '어제의 자신과 비교하게 해주세요. 옆자리와 비교하면 멈춥니다.' },
+  { t: '계산 실수는 습관입니다. 습관은 고칠 수 있습니다.' },
+  { t: '한 문제를 완전히 이해한 아이가, 열 문제를 훑은 아이를 이깁니다.' },
+  { t: '아이가 포기하려 할 때 우리가 먼저 포기하지 않으면 됩니다.' },
+  { t: '질문이 늘어나는 학생은 반드시 오릅니다.' },
+  { t: '점수가 멈춰 있는 구간에서도 실력은 조용히 쌓이고 있습니다.' },
+  { t: '칭찬은 결과보다 과정에, 그리고 구체적으로 해주세요.' },
+  { t: '오늘 30분의 오답 정리가 다음 시험의 10점을 만듭니다.' },
+  { t: '결시한 아이에게 먼저 연락하는 것도 수업의 일부입니다.' },
+  { t: '목표 점수는 숫자가 아니라 아이와 맺은 약속입니다.' },
+  { t: '틀린 이유를 한 줄로 적게 하면 같은 실수를 반복하지 않습니다.' },
+  { t: '서두르는 아이에게는 속도보다 정확도를 먼저 가르쳐 주세요.' },
+  { t: '성적표보다 오래 남는 것은 선생님의 말 한마디입니다.' },
+  { t: '우리는 문제를 가르치는 것이 아니라 생각하는 법을 가르칩니다.' },
+  { t: '어려운 문제 앞에서 버티는 시간이 곧 실력입니다.' },
+  { t: '아이마다 오르는 시점이 다릅니다. 우리 몫은 그때까지 함께 있는 것입니다.' },
+  { t: '기본 개념으로 돌아가는 것은 후퇴가 아니라 도약의 준비입니다.' },
+  { t: '학부모님께 전하는 한 줄이 아이를 집에서도 공부하게 만듭니다.' },
+  { t: '잘 가르치는 선생님은 잘 듣는 선생님입니다.' },
+  { t: '오늘 채점한 숫자 뒤에는 아이의 한 주가 들어 있습니다.' },
+  { t: '실력은 계단처럼 오릅니다. 평지에서 지치지 않게 해주세요.' },
+  { t: '완벽한 수업보다 꾸준한 수업이 아이를 바꿉니다.' },
+  { t: '아이가 스스로 설명할 수 있다면, 그것이 진짜 아는 것입니다.' },
+  { t: '잘한 회차를 짚어주는 한마디가 다음 회차를 만듭니다.' },
+  { t: '아이의 눈높이로 내려가는 것은 수업의 수준을 낮추는 일이 아닙니다.' },
+  { t: '가르치는 것은 두 번 배우는 것이다.', by: '조제프 주베르' },
+  { t: '배움에는 왕도가 없다.', by: '유클리드' },
+  { t: '아는 것을 안다고 하고 모르는 것을 모른다고 하는 것, 그것이 아는 것이다.', by: '공자' },
+  { t: '배우기만 하고 생각하지 않으면 얻는 것이 없다.', by: '공자' },
+  { t: '교육은 세상을 바꾸는 가장 강력한 무기다.', by: '넬슨 만델라' },
+  { t: '나는 실패한 적이 없다. 효과가 없는 방법을 찾아냈을 뿐이다.', by: '토머스 에디슨' },
+  { t: '천재는 1퍼센트의 영감과 99퍼센트의 노력이다.', by: '토머스 에디슨' },
+  { t: '재능은 고요 속에서 자란다.', by: '괴테' },
+  { t: '천 리 길도 한 걸음부터.', by: '속담' },
+  { t: '구슬이 서 말이라도 꿰어야 보배.', by: '속담' }
+];
+
+// 진행 회차에 따른 시기별 메시지
+const PHASE_MESSAGES = [
+  { upTo: 0, t: '시작 전 — 목표 점수 입력을 먼저 마무리해 주세요. 목표가 있어야 변화가 보입니다.' },
+  { upTo: 2, t: '초반 — 첫 점수는 출발선일 뿐입니다. 지금부터가 진짜입니다.' },
+  { upTo: 5, t: '중반 — 결시 한 번을 줄이는 것이 5점을 올리는 것보다 큽니다.' },
+  { upTo: 7, t: '후반 — 이제 새로 더하기보다, 틀린 것을 지울 시간입니다.' },
+  { upTo: 999, t: '마무리 — 끝까지 함께 온 아이들입니다. 자신 있게 시험장으로 보냅시다.' }
+];
+
+function activeRoundCount() {
+  const eligible = state.students.filter(s => GRADES.includes(s.grade));
+  let n = 0;
+  for (let r = 1; r <= ROUNDS; r++) {
+    const has = eligible.some(s => {
+      const rd = getRoundData(s.id, r);
+      return rd && ((rd.score != null && rd.score !== '') || isAbsent(rd));
+    });
+    if (has) n++;
+  }
+  return n;
+}
+
+function getPhaseMessage() {
+  const n = activeRoundCount();
+  for (const m of PHASE_MESSAGES) if (n <= m.upTo) return m.t;
+  return '';
+}
+
+// 날짜 기준 인덱스 (모든 선생님이 같은 날 같은 문장을 봅니다)
+function dayNumber() {
+  const d = new Date();
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+}
+
+function quotePool() {
+  const custom = (state.config && Array.isArray(state.config.quotes))
+    ? state.config.quotes.map(x => String(x || '').trim()).filter(Boolean).map(t => ({ t: t, custom: true }))
+    : [];
+  if (state.config && state.config.quotesOnlyCustom && custom.length) return custom;
+  return custom.concat(DAILY_QUOTES);
+}
+
+function getDailyQuote(offset) {
+  const pool = quotePool();
+  if (!pool.length) return null;
+  const idx = (dayNumber() + (offset || 0)) % pool.length;
+  return pool[idx];
+}
+
+// 문구 카드 (점수 입력 화면 상단)
+function renderQuoteCard() {
+  let offset = 0;
+  const box = el('div', { className: 'quote-card' });
+  const textEl = el('div', { className: 'quote-text' });
+  const byEl = el('div', { className: 'quote-by' });
+  const phase = getPhaseMessage();
+
+  function paint() {
+    const q = getDailyQuote(offset);
+    textEl.textContent = q ? '“' + q.t + '”' : '';
+    byEl.textContent = q && q.by ? '— ' + q.by : '';
+    byEl.style.display = q && q.by ? 'block' : 'none';
+  }
+  paint();
+
+  box.appendChild(el('div', { className: 'quote-head' },
+    el('span', { className: 'quote-label' }, '오늘의 문장'),
+    el('span', { className: 'quote-date' }, dateStr()),
+    el('button', {
+      className: 'quote-next', title: '다른 문장 보기',
+      onClick: () => { offset++; paint(); }
+    }, '↻')
+  ));
+  box.appendChild(textEl);
+  box.appendChild(byEl);
+  if (phase) box.appendChild(el('div', { className: 'quote-phase' }, phase));
+  return box;
+}
+
+// 학년별 현황 카드 (최근 회차 평균 · 변화 · 응시율)
+function renderGradeSnapshots(eligible) {
+  const box = el('div', { className: 'grade-snap-grid' });
+  GRADES.forEach(g => {
+    const members = eligible.filter(s => s.grade === g);
+    let firstAvg = null, lastAvg = null, lastRound = null, lastRate = null;
+    for (let r = 1; r <= ROUNDS; r++) {
+      const st = gradeRoundStats(g, r);
+      if (st.avg == null) continue;
+      if (firstAvg == null) firstAvg = st.avg;
+      lastAvg = st.avg; lastRound = r; lastRate = attendanceRate(st);
+    }
+    const delta = (firstAvg != null && lastAvg != null) ? lastAvg - firstAvg : null;
+    const ratePct = lastRate != null ? Math.round(lastRate * 100) : null;
+
+    box.appendChild(el('div', { className: 'grade-snap' },
+      el('div', { className: 'grade-snap-head' },
+        el('span', { className: 'badge badge-grade-' + g }, g),
+        el('span', { className: 'grade-snap-count' }, members.length + '명')
+      ),
+      el('div', { className: 'grade-snap-avg' },
+        lastAvg != null ? fmt(lastAvg) : '—',
+        lastAvg != null ? el('span', null, '점') : null
+      ),
+      delta != null
+        ? el('div', {
+            className: 'grade-snap-delta',
+            style: { color: delta >= 0 ? 'var(--green)' : 'var(--red)' }
+          }, (delta >= 0 ? '▲ ' : '▼ ') + Math.abs(delta).toFixed(1) + '점  (1회 대비)')
+        : el('div', { className: 'grade-snap-delta', style: { color: 'var(--ink-mute)' } }, '데이터 없음'),
+      el('div', { className: 'grade-snap-meta' },
+        el('span', null, lastRound ? lastRound + '회 기준' : '미실시'),
+        el('span', null, ratePct != null ? '응시율 ' + ratePct + '%' : '—')
+      ),
+      el('div', { className: 'grade-snap-bar' },
+        el('div', { style: { width: (ratePct != null ? ratePct : 0) + '%' } })
+      )
+    ));
+  });
+  return box;
+}
+
 function renderRoundsProgress(students) {
   const rows = [];
   for (let r = 1; r <= ROUNDS; r++) {
@@ -3461,7 +3920,7 @@ function renderRoundsProgress(students) {
         el('div', { style: {
           height: '100%', width: pct + '%', borderRadius: '99px',
           background: pct >= 70 ? 'linear-gradient(90deg, #2f9d5b, #15803d)'
-                    : pct >= 30 ? 'linear-gradient(90deg, #ee9648, var(--orange-deep))'
+                    : pct >= 30 ? 'linear-gradient(90deg, #c9a468, var(--orange-deep))'
                                 : 'linear-gradient(90deg, #d34d68, var(--red))',
           transition: 'width 0.45s cubic-bezier(.2,.7,.3,1)'
         }})
@@ -3580,7 +4039,7 @@ function renderHomeTrendChart() {
         },
         tooltip: {
           backgroundColor: 'rgba(15, 39, 66, 0.96)',
-          titleColor: '#f7b87a',
+          titleColor: '#d9bd82',
           titleFont: { size: 13, weight: '700', family: "Pretendard, sans-serif" },
           titleMarginBottom: 8,
           bodyColor: '#ffffff',
@@ -3590,7 +4049,7 @@ function renderHomeTrendChart() {
           cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
-          borderColor: 'rgba(232, 136, 54, 0.35)',
+          borderColor: 'rgba(181, 146, 79, 0.35)',
           borderWidth: 1,
           callbacks: {
             label: c => c.dataset.label + ': ' + (c.parsed.y != null ? c.parsed.y.toFixed(1) + '점' : '—')
@@ -3741,7 +4200,7 @@ function renderSettings() {
           clean[g] = (draft.versions[g] || []).map(x => String(x || '').trim()).filter(Boolean);
           if (!clean[g].length) clean[g] = ['표준 (V1)'];
         });
-        state.config = { rounds: draft.rounds, grades: draft.grades.slice(), versions: clean, gateHash: (state.config && state.config.gateHash) || '' };
+        state.config = { rounds: draft.rounds, grades: draft.grades.slice(), versions: clean, gateHash: (state.config && state.config.gateHash) || '', adminHash: (state.config && state.config.adminHash) || '', quotes: (state.config && state.config.quotes) || [], quotesOnlyCustom: !!(state.config && state.config.quotesOnlyCustom) };
         applyConfig();
         if (!GRADES.includes(ui.papersGrade)) ui.papersGrade = GRADES[0];
         saveState();
@@ -3753,7 +4212,8 @@ function renderSettings() {
       className: 'btn btn-ghost',
       onClick: () => confirmDialog('설정을 기본값(8회 · 중1~고2 · 학년당 2버전)으로 되돌릴까요?', () => {
         const keepHash = (state.config && state.config.gateHash) || '';
-        state.config = defaultConfig(); state.config.gateHash = keepHash; applyConfig(); saveState();
+        const keepAdmin = (state.config && state.config.adminHash) || '';
+        state.config = defaultConfig(); state.config.gateHash = keepHash; state.config.adminHash = keepAdmin; applyConfig(); saveState();
         showToast('기본값으로 되돌렸습니다.', 'success'); render();
       })
     }, '기본값으로 되돌리기')
@@ -3798,6 +4258,79 @@ function renderSettings() {
     ),
     el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginTop: '10px' } },
       '※ 화면 가림막 수준의 보호입니다. 데이터 자체를 엄격히 보호하려면 선생님별 계정 로그인(Firebase 인증)이 필요합니다.')
+  ));
+
+  // ---------- 6. 관리자 비밀번호 ----------
+  const admNew = el('input', { className: 'input', type: 'text', placeholder: '새 관리자 비밀번호', style: { maxWidth: '220px' } });
+  wrap.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, '⑥ 관리자 비밀번호 (관리자 페이지)'),
+    el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '12px' } },
+      '[관리자] 화면(전체 응시 인원 · 학년별 추이 · 선생님별 담당 평균)을 여는 비밀번호입니다. 앞의 공용 비밀번호와 별개이며, 선생님들께는 공유하지 않습니다.',
+      el('br'),
+      '현재 이 기기: ', el('strong', { style: { color: isAdmin() ? 'var(--green)' : 'var(--ink-3)' } },
+        isAdmin() ? '관리자 모드 (열람 가능)' : '일반 모드 (잠김)')),
+    el('div', { className: 'flex gap-8 flex-wrap', style: { alignItems: 'center' } },
+      admNew,
+      el('button', {
+        className: 'btn btn-orange',
+        onClick: () => {
+          const v = String(admNew.value || '').trim();
+          if (v.length < 4) { showToast('4자 이상 입력하세요.', 'error'); return; }
+          state.config.adminHash = gateHash(v);
+          try { localStorage.setItem(ADMIN_STORAGE_KEY, state.config.adminHash); } catch (e) {}
+          saveState();
+          admNew.value = '';
+          showToast('관리자 비밀번호를 변경했습니다.', 'success');
+          render();
+        }
+      }, '관리자 비밀번호 변경'),
+      isAdmin()
+        ? el('button', { className: 'btn btn-ghost', onClick: adminLock }, '🔒 이 기기 관리자 해제')
+        : null
+    )
+  ));
+
+  // ---------- 7. 오늘의 문장 ----------
+  const quoteTa = el('textarea', {
+    className: 'textarea', rows: 6,
+    placeholder: '한 줄에 문장 하나씩 입력하세요.\n예) 오늘 채점한 숫자 뒤에는 아이의 한 주가 들어 있습니다.',
+    value: (state.config && Array.isArray(state.config.quotes)) ? state.config.quotes.join('\n') : ''
+  });
+  const onlyCustom = el('input', {
+    type: 'checkbox',
+    checked: !!(state.config && state.config.quotesOnlyCustom)
+  });
+  const quotePreview = el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginTop: '10px' } });
+  function paintQuotePreview() {
+    const q = getDailyQuote(0);
+    quotePreview.textContent = q ? '오늘 표시되는 문장: “' + q.t + '”' + (q.by ? ' — ' + q.by : '') : '표시할 문장이 없습니다.';
+  }
+  paintQuotePreview();
+
+  wrap.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, '⑦ 오늘의 문장'),
+    el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '12px' } },
+      '점수 입력 화면과 로그인 화면에 매일 다른 문장이 표시됩니다. 기본 문장 ' + DAILY_QUOTES.length +
+      '개가 들어 있고, 아래에 학원 문장을 추가하면 함께 순환합니다. 같은 날에는 모든 선생님이 같은 문장을 봅니다.'),
+    quoteTa,
+    el('label', { className: 'flex gap-8', style: { alignItems: 'center', marginTop: '10px' } },
+      onlyCustom,
+      el('span', { className: 'text-sm' }, '기본 문장은 쓰지 않고, 직접 추가한 문장만 표시')
+    ),
+    quotePreview,
+    el('div', { className: 'flex gap-8', style: { marginTop: '12px' } },
+      el('button', {
+        className: 'btn btn-orange',
+        onClick: () => {
+          state.config.quotes = String(quoteTa.value || '').split('\n').map(x => x.trim()).filter(Boolean);
+          state.config.quotesOnlyCustom = onlyCustom.checked;
+          saveState();
+          paintQuotePreview();
+          showToast('문장 ' + state.config.quotes.length + '개를 저장했습니다.', 'success');
+        }
+      }, '문장 저장'),
+      el('button', { className: 'btn btn-ghost', onClick: paintQuotePreview }, '미리보기 새로고침')
+    )
   ));
 
   return wrap;
@@ -4345,6 +4878,8 @@ function renderScores() {
     el('div', { className: 'page-subtitle' }, '회차별로 점수와 오답 문항을 입력한 뒤 아래 [저장] 버튼을 누르세요. 입력 중에는 화면이 바뀌지 않습니다.')
   ));
 
+  wrap.appendChild(renderQuoteCard());
+
   // Filter bar
   wrap.appendChild(el('div', { className: 'filter-bar' },
     el('div', { className: 'filter-label' }, '회차'),
@@ -4687,8 +5222,8 @@ function renderGradeChart(grade) {
   // 그라데이션 (평균선)
   const chartCtx = ctx.getContext('2d');
   const avgGradient = chartCtx.createLinearGradient(0, 0, 0, 260);
-  avgGradient.addColorStop(0, 'rgba(232, 136, 54, 0.28)');
-  avgGradient.addColorStop(1, 'rgba(232, 136, 54, 0)');
+  avgGradient.addColorStop(0, 'rgba(181, 146, 79, 0.28)');
+  avgGradient.addColorStop(1, 'rgba(181, 146, 79, 0)');
 
   _charts['g_' + grade] = new Chart(ctx, {
     type: 'line',
@@ -4714,14 +5249,14 @@ function renderGradeChart(grade) {
         {
           label: '평균',
           data: avgs,
-          borderColor: '#e88836',
+          borderColor: '#b5924f',
           backgroundColor: avgGradient,
           borderWidth: 3.5,
           tension: 0.35,
           spanGaps: true,
           pointRadius: 5,
           pointHoverRadius: 8,
-          pointBackgroundColor: '#e88836',
+          pointBackgroundColor: '#b5924f',
           pointBorderColor: '#fff',
           pointBorderWidth: 2.5,
           fill: true
@@ -4764,7 +5299,7 @@ function renderGradeChart(grade) {
         },
         tooltip: {
           backgroundColor: 'rgba(15, 39, 66, 0.96)',
-          titleColor: '#f7b87a',
+          titleColor: '#d9bd82',
           titleFont: { size: 12.5, weight: '700' },
           bodyColor: '#fff',
           bodyFont: { size: 12 },
@@ -5788,9 +6323,11 @@ function buildSharedReportDOM(sid) {
 
   // === Hero (다크 배경 + 학생 정보) ===
   wrap.appendChild(el('div', { className: 'report-hero' },
+    el('div', { className: 'report-monogram' }, 'KLADI MATH ACADEMY'),
     el('div', { className: 'report-hero-tag' }, '2026 · 2학기 중간고사 대비'),
     el('div', { className: 'report-hero-title' }, '수만프 분석 리포트'),
     el('div', { className: 'report-hero-sub' }, ROUNDS + '회에 걸친 모의고사 결과를 종합 분석한 개인 리포트입니다'),
+    el('div', { className: 'report-hero-rule' }),
     el('div', { className: 'report-hero-student' },
       el('div', { className: 'report-hero-meta' },
         el('div', { className: 'report-hero-meta-name' }, s.name,
@@ -5798,8 +6335,8 @@ function buildSharedReportDOM(sid) {
             style: {
               fontSize: '11.5px',
               padding: '3px 10px',
-              background: 'rgba(232,136,54,0.2)',
-              border: '1px solid rgba(232,136,54,0.4)',
+              background: 'rgba(181,146,79,0.2)',
+              border: '1px solid rgba(181,146,79,0.4)',
               borderRadius: '12px',
               color: 'var(--orange-light)',
               fontWeight: '700',
@@ -6214,9 +6751,9 @@ function renderSharedTrendChart(sid, myRounds, gradeAvgs, chartId) {
   // 그라데이션 만들기
   const chartCtx = ctx.getContext('2d');
   const orangeGradient = chartCtx.createLinearGradient(0, 0, 0, 280);
-  orangeGradient.addColorStop(0, 'rgba(232, 136, 54, 0.32)');
-  orangeGradient.addColorStop(0.5, 'rgba(232, 136, 54, 0.12)');
-  orangeGradient.addColorStop(1, 'rgba(232, 136, 54, 0.01)');
+  orangeGradient.addColorStop(0, 'rgba(181, 146, 79, 0.32)');
+  orangeGradient.addColorStop(0.5, 'rgba(181, 146, 79, 0.12)');
+  orangeGradient.addColorStop(1, 'rgba(181, 146, 79, 0.01)');
 
   const navyGradient = chartCtx.createLinearGradient(0, 0, 0, 280);
   navyGradient.addColorStop(0, 'rgba(15, 39, 66, 0.08)');
@@ -6226,15 +6763,15 @@ function renderSharedTrendChart(sid, myRounds, gradeAvgs, chartId) {
     {
       label: s.name + ' 점수',
       data: myData,
-      borderColor: '#e88836',
+      borderColor: '#b5924f',
       backgroundColor: orangeGradient,
       borderWidth: 3.5,
       pointRadius: 6,
       pointHoverRadius: 9,
-      pointBackgroundColor: '#e88836',
+      pointBackgroundColor: '#b5924f',
       pointBorderColor: '#fff',
       pointBorderWidth: 3,
-      pointHoverBackgroundColor: '#d47020',
+      pointHoverBackgroundColor: '#8c6c33',
       pointHoverBorderColor: '#fff',
       pointHoverBorderWidth: 3,
       tension: 0.35,
@@ -6280,7 +6817,7 @@ function renderSharedTrendChart(sid, myRounds, gradeAvgs, chartId) {
     datasets.push({
       label: '강사 목표 ' + teacherGoal + '점',
       data: Array(8).fill(teacherGoal),
-      borderColor: 'rgba(212, 112, 32, 0.7)',
+      borderColor: 'rgba(140, 108, 51, 0.7)',
       backgroundColor: 'transparent',
       borderWidth: 1.8,
       borderDash: [4, 4],
@@ -6315,7 +6852,7 @@ function renderSharedTrendChart(sid, myRounds, gradeAvgs, chartId) {
         },
         tooltip: {
           backgroundColor: 'rgba(15, 39, 66, 0.96)',
-          titleColor: '#f7b87a',
+          titleColor: '#d9bd82',
           titleFont: { size: 13, weight: '700', family: "Pretendard, sans-serif" },
           titleMarginBottom: 8,
           bodyColor: '#ffffff',
@@ -6325,7 +6862,7 @@ function renderSharedTrendChart(sid, myRounds, gradeAvgs, chartId) {
           cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
-          borderColor: 'rgba(232, 136, 54, 0.35)',
+          borderColor: 'rgba(181, 146, 79, 0.35)',
           borderWidth: 1,
           callbacks: {
             label: function(context) {
@@ -6497,14 +7034,14 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!ctx) return;
   const chartCtx = ctx.getContext('2d');
   const orangeGrad = chartCtx.createLinearGradient(0, 0, 0, 280);
-  orangeGrad.addColorStop(0, 'rgba(232, 136, 54, 0.32)');
-  orangeGrad.addColorStop(0.5, 'rgba(232, 136, 54, 0.12)');
-  orangeGrad.addColorStop(1, 'rgba(232, 136, 54, 0.01)');
+  orangeGrad.addColorStop(0, 'rgba(181, 146, 79, 0.32)');
+  orangeGrad.addColorStop(0.5, 'rgba(181, 146, 79, 0.12)');
+  orangeGrad.addColorStop(1, 'rgba(181, 146, 79, 0.01)');
   const datasets = [
     { label: ${JSON.stringify(s.name + ' 점수')}, data: ${JSON.stringify(myData)},
-      borderColor: '#e88836', backgroundColor: orangeGrad,
+      borderColor: '#b5924f', backgroundColor: orangeGrad,
       borderWidth: 3.5, pointRadius: 6, pointHoverRadius: 9,
-      pointBackgroundColor: '#e88836', pointBorderColor: '#fff', pointBorderWidth: 3,
+      pointBackgroundColor: '#b5924f', pointBorderColor: '#fff', pointBorderWidth: 3,
       tension: 0.35, spanGaps: true, fill: true },
     { label: ${JSON.stringify(s.grade + ' 학년 평균')}, data: ${JSON.stringify(gradeAvgs)},
       borderColor: '#0f2742', backgroundColor: 'transparent',
@@ -6524,7 +7061,7 @@ window.addEventListener('DOMContentLoaded', () => {
         legend: { position: 'top', align: 'end',
           labels: { color: '#2d2d4a', font: { size: 12.5, weight: '600' }, padding: 14, usePointStyle: true, pointStyle: 'circle', boxWidth: 8, boxHeight: 8 } },
         tooltip: {
-          backgroundColor: 'rgba(15, 39, 66, 0.96)', titleColor: '#f7b87a',
+          backgroundColor: 'rgba(15, 39, 66, 0.96)', titleColor: '#d9bd82',
           titleFont: { size: 13, weight: '700' }, bodyColor: '#fff', bodyFont: { size: 12.5 },
           padding: 14, cornerRadius: 10, displayColors: true, boxPadding: 6,
           callbacks: { label: c => c.dataset.label + ': ' + (c.parsed.y != null ? (Math.round(c.parsed.y*10)/10) + '점' : '—') }
@@ -8060,6 +8597,63 @@ function lockAgain() {
   location.reload();
 }
 
+// ---------- 관리자 전용(홈 대시보드) ----------
+const ADMIN_STORAGE_KEY = STORAGE_KEY + '_admin';
+const ADMIN_DEFAULT_PW = '12345678';
+
+function requiredAdminHash() {
+  return (state.config && state.config.adminHash) || gateHash(ADMIN_DEFAULT_PW);
+}
+function isAdmin() {
+  try { return localStorage.getItem(ADMIN_STORAGE_KEY) === requiredAdminHash(); }
+  catch (e) { return false; }
+}
+function adminUnlock(pw) {
+  const h = gateHash(pw);
+  if (h !== requiredAdminHash()) return false;
+  try { localStorage.setItem(ADMIN_STORAGE_KEY, h); } catch (e) {}
+  return true;
+}
+function adminLock() {
+  try { localStorage.removeItem(ADMIN_STORAGE_KEY); } catch (e) {}
+  showToast('관리자 모드를 해제했습니다');
+  navigate(GRADES.length ? 'scores' : 'students');
+}
+
+// 관리자 비밀번호 입력 화면 (홈 자리에 표시)
+function renderAdminLock() {
+  const wrap = el('div');
+  const pw = el('input', {
+    className: 'input', type: 'password', placeholder: '관리자 비밀번호',
+    style: { fontSize: '15px', textAlign: 'center', letterSpacing: '2px' }
+  });
+  const msg = el('div', { className: 'text-sm', style: { color: 'var(--red)', minHeight: '20px', marginTop: '8px' } });
+  function submit() {
+    if (adminUnlock(pw.value)) { showToast('관리자 모드로 전환했습니다', 'success'); render(); }
+    else { msg.textContent = '비밀번호가 맞지 않습니다.'; pw.value = ''; pw.focus(); }
+  }
+  pw.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+
+  wrap.appendChild(el('div', { className: 'page-header' },
+    el('div', { className: 'page-title' }, '관리자 페이지'),
+    el('div', { className: 'page-subtitle' }, '전체 현황 · 학년별 추이 · 선생님별 담당 평균')
+  ));
+  wrap.appendChild(el('div', { className: 'card', style: { maxWidth: '440px', margin: '40px auto', textAlign: 'center' } },
+    el('div', { style: { fontSize: '34px', marginBottom: '10px' } }, '🔒'),
+    el('div', { style: { fontFamily: 'Noto Serif KR, serif', fontSize: '18px', fontWeight: 800, marginBottom: '8px' } },
+      '관리자 전용 화면입니다'),
+    el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', lineHeight: '1.7', marginBottom: '20px' } },
+      '전체 응시 인원과 선생님별 담당 평균이 포함되어 있어 원장·관리자만 열람합니다.',
+      el('br'),
+      '점수 입력과 리포트는 잠금 없이 그대로 사용하실 수 있습니다.'),
+    pw,
+    msg,
+    el('button', { className: 'btn btn-orange', style: { width: '100%', marginTop: '12px' }, onClick: submit }, '열기')
+  ));
+  setTimeout(() => pw.focus(), 80);
+  return wrap;
+}
+
 function renderGate(onSuccess) {
   const app = document.getElementById('app') || document.body;
   const pw = el('input', {
@@ -8087,7 +8681,15 @@ function renderGate(onSuccess) {
       msg,
       el('button', { className: 'btn btn-orange', style: { width: '100%', marginTop: '12px' }, onClick: submit }, '입장'),
       el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginTop: '14px', lineHeight: '1.6' } },
-        '학부모님께 보낸 리포트 링크는 비밀번호 없이 열립니다.')
+        '학부모님께 보낸 리포트 링크는 비밀번호 없이 열립니다.'),
+      (function () {
+        const q = getDailyQuote(0);
+        if (!q) return null;
+        return el('div', { className: 'gate-quote' },
+          el('div', null, '“' + q.t + '”'),
+          q.by ? el('div', { style: { marginTop: '4px', opacity: '0.75' } }, '— ' + q.by) : null
+        );
+      })()
     )
   );
   app.appendChild(gateWrap);
