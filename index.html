@@ -2258,7 +2258,8 @@ table.dt td.num { font-weight: 600; letter-spacing: -0.3px; }
 .round-version-group { border-radius: var(--radius-lg); box-shadow: var(--shadow-xs); padding: 16px 18px; }
 .round-version-title { letter-spacing: -0.3px; }
 
-/* 표 안 액션 버튼은 가볍게 */
+/* 표 안 액션 버튼은 가볍게 (v2 테마 규칙보다 우선하도록 선택자를 강화) */
+table.dt td .btn:not(.btn-orange):not(.btn-danger),
 table.dt .btn {
   background: var(--bg-card);
   color: var(--ink-2);
@@ -2266,6 +2267,7 @@ table.dt .btn {
   box-shadow: none;
   font-weight: 700;
 }
+table.dt td .btn:not(.btn-orange):not(.btn-danger):hover,
 table.dt .btn:hover {
   background: var(--bg-elevated);
   border-color: var(--line-strong);
@@ -2273,6 +2275,19 @@ table.dt .btn:hover {
   transform: none;
 }
 table.dt .btn.btn-orange { background: linear-gradient(180deg, #c9a468, var(--orange-deep)); color: #fff; border-color: transparent; }
+
+/* 학생 관리 편집 버튼 — 대비 확보 */
+table.dt td .btn.btn-sm:not(.btn-orange):not(.btn-danger) {
+  background: #ffffff;
+  color: var(--navy);
+  border: 1px solid var(--line-2);
+  font-weight: 700;
+}
+table.dt td .btn.btn-sm:not(.btn-orange):not(.btn-danger):hover {
+  background: var(--orange-bg);
+  border-color: var(--gold);
+  color: var(--gold-3);
+}
 
 /* 목표 진행 바 */
 .goal-progress-bar { border-radius: 99px; box-shadow: inset 0 1px 2px rgba(31,27,20,0.06); }
