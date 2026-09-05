@@ -2293,6 +2293,61 @@ table.dt td .btn.btn-sm:not(.btn-orange):not(.btn-danger):hover {
 .goal-progress-bar { border-radius: 99px; box-shadow: inset 0 1px 2px rgba(31,27,20,0.06); }
 .goal-progress-fill { border-radius: 99px; }
 
+/* ---------- 버전별 통계 표시 ---------- */
+.ver-toggle {
+  margin-top: 10px;
+  background: none; border: none; padding: 2px 0;
+  font-size: 11px; font-weight: 700; color: var(--gold-3);
+  letter-spacing: -0.1px;
+}
+.ver-toggle:hover { color: var(--navy); text-decoration: underline; }
+.ver-break { margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
+.ver-row {
+  display: grid;
+  grid-template-columns: 34px 52px 1fr;
+  grid-template-areas: 'tag avg meta' 'bar bar bar';
+  align-items: baseline;
+  gap: 2px 8px;
+  font-size: 11px;
+}
+.ver-tag {
+  grid-area: tag;
+  display: inline-block; text-align: center;
+  padding: 1px 6px; border-radius: 99px;
+  background: var(--navy); color: #fff;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.3px;
+}
+.ver-tag.none { background: var(--amber-soft); color: var(--amber); }
+.ver-avg { grid-area: avg; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--navy); font-size: 12.5px; }
+.ver-unit { font-size: 9.5px; color: var(--ink-mute); margin-left: 1px; }
+.ver-meta { grid-area: meta; color: var(--ink-mute); font-weight: 600; }
+.ver-bar { grid-area: bar; height: 3px; border-radius: 99px; background: rgba(16,40,63,0.07); overflow: hidden; margin-top: 2px; }
+.ver-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
+
+.ver-expand {
+  background: none; border: none; cursor: pointer;
+  color: var(--gold-3); font-size: 11px; font-weight: 800;
+  margin-right: 6px; padding: 0 2px;
+}
+.ver-expand:hover { color: var(--navy); }
+tr.ver-sub-row { background: rgba(16, 40, 63, 0.022); }
+tr.ver-sub-row td { font-size: 11.5px; padding-top: 7px; padding-bottom: 7px; }
+
+.ver-summary-row {
+  margin-top: 12px; padding: 12px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+}
+.ver-summary-row strong { color: var(--navy); margin-right: 6px; }
+.ver-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--bg-card); border: 1px solid var(--line-2);
+  border-radius: 99px; padding: 4px 12px 4px 5px; font-size: 12px;
+}
+.ver-chip strong { color: var(--navy); margin: 0; font-family: 'JetBrains Mono', monospace; }
+
 /* 점수 입력 — 학년 그룹 헤더 */
 .score-group-head {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
@@ -5185,6 +5240,96 @@ function renderScoreSaveBar() {
   );
 }
 
+// ============================================================
+// 버전별 통계 — 학생 리포트의 학년 평균은 버전 통합 유지,
+// 선생님용 화면(점수 입력 · 회차 통계 · 선생님 리포트)에만 버전별 수치 제공
+// ============================================================
+// 긴 버전 이름을 V1 / V2 … 짧은 태그로 (버전이 5개여도 화면이 복잡해지지 않도록)
+function versionTag(grade, label) {
+  if (!label) return '미지정';
+  const list = getVersionsForGrade(grade);
+  const i = list.indexOf(label);
+  if (i >= 0) return 'V' + (i + 1);
+  const m = String(label).match(/V\s*(\d+)/i);
+  return m ? ('V' + m[1]) : String(label).slice(0, 8);
+}
+
+// 한 학년·회차의 버전별 응시/평균 (설정된 버전 순서대로)
+function gradeRoundVersionStats(grade, round) {
+  const students = state.students.filter(s => s.grade === grade);
+  const total = students.length;
+  const map = {};
+  students.forEach(s => {
+    const rd = getRoundData(s.id, round);
+    if (!rd) return;
+    const v = rd.version || '';
+    const rec = map[v] || (map[v] = { label: v, scores: [], absent: 0 });
+    if (isAbsent(rd)) rec.absent++;
+    else { const n = getScore(rd); if (n != null) rec.scores.push(n); }
+  });
+  const order = getVersionsForGrade(grade);
+  return Object.keys(map).map(k => {
+    const r = map[k];
+    const has = r.scores.length;
+    return {
+      label: r.label, tag: versionTag(grade, r.label),
+      count: has, absent: r.absent,
+      avg: has ? r.scores.reduce((a, b) => a + b, 0) / has : null,
+      max: has ? Math.max(...r.scores) : null,
+      min: has ? Math.min(...r.scores) : null,
+      share: total ? has / total : 0
+    };
+  }).filter(r => r.count > 0 || r.absent > 0)
+    .sort((a, b) => {
+      const ia = a.label ? order.indexOf(a.label) : 999;
+      const ib = b.label ? order.indexOf(b.label) : 999;
+      return (ia < 0 ? 998 : ia) - (ib < 0 ? 998 : ib);
+    });
+}
+
+// 선생님 담당 학생 기준 · 전 회차 누적 버전별 평균
+function teacherVersionSummary(teacher, grade) {
+  const ts = state.students.filter(s => s.teacher === teacher && s.grade === grade);
+  const map = {};
+  ts.forEach(s => {
+    for (let r = 1; r <= ROUNDS; r++) {
+      const rd = getRoundData(s.id, r);
+      if (!rd || isAbsent(rd)) continue;
+      const n = getScore(rd);
+      if (n == null) continue;
+      const v = rd.version || '';
+      (map[v] || (map[v] = [])).push(n);
+    }
+  });
+  const order = getVersionsForGrade(grade);
+  return Object.keys(map).map(k => ({
+    label: k, tag: versionTag(grade, k), n: map[k].length,
+    avg: map[k].reduce((a, b) => a + b, 0) / map[k].length
+  })).sort((a, b) => {
+    const ia = a.label ? order.indexOf(a.label) : 999;
+    const ib = b.label ? order.indexOf(b.label) : 999;
+    return (ia < 0 ? 998 : ia) - (ib < 0 ? 998 : ib);
+  });
+}
+
+// 버전별 한 줄 목록 (접었다 펼치는 영역 안에 들어감)
+function renderVersionBreakdown(grade, round) {
+  const rows = gradeRoundVersionStats(grade, round);
+  if (!rows.length) return null;
+  const box = el('div', { className: 'ver-break' });
+  rows.forEach(v => {
+    box.appendChild(el('div', { className: 'ver-row', title: v.label || '버전 미지정' },
+      el('span', { className: 'ver-tag' + (v.label ? '' : ' none') }, v.tag),
+      el('span', { className: 'ver-avg' }, v.avg != null ? fmt(v.avg) : '—',
+        v.avg != null ? el('span', { className: 'ver-unit' }, '점') : null),
+      el('span', { className: 'ver-meta' },
+        `${v.count}명` + (v.absent ? ` · 결시 ${v.absent}` : '') + ` · ${Math.round(v.share * 100)}%`),
+      el('span', { className: 'ver-bar' }, el('i', { style: { width: Math.round(v.share * 100) + '%' } }))
+    ));
+  });
+  return box;
+}
+
 function renderRoundQuickStats(round) {
   return el('div', { className: 'stat-grid' },
     ...GRADES.map(g => {
@@ -5219,7 +5364,24 @@ function renderRoundQuickStats(round) {
         }, '⚠ 응시율 50% 미만 — 평균이 대표성을 갖지 못할 수 있습니다') : null,
         st.avg != null ?
           el('div', { className: 'text-sm muted mt-12' }, `최고 ${fmt(st.max,0)} · 최저 ${fmt(st.min,0)}${st.absent ? ' · 결시 ' + st.absent : ''}`)
-          : el('div', { className: 'text-sm muted mt-12' }, '점수 입력 전')
+          : el('div', { className: 'text-sm muted mt-12' }, '점수 입력 전'),
+        (function () {
+          if (getVersionsForGrade(g).length < 2) return null;
+          const rows = gradeRoundVersionStats(g, round);
+          if (!rows.length) return null;
+          const body = renderVersionBreakdown(g, round);
+          body.style.display = ui.showVersionBreak ? 'block' : 'none';
+          const btn = el('button', {
+            className: 'ver-toggle',
+            onClick: () => {
+              ui.showVersionBreak = body.style.display === 'none';
+              document.querySelectorAll('.ver-break').forEach(x => { x.style.display = ui.showVersionBreak ? 'block' : 'none'; });
+              document.querySelectorAll('.ver-toggle').forEach(x => { x.textContent = (ui.showVersionBreak ? '▾ ' : '▸ ') + '버전별 ' + x.dataset.n + '개'; });
+            }
+          }, (ui.showVersionBreak ? '▾ ' : '▸ ') + '버전별 ' + rows.length + '개');
+          btn.dataset.n = String(rows.length);
+          return el('div', null, btn, body);
+        })()
       );
     })
   );
@@ -5372,8 +5534,28 @@ function renderGradeStatsTab() {
     );
   }
 
-  const body = GRADES.map(g => {
-    const cells = [el('td', null, el('span', { className: 'badge badge-grade-' + g }, g))];
+  const body = [];
+  GRADES.forEach(g => {
+    const hasVersions = getVersionsForGrade(g).length > 1;
+    const verLabels = Array.from(new Set(
+      roundNumbers().flatMap(r => gradeRoundVersionStats(g, r).map(v => v.label))
+    ));
+    const cells = [el('td', null,
+      hasVersions && verLabels.length
+        ? el('button', {
+            className: 'ver-expand',
+            onClick: (e) => {
+              const open = e.target.dataset.open !== '1';
+              e.target.dataset.open = open ? '1' : '0';
+              e.target.textContent = open ? '▾' : '▸';
+              document.querySelectorAll('tr[data-vergrade="' + g + '"]').forEach(tr => {
+                tr.style.display = open ? '' : 'none';
+              });
+            }
+          }, '▸')
+        : null,
+      el('span', { className: 'badge badge-grade-' + g }, g)
+    )];
     for (let r = 1; r <= ROUNDS; r++) {
       const st = gradeRoundStats(g, r);
       const rate = attendanceRate(st);
@@ -5381,7 +5563,7 @@ function renderGradeStatsTab() {
       cells.push(el('td', { className: 'num ' + scoreClass(st.avg), style: { borderLeft: '2px solid var(--line-2)' } }, st.avg != null ? fmt(st.avg) : '—'));
       cells.push(el('td', { className: 'num' }, st.max != null ? fmt(st.max, 0) : '—'));
       cells.push(el('td', { className: 'num' }, st.min != null ? fmt(st.min, 0) : '—'));
-      cells.push(el('td', { className: 'num' }, 
+      cells.push(el('td', { className: 'num' },
         rate != null && st.count > 0 ?
           el('span', { className: 'attendance-badge ' + level },
             `${st.count}/${st.total}`,
@@ -5390,9 +5572,36 @@ function renderGradeStatsTab() {
           el('span', { className: 'muted' }, '—')
       ));
     }
-    return el('tr', null, ...cells);
+    body.push(el('tr', null, ...cells));
+
+    // 버전별 행 (기본 숨김)
+    if (hasVersions) {
+      const order = getVersionsForGrade(g);
+      const sorted = verLabels.slice().sort((a2, b2) => {
+        const ia = a2 ? order.indexOf(a2) : 999, ib = b2 ? order.indexOf(b2) : 999;
+        return (ia < 0 ? 998 : ia) - (ib < 0 ? 998 : ib);
+      });
+      sorted.forEach(label => {
+        const vcells = [el('td', { style: { paddingLeft: '30px' } },
+          el('span', { className: 'ver-tag' + (label ? '' : ' none'), title: label || '버전 미지정' }, versionTag(g, label))
+        )];
+        for (let r = 1; r <= ROUNDS; r++) {
+          const v = gradeRoundVersionStats(g, r).find(x => x.label === label);
+          vcells.push(el('td', { className: 'num ' + (v ? scoreClass(v.avg) : ''), style: { borderLeft: '2px solid var(--line-2)' } },
+            v && v.avg != null ? fmt(v.avg) : '—'));
+          vcells.push(el('td', { className: 'num muted' }, v && v.max != null ? fmt(v.max, 0) : '—'));
+          vcells.push(el('td', { className: 'num muted' }, v && v.min != null ? fmt(v.min, 0) : '—'));
+          vcells.push(el('td', { className: 'num muted' }, v && v.count ? `${v.count}명` : '—'));
+        }
+        const tr = el('tr', { className: 'ver-sub-row', style: { display: 'none' } }, ...vcells);
+        tr.dataset.vergrade = g;
+        body.push(tr);
+      });
+    }
   });
 
+  container.appendChild(el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '8px' } },
+    '학년 왼쪽 ▸ 를 누르면 그 학년의 시험지 버전별 평균·응시 인원이 펼쳐집니다. (학부모 리포트의 학년 평균은 버전 구분 없이 계산됩니다)'));
   container.appendChild(el('div', { className: 'table-wrap mb-18' },
     el('table', { className: 'dt' },
       el('thead', null, header, subHeader),
@@ -5879,6 +6088,25 @@ function renderTeacherGradeSection(teacher, grade, students) {
     ));
     summaryItems.forEach(s => compareRow.appendChild(s));
     section.appendChild(compareRow);
+  }
+
+  // 버전별 담당 평균 (전 회차 누적) — 버전이 2개 이상인 학년만
+  if (getVersionsForGrade(grade).length > 1) {
+    const vs = teacherVersionSummary(teacher, grade);
+    if (vs.length) {
+      const vrow = el('div', { className: 'ver-summary-row' },
+        el('strong', null, '🎯 버전별 담당 평균'),
+        el('span', { className: 'text-sm muted' }, '(전 회차 누적 · 응시 건 기준)'),
+        el('div', { className: 'flex gap-8 flex-wrap', style: { marginTop: '8px' } },
+          ...vs.map(v => el('span', { className: 'ver-chip', title: v.label || '버전 미지정' },
+            el('span', { className: 'ver-tag' + (v.label ? '' : ' none') }, v.tag),
+            el('strong', null, fmt(v.avg) + '점'),
+            el('span', { className: 'muted' }, v.n + '건')
+          ))
+        )
+      );
+      section.appendChild(vrow);
+    }
   }
 
   // 학생 상세표
