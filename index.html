@@ -3591,6 +3591,7 @@ const ROUTES = {
   'students': { label: '학생 관리', icon: '👥', render: renderStudents },
   'scores': { label: '점수 입력', icon: '✏️', render: renderScores },
   'stats': { label: '회차 통계', icon: '📊', render: renderStats },
+  'gaps': { label: '미입력 점검', icon: '🔎', render: renderGaps },
   'teacher-report': { label: '선생님 리포트', icon: '📋', render: renderTeacherReport },
   'parent-report': { label: '학부모 리포트', icon: '💌', render: renderParentReportEntry },
   'papers': { label: '시험지 관리', icon: '📄', render: renderPapers },
@@ -3800,7 +3801,9 @@ function renderHome() {
       el('div', { className: 'stat-value' }, activeRounds, el('span', { className: 'stat-unit' }, '/' + ROUNDS + '회')),
       el('div', { className: 'stat-sub' }, '총 ' + totalScores + '건 입력')
     ),
-    el('div', { className: 'stat-card green' },
+    el('div', { className: 'stat-card green', style: { cursor: 'pointer' },
+      title: '누가 빠졌는지 보기',
+      onClick: () => { ui.gapsTab = 'pre'; navigate('gaps'); } },
       el('div', { className: 'stat-label' }, '사전 입력'),
       el('div', { className: 'stat-value' }, preDone, el('span', { className: 'stat-unit' }, '명')),
       el('div', { className: 'stat-sub' }, total ? Math.round(preDone/total*100) + '% 완료' : '—')
@@ -5490,6 +5493,315 @@ function markRowDirty(row) { row.classList.add('dirty'); }
 // ============================================================
 // 회차 통계
 // ============================================================
+// ============================================================
+// 미입력 점검 — 회차별 미응시 학생 · 사전 입력 누락 학생을 이름까지
+// ============================================================
+const PRE_FIELDS = [
+  { key: 'prevScore', label: '전학기' },
+  { key: 'studentGoal', label: '학생목표' },
+  { key: 'teacherPossible', label: '강사가능' },
+  { key: 'teacherGoal', label: '강사목표' }
+];
+
+// 한 학생의 한 회차 상태: 'score'(점수 입력) | 'absent'(결시 처리) | 'none'(아무것도 안 됨)
+function roundEntryStatus(sid, round) {
+  const rd = getRoundData(sid, round);
+  if (!rd) return 'none';
+  if (isAbsent(rd)) return 'absent';
+  if (rd.score != null && String(rd.score).trim() !== '') return 'score';
+  return 'none';
+}
+
+// 그 학생이 전 회차 중 미입력인 회차 수 (시작된 회차까지만 계산)
+function missingRoundCount(sid, upTo) {
+  let n = 0;
+  for (let r = 1; r <= (upTo || ROUNDS); r++) if (roundEntryStatus(sid, r) === 'none') n++;
+  return n;
+}
+
+// 실제로 진행된(누군가 입력한) 회차 수
+function startedRounds() {
+  const out = [];
+  for (let r = 1; r <= ROUNDS; r++) {
+    const any = state.students.some(s => GRADES.includes(s.grade) && roundEntryStatus(s.id, r) !== 'none');
+    if (any) out.push(r);
+  }
+  return out;
+}
+
+function preInputMissingFields(s) {
+  return PRE_FIELDS.filter(f => String(s[f.key] == null ? '' : s[f.key]).trim() === '');
+}
+
+function scopeStudents(filter) {
+  return state.students.filter(s => {
+    if (!GRADES.includes(s.grade)) return false;
+    if (filter.grade && filter.grade !== 'all' && s.grade !== filter.grade) return false;
+    if (filter.teacher && filter.teacher !== 'all' && s.teacher !== filter.teacher) return false;
+    return true;
+  });
+}
+
+function downloadCSV(filename, rows) {
+  const csv = rows.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+function copyNameList(list, title) {
+  const byTeacher = {};
+  list.forEach(s => { (byTeacher[s.teacher || '(미배정)'] = byTeacher[s.teacher || '(미배정)'] || []).push(s); });
+  const lines = [title, ''];
+  Object.keys(byTeacher).sort().forEach(t => {
+    lines.push(`■ ${t} (${byTeacher[t].length}명)`);
+    byTeacher[t].forEach(s => lines.push(`  · ${s.grade} ${s.name} (${s.school || '학교 미입력'})`));
+    lines.push('');
+  });
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(() => showToast('명단을 복사했습니다 · 카톡에 붙여넣으세요 ✓', 'success'))
+    .catch(() => showToast('복사에 실패했습니다', 'error'));
+}
+
+// 공통 명단 표
+function gapTable(list, extraCol) {
+  if (!list.length) {
+    return el('div', { className: 'empty', style: { padding: '40px' } },
+      el('div', { className: 'empty-icon' }, '✅'),
+      el('div', { className: 'empty-text' }, '해당 조건에 누락된 학생이 없습니다'));
+  }
+  return el('div', { className: 'table-wrap' },
+    el('table', { className: 'dt' },
+      el('thead', null, el('tr', null,
+        el('th', null, '학년'), el('th', null, '학생'), el('th', null, '학교'),
+        el('th', null, '담당 선생님'), extraCol ? el('th', null, extraCol.head) : null
+      )),
+      el('tbody', null, ...list.map(s => el('tr', null,
+        el('td', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade)),
+        el('td', { style: { fontWeight: 700 } }, s.name),
+        el('td', { className: 'text-sm' }, s.school || el('span', { className: 'muted' }, '—')),
+        el('td', { className: 'text-sm' }, s.teacher || el('span', { className: 'muted' }, '미배정')),
+        extraCol ? el('td', null, extraCol.cell(s)) : null
+      )))
+    )
+  );
+}
+
+function renderGaps() {
+  if (!ui.gapsFilter) ui.gapsFilter = { grade: 'all', teacher: 'all', round: null };
+  if (!ui.gapsTab) ui.gapsTab = 'rounds';
+  const f = ui.gapsFilter;
+  const done = startedRounds();
+  if (f.round == null) f.round = done.length ? done[done.length - 1] : 1;
+
+  const wrap = el('div');
+  wrap.appendChild(el('div', { className: 'page-header' },
+    el('div', { className: 'page-title' }, '미입력 점검'),
+    el('div', { className: 'page-subtitle' }, '회차별 미응시 학생과 사전 입력이 빠진 학생을 이름·학교·담당 선생님까지 확인합니다')
+  ));
+
+  wrap.appendChild(el('div', { className: 'tabs' },
+    el('div', { className: 'tab' + (ui.gapsTab === 'rounds' ? ' active' : ''),
+      onClick: () => { ui.gapsTab = 'rounds'; render(); } }, '📝 회차별 미응시'),
+    el('div', { className: 'tab' + (ui.gapsTab === 'pre' ? ' active' : ''),
+      onClick: () => { ui.gapsTab = 'pre'; render(); } }, '🎯 사전 입력 누락'),
+    el('div', { className: 'tab' + (ui.gapsTab === 'teacher' ? ' active' : ''),
+      onClick: () => { ui.gapsTab = 'teacher'; render(); } }, '👨‍🏫 선생님별 요약')
+  ));
+
+  // 공통 필터
+  function filterBar(extra) {
+    return el('div', { className: 'filter-bar' },
+      el('div', { className: 'filter-label' }, '학년'),
+      el('div', { className: 'filter-chips' },
+        ...['all', ...GRADES].map(g => el('button', {
+          className: 'chip' + (f.grade === g ? ' active' : ''),
+          onClick: () => { f.grade = g; render(); }
+        }, g === 'all' ? '전체' : g))
+      ),
+      el('div', { className: 'filter-label', style: { marginLeft: '12px' } }, '선생님'),
+      el('select', {
+        className: 'select', style: { width: '150px' },
+        onChange: e => { f.teacher = e.target.value; render(); }
+      },
+        el('option', { value: 'all', selected: f.teacher === 'all' }, '전체'),
+        ...getAllTeachers().map(t => el('option', { value: t, selected: f.teacher === t }, t))
+      ),
+      extra || null
+    );
+  }
+
+  // ---------- ① 회차별 미응시 ----------
+  if (ui.gapsTab === 'rounds') {
+    wrap.appendChild(el('div', { className: 'filter-bar', style: { marginBottom: '10px' } },
+      el('div', { className: 'filter-label' }, '회차'),
+      el('div', { className: 'filter-chips' },
+        ...roundNumbers().map(r => el('button', {
+          className: 'chip' + (f.round === r ? ' active' : ''),
+          onClick: () => { f.round = r; render(); }
+        }, r + '회' + (done.includes(r) ? '' : ' ·')))
+      )
+    ));
+    wrap.appendChild(filterBar());
+
+    const list = scopeStudents(f);
+    const missing = list.filter(s => roundEntryStatus(s.id, f.round) === 'none');
+    const absent = list.filter(s => roundEntryStatus(s.id, f.round) === 'absent');
+    const scored = list.filter(s => roundEntryStatus(s.id, f.round) === 'score');
+    const pct = list.length ? Math.round(scored.length / list.length * 100) : 0;
+
+    wrap.appendChild(el('div', { className: 'stat-grid' },
+      el('div', { className: 'stat-card', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, f.round + '회 입력 완료'),
+        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, scored.length,
+          el('span', { className: 'stat-unit' }, '/ ' + list.length + '명')),
+        el('div', { className: 'stat-sub' }, pct + '% 응시 입력')
+      ),
+      el('div', { className: 'stat-card navy', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, '결시 처리'),
+        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, absent.length,
+          el('span', { className: 'stat-unit' }, '명')),
+        el('div', { className: 'stat-sub' }, '결시 버튼으로 처리됨')
+      ),
+      el('div', { className: 'stat-card pink', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, '미입력 (확인 필요)'),
+        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, missing.length,
+          el('span', { className: 'stat-unit' }, '명')),
+        el('div', { className: 'stat-sub' }, '점수도 결시도 입력되지 않음')
+      )
+    ));
+
+    wrap.appendChild(el('div', { className: 'flex gap-8 flex-wrap mb-12' },
+      el('button', { className: 'btn btn-ghost btn-sm',
+        onClick: () => copyNameList(missing, `[${f.round}회 미입력 ${missing.length}명]`) }, '📋 명단 복사'),
+      el('button', { className: 'btn btn-ghost btn-sm',
+        onClick: () => downloadCSV(`${f.round}회_미입력_${dateStr()}.csv`,
+          [['학년','학생','학교','담당 선생님','누적 미입력 회차']].concat(
+            missing.map(s => [s.grade, s.name, s.school || '', s.teacher || '', missingRoundCount(s.id, Math.max(...done, f.round))]))) }, '⬇ CSV 저장'),
+      el('button', { className: 'btn btn-ghost btn-sm',
+        onClick: () => { ui.currentPage = 'scores'; ui.scoreFilters.round = f.round;
+          ui.scoreFilters.grade = f.grade; ui.scoreFilters.teacher = f.teacher; render(); } }, '✏️ 이 회차 점수 입력으로 이동')
+    ));
+
+    const maxR = Math.max(...done, f.round);
+    wrap.appendChild(gapTable(missing, {
+      head: '누적 미입력',
+      cell: s => {
+        const n = missingRoundCount(s.id, maxR);
+        return el('span', {
+          className: 'badge ' + (n >= 3 ? 'badge-danger' : n >= 2 ? 'badge-warning' : ''),
+        }, n + '회');
+      }
+    }));
+
+    if (absent.length) {
+      wrap.appendChild(el('div', { className: 'card mt-18' },
+        el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), `${f.round}회 결시 처리된 학생 ${absent.length}명`),
+        el('div', { className: 'flex gap-8 flex-wrap' },
+          ...absent.map(s => el('span', { className: 'badge' },
+            `${s.grade} ${s.name}` + (s.teacher ? ' · ' + s.teacher : '')))
+        )
+      ));
+    }
+  }
+
+  // ---------- ② 사전 입력 누락 ----------
+  if (ui.gapsTab === 'pre') {
+    wrap.appendChild(filterBar());
+    const list = scopeStudents(f);
+    const incomplete = list.filter(s => preInputMissingFields(s).length > 0);
+    const doneCnt = list.length - incomplete.length;
+    const pct = list.length ? Math.round(doneCnt / list.length * 100) : 0;
+
+    const byField = {};
+    PRE_FIELDS.forEach(pf => { byField[pf.key] = list.filter(s => String(s[pf.key] || '').trim() === '').length; });
+
+    wrap.appendChild(el('div', { className: 'stat-grid' },
+      el('div', { className: 'stat-card', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, '사전 입력 완료'),
+        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, doneCnt,
+          el('span', { className: 'stat-unit' }, '/ ' + list.length + '명')),
+        el('div', { className: 'stat-sub' }, pct + '% 완료')
+      ),
+      el('div', { className: 'stat-card pink', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, '미완료'),
+        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, incomplete.length,
+          el('span', { className: 'stat-unit' }, '명')),
+        el('div', { className: 'stat-sub' }, '항목이 하나라도 비어 있음')
+      ),
+      el('div', { className: 'stat-card navy', style: { padding: '16px' } },
+        el('div', { className: 'stat-label' }, '항목별 빈칸'),
+        el('div', { className: 'text-sm', style: { marginTop: '6px', lineHeight: '1.9' } },
+          ...PRE_FIELDS.map(pf => el('div', null,
+            pf.label + ' ', el('strong', { style: { color: byField[pf.key] ? 'var(--red)' : 'var(--green)' } }, byField[pf.key] + '명')))
+        )
+      )
+    ));
+
+    wrap.appendChild(el('div', { className: 'flex gap-8 flex-wrap mb-12' },
+      el('button', { className: 'btn btn-ghost btn-sm',
+        onClick: () => copyNameList(incomplete, `[사전 입력 미완료 ${incomplete.length}명]`) }, '📋 명단 복사'),
+      el('button', { className: 'btn btn-ghost btn-sm',
+        onClick: () => downloadCSV(`사전입력_미완료_${dateStr()}.csv`,
+          [['학년','학생','학교','담당 선생님','빠진 항목']].concat(
+            incomplete.map(s => [s.grade, s.name, s.school || '', s.teacher || '',
+              preInputMissingFields(s).map(x => x.label).join(' / ')]))) }, '⬇ CSV 저장'),
+      el('button', { className: 'btn btn-orange btn-sm',
+        onClick: () => { ui.currentPage = 'students'; render(); setTimeout(openPreInputModal, 120); } }, '📝 사전 입력 화면 열기')
+    ));
+
+    wrap.appendChild(gapTable(incomplete, {
+      head: '빠진 항목',
+      cell: s => el('div', { className: 'flex gap-8 flex-wrap' },
+        ...preInputMissingFields(s).map(pf => el('span', { className: 'badge badge-warning' }, pf.label)))
+    }));
+  }
+
+  // ---------- ③ 선생님별 요약 ----------
+  if (ui.gapsTab === 'teacher') {
+    const teachers = getAllTeachers();
+    const rounds = done.length ? done : [1];
+    const head = el('tr', null,
+      el('th', null, '선생님'), el('th', null, '담당'), el('th', null, '사전 입력'),
+      ...rounds.map(r => el('th', null, r + '회'))
+    );
+    const rows = teachers.map(t => {
+      const ts = state.students.filter(s => s.teacher === t && GRADES.includes(s.grade));
+      if (!ts.length) return null;
+      const preInc = ts.filter(s => preInputMissingFields(s).length > 0).length;
+      const cells = [
+        el('td', { style: { fontWeight: 700 } }, t),
+        el('td', { className: 'num' }, ts.length + '명'),
+        el('td', null, el('span', {
+          className: 'badge ' + (preInc === 0 ? 'badge-success' : preInc > ts.length / 2 ? 'badge-danger' : 'badge-warning'),
+          style: { cursor: 'pointer' },
+          onClick: () => { ui.gapsTab = 'pre'; f.teacher = t; f.grade = 'all'; render(); }
+        }, preInc === 0 ? '완료' : preInc + '명 누락'))
+      ];
+      rounds.forEach(r => {
+        const miss = ts.filter(s => roundEntryStatus(s.id, r) === 'none').length;
+        cells.push(el('td', null, el('span', {
+          className: 'badge ' + (miss === 0 ? 'badge-success' : miss > ts.length / 2 ? 'badge-danger' : 'badge-warning'),
+          style: { cursor: 'pointer' },
+          onClick: () => { ui.gapsTab = 'rounds'; f.round = r; f.teacher = t; f.grade = 'all'; render(); }
+        }, miss === 0 ? '✓' : miss + '명')));
+      });
+      return el('tr', null, ...cells);
+    }).filter(Boolean);
+
+    wrap.appendChild(el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '10px' } },
+      '숫자는 아직 입력되지 않은 학생 수입니다. 숫자를 누르면 그 선생님의 해당 명단으로 바로 이동합니다.'));
+    wrap.appendChild(el('div', { className: 'table-wrap' },
+      el('table', { className: 'dt' }, el('thead', null, head), el('tbody', null, ...rows))
+    ));
+  }
+
+  return wrap;
+}
+
 function renderStats() {
   const wrap = el('div');
   wrap.appendChild(el('div', { className: 'page-header' },
