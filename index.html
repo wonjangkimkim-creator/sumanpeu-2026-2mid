@@ -2827,7 +2827,8 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-strip-ok{margin-left:9px;background:rgba(5,150,105,.12);color:#047857;border-radius:999px;
   padding:1px 9px;font-size:11px;font-weight:800}
 .lg-strip-bar{flex:1;min-width:60px;height:6px;border-radius:999px;background:rgba(27,42,74,.09);overflow:hidden}
-.lg-strip-bar i{display:block;height:100%;background:linear-gradient(90deg,#1b2a4a,#b5924f)}
+.lg-strip-bar i{display:block;height:100%;background:linear-gradient(90deg,#1b2a4a,#b5924f);
+  transition:width .55s cubic-bezier(.2,.8,.2,1)}
 .lg-strip-go{flex:none;font-size:11.5px;font-weight:800;color:#b5924f}
 @media (max-width:720px){ .lg-strip-bar{display:none} }
 .lg-admin{border-color:rgba(27,42,74,.25)}
@@ -3174,6 +3175,7 @@ function saveState() {
         stateLight.testPapers[grade][rkey] = lightPaper;
       }
     }
+    invalidateRoundCache();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateLight));
   } catch (e) {
     console.error('saveState error', e);
@@ -3791,12 +3793,101 @@ function render() {
   app.innerHTML = '';
   app.appendChild(renderTopbar());
   const main = el('main', { className: 'main' });
+  invalidateRoundCache();
   const route = ROUTES[ui.currentPage] || ROUTES.home;
   const pageEl = el('div', { className: 'page active' });
   pageEl.appendChild(route.render());
   main.appendChild(pageEl);
   app.appendChild(main);
   window.scrollTo(0, 0);
+  setTimeout(() => runEntryAnimations(pageEl), 20);
+}
+
+// ============================================================
+// 화면 진입 연출 — 숫자 카운트업 · 막대 차오름 · 행 순차 등장
+//   data-count-to / data-fill-to / data-rise 가 붙은 요소만 움직인다
+// ============================================================
+function prefersReducedMotion() {
+  try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+  catch (e) { return false; }
+}
+
+// 숫자: <span>에 목표값을 심어 둔다
+function countUp(node, to, opts) {
+  const o = opts || {};
+  node.dataset.countTo = to;
+  if (o.dec != null) node.dataset.countDec = o.dec;
+  if (o.suffix) node.dataset.countSuffix = o.suffix;
+  if (o.comma) node.dataset.countComma = '1';
+  node.textContent = o.comma ? Number(to).toLocaleString() : String(to);
+  return node;
+}
+
+// 막대: 목표 너비(%)와 순번(지연)을 심어 둔다
+function fillBar(node, pct, order) {
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  node.dataset.fillTo = p;
+  if (order) node.dataset.fillDelay = order * 65;
+  node.style.width = p + '%';
+  return node;
+}
+
+function riseIn(node, order) {
+  node.dataset.rise = order == null ? 0 : order;
+  return node;
+}
+
+function runEntryAnimations(root) {
+  if (!root) return;
+  const reduce = prefersReducedMotion();
+
+  // 막대 — 0%에서 목표 너비까지
+  root.querySelectorAll('[data-fill-to]').forEach(n => {
+    const to = parseFloat(n.dataset.fillTo) || 0;
+    if (reduce) { n.style.width = to + '%'; return; }
+    const delay = parseInt(n.dataset.fillDelay, 10) || 0;
+    n.style.transition = 'none';
+    n.style.width = '0%';
+    void n.offsetWidth;   // 강제 리플로우 — 이것이 없으면 브라우저가 전환을 생략한다
+    n.style.transition = 'width .8s cubic-bezier(.2,.85,.25,1) ' + (60 + delay) + 'ms';
+    n.style.width = to + '%';
+  });
+
+  // 숫자 — 0에서 목표값까지
+  root.querySelectorAll('[data-count-to]').forEach(n => {
+    const to = parseFloat(n.dataset.countTo);
+    if (isNaN(to)) return;
+    const dec = parseInt(n.dataset.countDec, 10) || 0;
+    const suf = n.dataset.countSuffix || '';
+    const comma = n.dataset.countComma === '1';
+    const show = v => (dec > 0 ? v.toFixed(dec) : (comma ? Math.round(v).toLocaleString() : String(Math.round(v)))) + suf;
+    if (reduce || Math.abs(to) < 2) { n.textContent = show(to); return; }
+    const dur = Math.abs(to) > 500 ? 900 : 700;
+    const t0 = performance.now();
+    n.textContent = show(0);
+    const step = now => {
+      const p = Math.max(0, Math.min(1, (now - t0) / dur));
+      const e = 1 - Math.pow(1 - p, 3);
+      n.textContent = show(to * e);
+      if (p < 1) requestAnimationFrame(step);
+      else n.textContent = show(to);
+    };
+    requestAnimationFrame(step);
+  });
+
+  // 행·카드 — 위에서부터 한 겹씩 떠오름
+  const risers = root.querySelectorAll('[data-rise]');
+  risers.forEach((n, i) => {
+    if (reduce) return;
+    const isRow = n.tagName === 'TR';
+    n.style.opacity = '0';
+    if (!isRow) n.style.transform = 'translateY(9px)';
+    setTimeout(() => {
+      n.style.transition = 'opacity .34s ease' + (isRow ? '' : ', transform .4s cubic-bezier(.2,.8,.2,1)');
+      n.style.opacity = '1';
+      if (!isRow) n.style.transform = 'none';
+    }, 40 + i * 42);
+  });
 }
 
 function renderTopbar() {
@@ -3954,24 +4045,24 @@ function renderHome() {
   wrap.appendChild(el('div', { className: 'stat-grid' },
     el('div', { className: 'stat-card' },
       el('div', { className: 'stat-label' }, '응시 대상'),
-      el('div', { className: 'stat-value' }, total, el('span', { className: 'stat-unit' }, '명')),
+      el('div', { className: 'stat-value' }, countUp(el('span'), total, { comma: true }), el('span', { className: 'stat-unit' }, '명')),
       el('div', { className: 'stat-sub' }, GRADES.join(' · '))
     ),
     el('div', { className: 'stat-card navy', style: { cursor: 'pointer' }, title: '회차별 미입력 학생 보기',
       onClick: () => { ui.gapTab = 'rounds'; navigate('gaps'); } },
       el('div', { className: 'stat-label' }, '진행 회차'),
-      el('div', { className: 'stat-value' }, activeRounds, el('span', { className: 'stat-unit' }, '/' + ROUNDS + '회')),
+      el('div', { className: 'stat-value' }, countUp(el('span'), activeRounds), el('span', { className: 'stat-unit' }, '/' + ROUNDS + '회')),
       el('div', { className: 'stat-sub' }, '총 ' + totalScores + '건 입력 · 미입력 점검 \u203a')
     ),
     el('div', { className: 'stat-card green', style: { cursor: 'pointer' }, title: '누락 학생 명단 보기',
       onClick: () => { ui.gapTab = 'pre'; navigate('gaps'); } },
       el('div', { className: 'stat-label' }, '사전 입력'),
-      el('div', { className: 'stat-value' }, preDone, el('span', { className: 'stat-unit' }, '명')),
+      el('div', { className: 'stat-value' }, countUp(el('span'), preDone, { comma: true }), el('span', { className: 'stat-unit' }, '명')),
       el('div', { className: 'stat-sub' }, (total ? Math.round(preDone/total*100) + '% 완료' : '—') + ' · 누락 명단 \u203a')
     ),
     el('div', { className: 'stat-card pink' },
       el('div', { className: 'stat-label' }, '시험지 업로드'),
-      el('div', { className: 'stat-value' }, papersUp, el('span', { className: 'stat-unit' }, '회차')),
+      el('div', { className: 'stat-value' }, countUp(el('span'), papersUp), el('span', { className: 'stat-unit' }, '회차')),
       el('div', { className: 'stat-sub' }, '학부모 리포트 활성화')
     )
   ));
@@ -4185,13 +4276,13 @@ function renderRoundsProgress(students) {
         el('div', { className: 'text-sm muted' }, `${taken}/${total}명 (${pct}%)${absent > 0 ? ' · 결시 ' + absent : ''}`)
       ),
       el('div', { style: { height: '7px', background: 'rgba(31,27,20,0.06)', borderRadius: '99px', overflow: 'hidden', boxShadow: 'inset 0 1px 2px rgba(31,27,20,0.05)' } },
-        el('div', { style: {
-          height: '100%', width: pct + '%', borderRadius: '99px',
+        fillBar(el('div', { style: {
+          height: '100%', borderRadius: '99px',
           background: pct >= 70 ? 'linear-gradient(90deg, #2f9d5b, #15803d)'
                     : pct >= 30 ? 'linear-gradient(90deg, #c9a468, var(--orange-deep))'
                                 : 'linear-gradient(90deg, #d34d68, var(--red))',
           transition: 'width 0.45s cubic-bezier(.2,.7,.3,1)'
-        }})
+        }}), pct, r)
       )
     ));
   }
@@ -5729,6 +5820,7 @@ function goalCloseness(teacher) {
 }
 
 function axisScores(card) {
+  if (card._axes) return card._axes;
   return LG_AXES.map(a => {
     const v = a.score(card);
     return (v == null || isNaN(v)) ? 0 : Math.max(0, Math.min(100, v));
@@ -5893,7 +5985,9 @@ function teacherLeagueCard(teacher) {
 }
 
 function leagueBoard() {
-  return getAllTeachers().map(teacherLeagueCard).sort((a, b) => b.xp - a.xp);
+  const out = getAllTeachers().map(teacherLeagueCard);
+  out.forEach(c => { c._axes = axisScores(c); });
+  return out.sort((a, b) => b.xp - a.xp);
 }
 
 // 학원 전체 협동 게이지
@@ -5937,7 +6031,7 @@ function renderLeagueStrip() {
         : el('span', null, el('b', null, '우리 학원 공동 목표 ' + L.goal + '%'), ' · 현재 ', el('b', null, pct + '%'),
             team.empty ? ' · 남은 칸 ' + team.empty + '개' : ' · 모두 완료 🎉')
     ),
-    el('div', { className: 'lg-strip-bar' }, el('i', { style: { width: Math.min(100, mine ? Math.round(mine.rate * 100) : pct) + '%' } })),
+    el('div', { className: 'lg-strip-bar' }, fillBar(el('i'), Math.min(100, mine ? Math.round(mine.rate * 100) : pct))),
     el('span', { className: 'lg-strip-go' }, '리그 \u203a')
   );
 }
@@ -5975,10 +6069,10 @@ function renderLeague() {
             ? team.rounds.map(r => r + '회').join(' · ') + ' 기준 · 전체 ' + (team.scored + team.absent) + '/' + team.cells + '칸'
             : '아직 진행된 회차가 없습니다')
       ),
-      el('div', { className: 'lg-team-pct' }, pct, el('span', null, '%'))
+      el('div', { className: 'lg-team-pct' }, countUp(el('span'), pct), el('span', null, '%'))
     ),
     el('div', { className: 'lg-gauge' },
-      el('div', { className: 'lg-gauge-fill', style: { width: Math.min(100, pct) + '%' } }),
+      fillBar(el('div', { className: 'lg-gauge-fill' }), Math.min(100, pct)),
       el('div', { className: 'lg-gauge-mark', style: { left: L.goal + '%' } }, el('span', null, '목표 ' + L.goal + '%'))
     ),
     el('div', { className: 'lg-team-foot' },
@@ -6007,13 +6101,13 @@ function renderLeague() {
           className: 'input lg-me-select',
           onChange: e => { ui.leagueTeacher = e.target.value; render(); }
         }, ...teachers.map(t => el('option', { value: t, selected: t === ui.leagueTeacher }, t))),
-        el('div', { className: 'lg-me-xp' }, me.xp.toLocaleString(), el('span', null, ' XP'))
+        el('div', { className: 'lg-me-xp' }, countUp(el('span'), me.xp, { comma: true }), el('span', null, ' XP'))
       ),
       el('div', { className: 'lg-me-level' },
         el('div', { className: 'lg-me-icon' }, lvl.cur.icon),
         el('div', { className: 'lg-me-info' },
           el('div', { className: 'lg-me-title' }, 'Lv.' + lvl.cur.lv + ' ' + lvl.cur.title),
-          el('div', { className: 'lg-bar' }, el('i', { style: { width: lvl.pct + '%' } })),
+          el('div', { className: 'lg-bar' }, fillBar(el('i'), lvl.pct, 2)),
           el('div', { className: 'lg-me-next' },
             lvl.next ? ('다음 등급 ' + lvl.next.icon + ' ' + lvl.next.title + '까지 ' + lvl.toNext.toLocaleString() + ' XP')
                      : '최고 등급입니다 — 명예의 전당 🏆')
@@ -6034,7 +6128,7 @@ function renderLeague() {
             const ov = overallIndex(me);
             const tr = ov >= 80 ? 's' : ov >= 60 ? 'a' : ov >= 40 ? 'b' : 'c';
             return el('div', { className: 'lg-overall' },
-              el('div', { className: 'lg-overall-num' }, ov),
+              el('div', { className: 'lg-overall-num' }, countUp(el('span'), ov)),
               el('div', { className: 'lg-overall-lb' },
                 el('b', null, '종합 지수'),
                 el('span', null, '6개 능력치 평균 · 담당 ' + me.students + '명')
@@ -6048,7 +6142,7 @@ function renderLeague() {
             return el('div', { className: 'lg-stat', title: a.hint },
               el('span', { className: 'lg-stat-nm' }, a.label),
               el('span', { className: 'lg-stat-tr ' + tier }, v >= 80 ? 'S' : v >= 60 ? 'A' : v >= 40 ? 'B' : 'C'),
-              el('span', { className: 'lg-stat-bar' }, el('i', { className: tier, style: { width: v + '%' } })),
+              el('span', { className: 'lg-stat-bar' }, fillBar(el('i', { className: tier }), v, i + 1)),
               el('span', { className: 'lg-stat-vl' }, a.text(me))
             );
           })
@@ -6104,7 +6198,7 @@ function renderLeague() {
           el('th', null, 'XP'), el('th', null, '종합'), el('th', null, '담당'), el('th', null, '입력률'),
           el('th', null, '사전 입력'), el('th', null, '배지')
         )),
-        el('tbody', null, ...board.map((b, i) => el('tr', null,
+        el('tbody', null, ...board.map((b, i) => riseIn(el('tr', null,
           el('td', { className: 'num' }, i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)),
           el('td', null, el('strong', null, b.teacher)),
           el('td', null, el('span', { className: 'lg-lv-chip' }, b.level.cur.icon + ' Lv.' + b.level.cur.lv),
@@ -6125,7 +6219,7 @@ function renderLeague() {
           }, b.preDone + '/' + b.preTotal)),
           el('td', null, el('span', { className: 'lg-badge-mini' },
             LEAGUE_BADGES.filter(x => b.badges[x.key]).map(x => x.icon).join(' ') || '—'))
-        )))
+        ), i)))
       )
     )
   ));
@@ -6243,7 +6337,11 @@ function roundEntryStatus(sid, round) {
   return getScore(rd) != null ? 'scored' : 'empty';
 }
 
+let _roundCache = { started: null, matured: null };
+function invalidateRoundCache() { _roundCache = { started: null, matured: null }; }
+
 function startedRounds() {
+  if (_roundCache.started) return _roundCache.started;
   const out = [];
   for (let r = 1; r <= ROUNDS; r++) {
     let any = false;
@@ -6252,18 +6350,20 @@ function startedRounds() {
     }
     if (any) out.push(r);
   }
+  _roundCache.started = out;
   return out;
 }
 
 // 전체 학생의 절반 이상이 처리된 회차만 '완주' 평가 대상으로 본다
 function maturedRounds() {
+  if (_roundCache.matured) return _roundCache.matured;
   const total = state.students.length;
   if (!total) return [];
-  return startedRounds().filter(r => {
+  return (_roundCache.matured = startedRounds().filter(r => {
     let done = 0;
     state.students.forEach(s => { if (roundEntryStatus(s.id, r) !== 'empty') done++; });
     return done / total >= 0.5;
-  });
+  }));
 }
 
 function missingRoundCount(s, rounds) {
@@ -6406,10 +6506,12 @@ function renderGapsRounds() {
   const scored = scope.length - missing.length - absent.length;
 
   box.appendChild(el('div', { className: 'gap-sum' },
-    el('div', { className: 'gap-sum-item ok' }, el('b', null, scored), '점수 입력'),
-    el('div', { className: 'gap-sum-item warn' }, el('b', null, absent.length), '결시 처리'),
-    el('div', { className: 'gap-sum-item bad' }, el('b', null, missing.length), '미입력'),
-    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length ? Math.round((scored + absent.length) / scope.length * 100) + '%' : '—'), '처리율')
+    el('div', { className: 'gap-sum-item ok' }, el('b', null, countUp(el('span'), scored)), '점수 입력'),
+    el('div', { className: 'gap-sum-item warn' }, el('b', null, countUp(el('span'), absent.length)), '결시 처리'),
+    el('div', { className: 'gap-sum-item bad' }, el('b', null, countUp(el('span'), missing.length)), '미입력'),
+    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length
+      ? countUp(el('span'), Math.round((scored + absent.length) / scope.length * 100), { suffix: '%' })
+      : '—'), '처리율')
   ));
 
   box.appendChild(el('div', { className: 'gap-actions' },
@@ -6463,9 +6565,11 @@ function renderGapsPre() {
   const done = scope.length - incomplete.length;
 
   box.appendChild(el('div', { className: 'gap-sum' },
-    el('div', { className: 'gap-sum-item ok' }, el('b', null, done), '입력 완료'),
-    el('div', { className: 'gap-sum-item bad' }, el('b', null, incomplete.length), '누락'),
-    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length ? Math.round(done / scope.length * 100) + '%' : '—'), '완료율')
+    el('div', { className: 'gap-sum-item ok' }, el('b', null, countUp(el('span'), done)), '입력 완료'),
+    el('div', { className: 'gap-sum-item bad' }, el('b', null, countUp(el('span'), incomplete.length)), '누락'),
+    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length
+      ? countUp(el('span'), Math.round(done / scope.length * 100), { suffix: '%' })
+      : '—'), '완료율')
   ));
 
   box.appendChild(el('div', { className: 'gap-actions' },
