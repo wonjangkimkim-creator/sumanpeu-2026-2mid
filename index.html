@@ -2873,6 +2873,8 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-strip-bar i{display:block;height:100%;background:linear-gradient(90deg,#1b2a4a,#b5924f);
   transition:width .55s cubic-bezier(.2,.8,.2,1)}
 .lg-strip-go{flex:none;font-size:11.5px;font-weight:800;color:#b5924f}
+.lg-strip-locked{justify-content:space-between}
+.lg-strip-locked .lg-strip-main{flex:1}
 @media (max-width:720px){ .lg-strip-bar{display:none} }
 .lg-admin{border-color:rgba(27,42,74,.25)}
 .lg-admin-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
@@ -3795,7 +3797,7 @@ const ROUTES = {
   'scores': { label: '점수 입력', icon: '✏️', render: renderScores },
   'stats': { label: '회차 통계', icon: '📊', render: renderStats },
   'gaps': { label: '미입력 점검', icon: '🔎', render: renderGaps },
-  'league': { label: '리그', icon: '🏆', render: renderLeague },
+  'league': { label: '리그', icon: '🏆', render: () => isLeagueOpen() ? renderLeague() : renderLeagueLock() },
   'teacher-report': { label: '선생님 리포트', icon: '📋', render: renderTeacherReport },
   'parent-report': { label: '학부모 리포트', icon: '💌', render: renderParentReportEntry },
   'papers': { label: '시험지 관리', icon: '📄', render: renderPapers },
@@ -4671,7 +4673,7 @@ function renderSettings() {
           clean[g] = (draft.versions[g] || []).map(x => String(x || '').trim()).filter(Boolean);
           if (!clean[g].length) clean[g] = ['표준 (V1)'];
         });
-        state.config = { rounds: draft.rounds, grades: draft.grades.slice(), versions: clean, gateHash: (state.config && state.config.gateHash) || '', adminHash: (state.config && state.config.adminHash) || '', quotes: (state.config && state.config.quotes) || [], quotesOnlyCustom: !!(state.config && state.config.quotesOnlyCustom) };
+        state.config = { rounds: draft.rounds, grades: draft.grades.slice(), versions: clean, gateHash: (state.config && state.config.gateHash) || '', adminHash: (state.config && state.config.adminHash) || '', leagueHash: (state.config && state.config.leagueHash) || '', league: (state.config && state.config.league) || null, quotes: (state.config && state.config.quotes) || [], quotesOnlyCustom: !!(state.config && state.config.quotesOnlyCustom) };
         applyConfig();
         if (!GRADES.includes(ui.papersGrade)) ui.papersGrade = GRADES[0];
         saveState();
@@ -4684,7 +4686,9 @@ function renderSettings() {
       onClick: () => confirmDialog('설정을 기본값(8회 · 중1~고2 · 학년당 2버전)으로 되돌릴까요?', () => {
         const keepHash = (state.config && state.config.gateHash) || '';
         const keepAdmin = (state.config && state.config.adminHash) || '';
-        state.config = defaultConfig(); state.config.gateHash = keepHash; state.config.adminHash = keepAdmin; applyConfig(); saveState();
+        const keepLeague = (state.config && state.config.leagueHash) || '';
+        state.config = defaultConfig(); state.config.gateHash = keepHash; state.config.adminHash = keepAdmin;
+        state.config.leagueHash = keepLeague; applyConfig(); saveState();
         showToast('기본값으로 되돌렸습니다.', 'success'); render();
       })
     }, '기본값으로 되돌리기')
@@ -4757,6 +4761,38 @@ function renderSettings() {
       }, '관리자 비밀번호 변경'),
       isAdmin()
         ? el('button', { className: 'btn btn-ghost', onClick: adminLock }, '🔒 이 기기 관리자 해제')
+        : null
+    )
+  ));
+
+  // ---------- 6-1. 리그 비밀번호 ----------
+  const lgNew = el('input', { className: 'input', type: 'text', placeholder: '새 리그 비밀번호', style: { maxWidth: '220px' } });
+  wrap.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, '⑥-1 리그 비밀번호 (수만프 리그)'),
+    el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '12px' } },
+      '[리그] 화면(선생님별 레벨 · 능력치 · 진행 지도)을 여는 비밀번호입니다. 기본값은 ',
+      el('strong', null, '006326'),
+      ' 이며, 관리자 모드에서는 따로 입력하지 않아도 열립니다.',
+      el('br'),
+      '현재 이 기기: ', el('strong', { style: { color: isLeagueOpen() ? 'var(--green)' : 'var(--ink-3)' } },
+        isAdmin() ? '관리자 모드 (열람 가능)' : (isLeagueOpen() ? '열림' : '잠김'))),
+    el('div', { className: 'flex gap-8 flex-wrap', style: { alignItems: 'center' } },
+      lgNew,
+      el('button', {
+        className: 'btn btn-orange',
+        onClick: () => {
+          const v = String(lgNew.value || '').trim();
+          if (v.length < 4) { showToast('4자 이상 입력하세요.', 'error'); return; }
+          state.config.leagueHash = gateHash(v);
+          try { localStorage.setItem(LEAGUE_STORAGE_KEY, state.config.leagueHash); } catch (e) {}
+          saveState();
+          lgNew.value = '';
+          showToast('리그 비밀번호를 변경했습니다.', 'success');
+          render();
+        }
+      }, '리그 비밀번호 변경'),
+      (!isAdmin() && isLeagueOpen())
+        ? el('button', { className: 'btn btn-ghost', onClick: leagueLock }, '🔒 이 기기 리그 잠그기' )
         : null
     )
   ));
@@ -6127,6 +6163,16 @@ function renderLeagueStrip() {
   const team = leagueTeamStats();
   if (!team.rounds.length) return null;
   const L = leagueConfig();
+
+  if (!isLeagueOpen()) {
+    return el('div', { className: 'lg-strip lg-strip-locked', onClick: () => navigate('league'), title: '리그 열기' },
+      el('div', { className: 'lg-strip-main' },
+        el('span', { className: 'lg-strip-ic' }, '🏆'),
+        el('span', null, el('b', null, '수만프 리그'), ' · 레벨 · 능력치 · 진행 지도')
+      ),
+      el('span', { className: 'lg-strip-go' }, '🔒 열기 \u203a')
+    );
+  }
   const pct = Math.round(team.rate * 100);
   const t = ui.scoreFilters.teacher;
   const mine = (t && t !== 'all') ? teacherLeagueCard(t) : null;
@@ -10538,6 +10584,63 @@ function renderAdminLock() {
       '관리자 전용 화면입니다'),
     el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', lineHeight: '1.7', marginBottom: '20px' } },
       '전체 응시 인원과 선생님별 담당 평균이 포함되어 있어 원장·관리자만 열람합니다.',
+      el('br'),
+      '점수 입력과 리포트는 잠금 없이 그대로 사용하실 수 있습니다.'),
+    pw,
+    msg,
+    el('button', { className: 'btn btn-orange', style: { width: '100%', marginTop: '12px' }, onClick: submit }, '열기')
+  ));
+  setTimeout(() => pw.focus(), 80);
+  return wrap;
+}
+
+// ---------- 리그 전용 비밀번호 ----------
+const LEAGUE_STORAGE_KEY = STORAGE_KEY + '_league';
+const LEAGUE_DEFAULT_PW = '006326';
+
+function requiredLeagueHash() {
+  return (state.config && state.config.leagueHash) || gateHash(LEAGUE_DEFAULT_PW);
+}
+function isLeagueOpen() {
+  if (isAdmin()) return true;   // 관리자는 따로 입력하지 않는다
+  try { return localStorage.getItem(LEAGUE_STORAGE_KEY) === requiredLeagueHash(); }
+  catch (e) { return false; }
+}
+function leagueUnlock(pw) {
+  const h = gateHash(pw);
+  if (h !== requiredLeagueHash()) return false;
+  try { localStorage.setItem(LEAGUE_STORAGE_KEY, h); } catch (e) {}
+  return true;
+}
+function leagueLock() {
+  try { localStorage.removeItem(LEAGUE_STORAGE_KEY); } catch (e) {}
+  showToast('리그 잠금을 다시 걸었습니다');
+  render();
+}
+
+function renderLeagueLock() {
+  const wrap = el('div');
+  const pw = el('input', {
+    className: 'input', type: 'password', inputMode: 'numeric', placeholder: '리그 비밀번호',
+    style: { fontSize: '15px', textAlign: 'center', letterSpacing: '4px' }
+  });
+  const msg = el('div', { className: 'text-sm', style: { color: 'var(--red)', minHeight: '20px', marginTop: '8px' } });
+  function submit() {
+    if (leagueUnlock(pw.value)) { showToast('수만프 리그를 열었습니다', 'success'); render(); }
+    else { msg.textContent = '비밀번호가 맞지 않습니다.'; pw.value = ''; pw.focus(); }
+  }
+  pw.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+
+  wrap.appendChild(el('div', { className: 'page-header' },
+    el('div', { className: 'page-title' }, '수만프 리그'),
+    el('div', { className: 'page-subtitle' }, '선생님들이 함께 채워가는 기록')
+  ));
+  wrap.appendChild(el('div', { className: 'card', style: { maxWidth: '440px', margin: '40px auto', textAlign: 'center' } },
+    el('div', { style: { fontSize: '34px', marginBottom: '10px' } }, '🏆'),
+    el('div', { style: { fontFamily: 'Noto Serif KR, serif', fontSize: '18px', fontWeight: 800, marginBottom: '8px' } },
+      '리그 전용 비밀번호가 필요합니다'),
+    el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', lineHeight: '1.7', marginBottom: '20px' } },
+      '선생님별 레벨 · 능력치 · 진행 지도가 함께 보이는 화면입니다.',
       el('br'),
       '점수 입력과 리포트는 잠금 없이 그대로 사용하실 수 있습니다.'),
     pw,
