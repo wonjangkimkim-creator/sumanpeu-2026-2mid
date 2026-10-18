@@ -2761,7 +2761,7 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-overall-tier.c{border-color:#d4a0a0;color:#b91c1c}
 .lg-overall-lb b{display:block;font-size:12.5px;color:#1b2a4a}
 .lg-overall-lb span{font-size:10.5px;color:var(--text-muted,#78716c)}
-.lg-stat{display:grid;grid-template-columns:58px 20px 1fr 66px;align-items:center;gap:9px;cursor:help}
+.lg-stat{display:grid;grid-template-columns:58px 20px 1fr 88px;align-items:center;gap:9px;cursor:help}
 .lg-stat-nm{font-size:11.5px;font-weight:700;color:#44403c}
 .lg-stat-tr{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;text-align:center;
   border-radius:4px;line-height:17px}
@@ -5697,16 +5697,36 @@ const LG_AXES = [
   { label: '사전입력', hint: '전학기·목표 점수를 모두 채운 담당 학생 비율',
     score: b => b.preTotal ? b.preDone / b.preTotal * 100 : 0,
     text:  b => b.preDone + '/' + b.preTotal + '명' },
-  { label: '목표도달', hint: '최근 점수가 목표에 도달한 담당 학생 (절반이면 만점)',
-    score: b => b.students ? Math.min(100, b.goalHit / b.students * 200) : 0,
-    text:  b => b.goalHit + '/' + b.students + '명' },
-  { label: '성장',     hint: '담당 평균의 첫 회차 대비 변화 (+7.5점이면 만점)',
-    score: b => Math.max(0, Math.min(100, b.avgRise / 7.5 * 50 + 50)),
+  { label: '목표근접', hint: '담당 학생의 최근 점수가 목표 점수에 얼마나 다가갔는지 (목표를 높게 잡아도 불리하지 않습니다)',
+    score: b => goalCloseness(b.teacher).pct,
+    text:  b => { const g = goalCloseness(b.teacher); return g.n ? Math.round(g.pct) + '% · ' + b.goalHit + '명' : '—'; } },
+  { label: '성장',     hint: '담당 평균의 첫 회차 대비 변화 (수만프는 난도가 높아 유지도 선전입니다 · +5점이면 만점)',
+    score: b => Math.max(0, Math.min(100, b.avgRise / 5 * 40 + 60)),
     text:  b => (b.avgRise >= 0 ? '+' : '') + b.avgRise.toFixed(1) + '점' },
-  { label: '완주',     hint: '담당 전원 입력을 끝낸 회차',
-    score: b => { const r = startedRounds().length; return r ? b.perfectRounds / r * 100 : 0; },
-    text:  b => b.perfectRounds + '/' + startedRounds().length + '회' }
+  { label: '완주',     hint: '담당 전원 입력을 끝낸 회차 (과반이 응시한 회차만 계산)',
+    score: b => { const r = maturedRounds(); if (!r.length) return 0;
+      let n = 0; const ss = state.students.filter(x => (x.teacher || '담당 미지정') === b.teacher);
+      r.forEach(k => { if (ss.length && ss.every(x => roundEntryStatus(x.id, k) !== 'empty')) n++; });
+      return n / r.length * 100; },
+    text:  b => { const r = maturedRounds(); let n = 0;
+      const ss = state.students.filter(x => (x.teacher || '담당 미지정') === b.teacher);
+      r.forEach(k => { if (ss.length && ss.every(x => roundEntryStatus(x.id, k) !== 'empty')) n++; });
+      return n + '/' + r.length + '회'; } }
 ];
+
+// 담당 학생의 (최근 점수 / 목표 점수) 평균 — 목표를 넘으면 100으로 봄
+function goalCloseness(teacher) {
+  const ss = state.students.filter(s => (s.teacher || '담당 미지정') === teacher);
+  let sum = 0, n = 0;
+  ss.forEach(s => {
+    const goal = Number(s.teacherGoal) || Number(s.studentGoal) || null;
+    if (!goal || goal <= 0) return;
+    const a = analyzeStudent(s.id);
+    if (a.latestScore == null) return;
+    sum += Math.min(100, a.latestScore / goal * 100); n++;
+  });
+  return { pct: n ? sum / n : 0, n };
+}
 
 function axisScores(card) {
   return LG_AXES.map(a => {
@@ -6233,6 +6253,17 @@ function startedRounds() {
     if (any) out.push(r);
   }
   return out;
+}
+
+// 전체 학생의 절반 이상이 처리된 회차만 '완주' 평가 대상으로 본다
+function maturedRounds() {
+  const total = state.students.length;
+  if (!total) return [];
+  return startedRounds().filter(r => {
+    let done = 0;
+    state.students.forEach(s => { if (roundEntryStatus(s.id, r) !== 'empty') done++; });
+    return done / total >= 0.5;
+  });
 }
 
 function missingRoundCount(s, rounds) {
