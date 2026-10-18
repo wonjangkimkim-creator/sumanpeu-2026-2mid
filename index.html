@@ -2728,6 +2728,57 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-me-stats>div{flex:1;min-width:92px;background:var(--bg-elevated,#faf9f7);border:1px solid var(--line-2);
   border-radius:10px;padding:9px 12px;font-size:11px;color:var(--text-muted,#78716c);font-weight:600}
 .lg-me-stats b{display:block;font-family:'JetBrains Mono',monospace;font-size:18px;color:#1b2a4a;line-height:1.3}
+/* ── 캐릭터 스탯창 ── */
+.lg-arena{display:grid;grid-template-columns:304px 1fr;gap:18px;margin-top:18px;align-items:stretch}
+.lg-radar-wrap{position:relative;border-radius:14px;padding:12px 10px 10px;
+  background:linear-gradient(150deg,#1b2a4a 0%,#223253 60%,#2b3d63 100%);
+  border:1px solid rgba(232,207,149,.28);box-shadow:inset 0 0 36px rgba(0,0,0,.28)}
+.lg-radar-wrap::after{content:'';position:absolute;inset:0;border-radius:14px;pointer-events:none;
+  background:radial-gradient(circle at 50% 42%,rgba(232,207,149,.13),transparent 62%)}
+.lg-radar-title{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(232,207,149,.8);text-align:center;margin-bottom:2px}
+.lg-radar-box{position:relative;height:236px;z-index:2}
+.lg-radar-legend{display:flex;justify-content:center;gap:14px;margin-top:4px;position:relative;z-index:2}
+.lg-radar-legend span{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;
+  color:rgba(255,255,255,.72)}
+.lg-radar-legend i{width:12px;height:0;border-top:2px solid}
+.lg-radar-legend i.k-me{border-color:#e8cf95}
+.lg-radar-legend i.k-avg{border-top-style:dashed;border-color:rgba(255,255,255,.45)}
+
+.lg-statsheet{display:flex;flex-direction:column;gap:7px;justify-content:center}
+.lg-overall{display:flex;align-items:center;gap:13px;padding:10px 14px;margin-bottom:3px;border-radius:12px;
+  background:linear-gradient(100deg,rgba(27,42,74,.06),rgba(232,207,149,.16));
+  border:1px solid rgba(181,146,79,.34)}
+.lg-overall-num{position:relative;font-family:'JetBrains Mono',monospace;font-size:31px;font-weight:800;line-height:1;
+  color:#1b2a4a;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.lg-overall-tier{margin-left:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:44px;height:44px;border-radius:50%;font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:800;
+  border:2px solid;background:#fff}
+.lg-overall-tier small{font-size:7.5px;font-weight:700;letter-spacing:.08em;opacity:.65;margin-top:-2px}
+.lg-overall-tier.s{border-color:#b5924f;color:#8a6c2e;box-shadow:0 0 12px rgba(232,207,149,.6)}
+.lg-overall-tier.a{border-color:#1b2a4a;color:#1b2a4a}
+.lg-overall-tier.b{border-color:#a8a29e;color:#57534e}
+.lg-overall-tier.c{border-color:#d4a0a0;color:#b91c1c}
+.lg-overall-lb b{display:block;font-size:12.5px;color:#1b2a4a}
+.lg-overall-lb span{font-size:10.5px;color:var(--text-muted,#78716c)}
+.lg-stat{display:grid;grid-template-columns:58px 20px 1fr 66px;align-items:center;gap:9px;cursor:help}
+.lg-stat-nm{font-size:11.5px;font-weight:700;color:#44403c}
+.lg-stat-tr{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;text-align:center;
+  border-radius:4px;line-height:17px}
+.lg-stat-tr.s{background:rgba(181,146,79,.22);color:#8a6c2e}
+.lg-stat-tr.a{background:rgba(27,42,74,.1);color:#1b2a4a}
+.lg-stat-tr.b{background:rgba(120,113,108,.14);color:#57534e}
+.lg-stat-tr.c{background:rgba(185,28,28,.09);color:#b91c1c}
+.lg-stat-bar{display:block;height:8px;border-radius:999px;background:rgba(27,42,74,.08);overflow:hidden}
+.lg-stat-bar i{display:block;height:100%;border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.lg-stat-bar i.s{background:linear-gradient(90deg,#b5924f,#e8cf95);box-shadow:0 0 7px rgba(232,207,149,.65)}
+
+.lg-stat-bar i.a{background:linear-gradient(90deg,#1b2a4a,#415a8c)}
+.lg-stat-bar i.b{background:linear-gradient(90deg,#8a8580,#b3aca4)}
+.lg-stat-bar i.c{background:linear-gradient(90deg,#b91c1c,#d87b7b)}
+.lg-stat-vl{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#57534e;text-align:right}
+@media (max-width:820px){ .lg-arena{grid-template-columns:1fr} .lg-radar-box{height:240px} }
+
 .lg-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .lg-badge{display:flex;flex-direction:column;align-items:center;gap:3px;width:76px;padding:9px 4px;
   border-radius:12px;border:1px dashed var(--line-2);background:#fcfcfb;opacity:.45;cursor:help}
@@ -2754,6 +2805,12 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-lv-chip{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;
   background:rgba(27,42,74,.07);color:#1b2a4a;white-space:nowrap}
 .lg-badge-mini{font-size:14px;letter-spacing:1px}
+.lg-ovchip{display:inline-block;min-width:32px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+  font-weight:800;padding:2px 7px;border-radius:6px;border:1px solid}
+.lg-ovchip.s{background:rgba(232,207,149,.26);border-color:rgba(181,146,79,.6);color:#8a6c2e}
+.lg-ovchip.a{background:rgba(27,42,74,.07);border-color:rgba(27,42,74,.25);color:#1b2a4a}
+.lg-ovchip.b{background:rgba(120,113,108,.1);border-color:rgba(120,113,108,.28);color:#57534e}
+.lg-ovchip.c{background:rgba(185,28,28,.07);border-color:rgba(185,28,28,.25);color:#b91c1c}
 .lg-rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:7px}
 .lg-rule{display:flex;justify-content:space-between;align-items:center;background:var(--bg-elevated,#faf9f7);
   border:1px solid var(--line-2);border-radius:9px;padding:8px 12px;font-size:12.5px;color:#44403c}
@@ -5629,6 +5686,99 @@ const LEAGUE_BADGES = [
   { key: 'goal',   icon: '🌱', name: '목표달성',  desc: '목표 점수에 도달한 담당 학생 3명 이상' }
 ];
 
+// 캐릭터 스탯창 6각 지표 — score는 0~100(레이더용), text는 실제 수치
+const LG_AXES = [
+  { label: '입력률',   hint: '담당 학생 × 진행 회차 중 처리한 비율',
+    score: b => b.rate * 100,
+    text:  b => Math.round(b.rate * 100) + '%' },
+  { label: '오답기록', hint: '점수 입력 건 중 오답 문항까지 기록한 비율',
+    score: b => b.errorRate * 100,
+    text:  b => Math.round(b.errorRate * 100) + '%' },
+  { label: '사전입력', hint: '전학기·목표 점수를 모두 채운 담당 학생 비율',
+    score: b => b.preTotal ? b.preDone / b.preTotal * 100 : 0,
+    text:  b => b.preDone + '/' + b.preTotal + '명' },
+  { label: '목표도달', hint: '최근 점수가 목표에 도달한 담당 학생 (절반이면 만점)',
+    score: b => b.students ? Math.min(100, b.goalHit / b.students * 200) : 0,
+    text:  b => b.goalHit + '/' + b.students + '명' },
+  { label: '성장',     hint: '담당 평균의 첫 회차 대비 변화 (+7.5점이면 만점)',
+    score: b => Math.max(0, Math.min(100, b.avgRise / 7.5 * 50 + 50)),
+    text:  b => (b.avgRise >= 0 ? '+' : '') + b.avgRise.toFixed(1) + '점' },
+  { label: '완주',     hint: '담당 전원 입력을 끝낸 회차',
+    score: b => { const r = startedRounds().length; return r ? b.perfectRounds / r * 100 : 0; },
+    text:  b => b.perfectRounds + '/' + startedRounds().length + '회' }
+];
+
+function axisScores(card) {
+  return LG_AXES.map(a => {
+    const v = a.score(card);
+    return (v == null || isNaN(v)) ? 0 : Math.max(0, Math.min(100, v));
+  });
+}
+
+function overallIndex(card) {
+  const v = axisScores(card);
+  return Math.round(v.reduce((a, b) => a + b, 0) / v.length);
+}
+
+function renderLeagueRadar(me, board) {
+  const ctx = $('#lg-radar');
+  if (!ctx || typeof Chart === 'undefined') return;
+  if (_charts.lgRadar) { _charts.lgRadar.destroy(); _charts.lgRadar = null; }
+
+  const mine = axisScores(me);
+  const all = board.map(axisScores);
+  const avg = LG_AXES.map((_, i) => all.length ? all.reduce((s, r) => s + r[i], 0) / all.length : 0);
+
+  try {
+    _charts.lgRadar = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: LG_AXES.map(a => a.label),
+        datasets: [
+          {
+            label: '학원 평균', data: avg,
+            borderColor: 'rgba(255,255,255,.38)', backgroundColor: 'rgba(255,255,255,.05)',
+            borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: true
+          },
+          {
+            label: me.teacher, data: mine,
+            borderColor: '#e8cf95', backgroundColor: 'rgba(232,207,149,.22)',
+            borderWidth: 2.2, pointRadius: 4, pointHoverRadius: 6,
+            pointBackgroundColor: '#e8cf95', pointBorderColor: '#1b2a4a', pointBorderWidth: 1.5, fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          r: {
+            min: 0, max: 100, beginAtZero: true,
+            ticks: { display: false, stepSize: 25 },
+            grid: { color: 'rgba(255,255,255,.13)' },
+            angleLines: { color: 'rgba(255,255,255,.16)' },
+            pointLabels: { color: 'rgba(255,255,255,.82)', font: { size: 11.5, weight: '700' } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(20,30,52,.95)', borderColor: 'rgba(232,207,149,.4)', borderWidth: 1,
+            callbacks: {
+              label: c => {
+                const card = c.datasetIndex === 1 ? me : null;
+                const ax = LG_AXES[c.dataIndex];
+                return c.dataset.label + ' · ' + ax.label + ' ' +
+                  (card ? ax.text(card) : Math.round(c.parsed.r) + '점');
+              }
+            }
+          }
+        },
+        animation: { duration: 650 }
+      }
+    });
+  } catch (e) { console.error('[radar]', e); }
+}
+
 function leagueConfig() {
   if (!state.config) state.config = defaultConfig();
   if (!state.config.league || typeof state.config.league !== 'object') {
@@ -5825,9 +5975,10 @@ function renderLeague() {
 
   // ── 2. 내 레벨 카드 ──
   const teachers = board.map(b => b.teacher);
+  let me = null;
   if (teachers.length) {
     if (!ui.leagueTeacher || teachers.indexOf(ui.leagueTeacher) < 0) ui.leagueTeacher = teachers[0];
-    const me = board.find(b => b.teacher === ui.leagueTeacher) || board[0];
+    me = board.find(b => b.teacher === ui.leagueTeacher) || board[0];
     const lvl = me.level;
 
     wrap.appendChild(el('div', { className: 'lg-me' },
@@ -5848,12 +5999,40 @@ function renderLeague() {
                      : '최고 등급입니다 — 명예의 전당 🏆')
         )
       ),
-      el('div', { className: 'lg-me-stats' },
-        el('div', null, el('b', null, me.students), '담당 학생'),
-        el('div', null, el('b', null, Math.round(me.rate * 100) + '%'), '입력률'),
-        el('div', null, el('b', null, me.perfectRounds), '회차 완주'),
-        el('div', null, el('b', null, me.goalHit), '목표 도달'),
-        el('div', null, el('b', null, me.avgRise >= 0 ? '+' + me.avgRise.toFixed(1) : me.avgRise.toFixed(1)), '평균 변화')
+      // ── 캐릭터 스탯창 ──
+      el('div', { className: 'lg-arena' },
+        el('div', { className: 'lg-radar-wrap' },
+          el('div', { className: 'lg-radar-title' }, '능력치'),
+          el('div', { className: 'lg-radar-box' }, el('canvas', { id: 'lg-radar' })),
+          el('div', { className: 'lg-radar-legend' },
+            el('span', null, el('i', { className: 'k-me' }), me.teacher),
+            el('span', null, el('i', { className: 'k-avg' }), '학원 평균')
+          )
+        ),
+        el('div', { className: 'lg-statsheet' },
+          (function () {
+            const ov = overallIndex(me);
+            const tr = ov >= 80 ? 's' : ov >= 60 ? 'a' : ov >= 40 ? 'b' : 'c';
+            return el('div', { className: 'lg-overall' },
+              el('div', { className: 'lg-overall-num' }, ov),
+              el('div', { className: 'lg-overall-lb' },
+                el('b', null, '종합 지수'),
+                el('span', null, '6개 능력치 평균 · 담당 ' + me.students + '명')
+              ),
+              el('div', { className: 'lg-overall-tier ' + tr }, tr.toUpperCase(), el('small', null, 'RANK'))
+            );
+          })(),
+          ...LG_AXES.map((a, i) => {
+            const v = Math.round(axisScores(me)[i]);
+            const tier = v >= 80 ? 's' : v >= 60 ? 'a' : v >= 40 ? 'b' : 'c';
+            return el('div', { className: 'lg-stat', title: a.hint },
+              el('span', { className: 'lg-stat-nm' }, a.label),
+              el('span', { className: 'lg-stat-tr ' + tier }, v >= 80 ? 'S' : v >= 60 ? 'A' : v >= 40 ? 'B' : 'C'),
+              el('span', { className: 'lg-stat-bar' }, el('i', { className: tier, style: { width: v + '%' } })),
+              el('span', { className: 'lg-stat-vl' }, a.text(me))
+            );
+          })
+        )
       ),
       el('div', { className: 'lg-badges' },
         ...LEAGUE_BADGES.map(b => el('div', {
@@ -5902,7 +6081,7 @@ function renderLeague() {
       el('table', { className: 'dt' },
         el('thead', null, el('tr', null,
           el('th', null, '#'), el('th', null, '선생님'), el('th', null, '등급'),
-          el('th', null, 'XP'), el('th', null, '담당'), el('th', null, '입력률'),
+          el('th', null, 'XP'), el('th', null, '종합'), el('th', null, '담당'), el('th', null, '입력률'),
           el('th', null, '사전 입력'), el('th', null, '배지')
         )),
         el('tbody', null, ...board.map((b, i) => el('tr', null,
@@ -5911,6 +6090,12 @@ function renderLeague() {
           el('td', null, el('span', { className: 'lg-lv-chip' }, b.level.cur.icon + ' Lv.' + b.level.cur.lv),
             el('div', { style: { fontSize: '10.5px', color: '#78716c', marginTop: '2px' } }, b.level.cur.title)),
           el('td', { className: 'num', style: { fontWeight: 800 } }, b.xp.toLocaleString()),
+          (function () {
+            const ov = overallIndex(b);
+            return el('td', { className: 'num' }, el('span', {
+              className: 'lg-ovchip ' + (ov >= 80 ? 's' : ov >= 60 ? 'a' : ov >= 40 ? 'b' : 'c')
+            }, ov));
+          })(),
           el('td', { className: 'num' }, b.students + '명'),
           el('td', { className: 'num' }, el('span', {
             className: 'gap-badge ' + (b.rate >= 0.9 ? 'ok' : b.rate >= 0.7 ? 'warn' : 'bad')
@@ -6006,6 +6191,7 @@ function renderLeague() {
     wrap.appendChild(adminBox);
   }
 
+  if (me) setTimeout(() => renderLeagueRadar(me, board), 70);
   return wrap;
 }
 
