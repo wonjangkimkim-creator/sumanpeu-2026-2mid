@@ -2293,61 +2293,6 @@ table.dt td .btn.btn-sm:not(.btn-orange):not(.btn-danger):hover {
 .goal-progress-bar { border-radius: 99px; box-shadow: inset 0 1px 2px rgba(31,27,20,0.06); }
 .goal-progress-fill { border-radius: 99px; }
 
-/* ---------- 버전별 통계 표시 ---------- */
-.ver-toggle {
-  margin-top: 10px;
-  background: none; border: none; padding: 2px 0;
-  font-size: 11px; font-weight: 700; color: var(--gold-3);
-  letter-spacing: -0.1px;
-}
-.ver-toggle:hover { color: var(--navy); text-decoration: underline; }
-.ver-break { margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
-.ver-row {
-  display: grid;
-  grid-template-columns: 34px 52px 1fr;
-  grid-template-areas: 'tag avg meta' 'bar bar bar';
-  align-items: baseline;
-  gap: 2px 8px;
-  font-size: 11px;
-}
-.ver-tag {
-  grid-area: tag;
-  display: inline-block; text-align: center;
-  padding: 1px 6px; border-radius: 99px;
-  background: var(--navy); color: #fff;
-  font-size: 10px; font-weight: 800; letter-spacing: 0.3px;
-}
-.ver-tag.none { background: var(--amber-soft); color: var(--amber); }
-.ver-avg { grid-area: avg; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--navy); font-size: 12.5px; }
-.ver-unit { font-size: 9.5px; color: var(--ink-mute); margin-left: 1px; }
-.ver-meta { grid-area: meta; color: var(--ink-mute); font-weight: 600; }
-.ver-bar { grid-area: bar; height: 3px; border-radius: 99px; background: rgba(16,40,63,0.07); overflow: hidden; margin-top: 2px; }
-.ver-bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold-2), var(--gold)); }
-
-.ver-expand {
-  background: none; border: none; cursor: pointer;
-  color: var(--gold-3); font-size: 11px; font-weight: 800;
-  margin-right: 6px; padding: 0 2px;
-}
-.ver-expand:hover { color: var(--navy); }
-tr.ver-sub-row { background: rgba(16, 40, 63, 0.022); }
-tr.ver-sub-row td { font-size: 11.5px; padding-top: 7px; padding-bottom: 7px; }
-
-.ver-summary-row {
-  margin-top: 12px; padding: 12px 14px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  font-size: 12.5px;
-}
-.ver-summary-row strong { color: var(--navy); margin-right: 6px; }
-.ver-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--bg-card); border: 1px solid var(--line-2);
-  border-radius: 99px; padding: 4px 12px 4px 5px; font-size: 12px;
-}
-.ver-chip strong { color: var(--navy); margin: 0; font-family: 'JetBrains Mono', monospace; }
-
 /* 점수 입력 — 학년 그룹 헤더 */
 .score-group-head {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
@@ -2689,6 +2634,155 @@ table.dt th { color: var(--navy); opacity: 0.62; }
   .main { margin-left: 0 !important; }
 }
 
+/* ===== 버전별 통계 ===== */
+.ver-toggle{margin-top:10px;background:rgba(27,42,74,.05);border:1px solid var(--line-2);color:var(--navy,#1b2a4a);
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;cursor:pointer;letter-spacing:.02em}
+.ver-toggle:hover{background:rgba(181,146,79,.14);border-color:rgba(181,146,79,.5)}
+.ver-break{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line-2);display:none}
+.ver-row{display:grid;grid-template-columns:34px 56px 1fr;align-items:center;gap:8px;padding:3px 0}
+.ver-tag{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;text-align:center;
+  padding:2px 0;border-radius:4px;background:rgba(27,42,74,.08);color:#1b2a4a}
+.ver-tag.none{background:rgba(120,113,108,.12);color:#78716c}
+.ver-avg{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;text-align:right}
+.ver-unit{font-size:9px;font-weight:600;opacity:.6;margin-left:1px}
+.ver-meta{font-size:10px;color:var(--text-muted,#78716c);white-space:nowrap}
+.ver-bar{grid-column:2 / -1;height:3px;border-radius:2px;background:rgba(27,42,74,.08);display:block;overflow:hidden;margin-top:-2px}
+.ver-bar i{display:block;height:100%;background:linear-gradient(90deg,#b5924f,#d4b876)}
+.ver-expand{cursor:pointer;user-select:none;color:var(--text-muted,#78716c);font-weight:800;
+  display:inline-block;width:14px;text-align:center}
+tr.ver-sub-row{background:rgba(27,42,74,.025)}
+tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bottom:3px!important;color:#57534e}
+.ver-note{font-size:11px;color:var(--text-muted,#78716c);margin:-8px 0 14px 2px;line-height:1.6}
+.ver-tsum{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ver-tchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:999px;
+  background:#fff;border:1px solid var(--line-2)}
+.ver-tchip b{font-family:'JetBrains Mono',monospace;font-size:10px;color:#1b2a4a}
+.ver-tchip span{font-family:'JetBrains Mono',monospace;font-weight:700}
+
+/* ===== 미입력 점검 ===== */
+.gap-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.gap-filter .input{max-width:170px;padding:7px 10px;font-size:13px}
+.gap-chips{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.gap-chips-label{font-size:11px;font-weight:700;color:var(--text-muted,#78716c);margin-right:2px;letter-spacing:.04em}
+.gap-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line-2);
+  border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;cursor:pointer;color:#44403c}
+.gap-chip b{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(185,28,28,.1);color:#b91c1c;
+  border-radius:999px;padding:1px 6px}
+.gap-chip.done b{background:rgba(5,150,105,.1);color:#047857}
+.gap-chip:hover{border-color:rgba(181,146,79,.6)}
+.gap-chip.active{background:#1b2a4a;border-color:#1b2a4a;color:#fff}
+.gap-chip.active b{background:rgba(255,255,255,.18);color:#fff}
+.gap-sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.gap-sum-item{flex:1;min-width:110px;background:#fff;border:1px solid var(--line-2);border-radius:10px;
+  padding:10px 14px;font-size:11.5px;color:var(--text-muted,#78716c);font-weight:600}
+.gap-sum-item b{display:block;font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:800;color:#1b2a4a;line-height:1.2}
+.gap-sum-item.ok b{color:#047857}.gap-sum-item.warn b{color:#b45309}.gap-sum-item.bad b{color:#b91c1c}
+.gap-sum-item.bad{border-color:rgba(185,28,28,.3);background:rgba(185,28,28,.03)}
+.gap-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.gap-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:800;
+  padding:2px 7px;border-radius:5px}
+.gap-badge.ok{background:rgba(5,150,105,.1);color:#047857}
+.gap-badge.warn{background:rgba(180,83,9,.1);color:#b45309}
+.gap-badge.bad{background:rgba(185,28,28,.1);color:#b91c1c}
+.gap-empty{padding:26px;text-align:center;font-size:13.5px;font-weight:600;color:#047857;
+  background:rgba(5,150,105,.04);border:1px dashed rgba(5,150,105,.3);border-radius:10px}
+
+/* ===== 🏆 수만프 리그 ===== */
+.lg-team{position:relative;background:linear-gradient(135deg,#1b2a4a 0%,#243659 55%,#2d4270 100%);
+  border-radius:16px;padding:20px 22px 18px;color:#fff;margin-bottom:16px;overflow:hidden;
+  box-shadow:0 10px 28px rgba(27,42,74,.22)}
+.lg-team::after{content:'';position:absolute;right:-40px;top:-50px;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,184,118,.26),transparent 68%);pointer-events:none}
+.lg-team.reached{background:linear-gradient(135deg,#1b2a4a 0%,#3b3015 55%,#6b5420 100%)}
+.lg-team-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:12px;position:relative;z-index:2}
+.lg-team-label{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.lg-team-sub{font-size:11.5px;opacity:.72;margin-top:3px}
+.lg-team-pct{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:800;line-height:1;color:#e8cf95}
+.lg-team-pct span{font-size:16px;margin-left:2px;opacity:.75}
+.lg-gauge{position:relative;height:13px;border-radius:999px;background:rgba(255,255,255,.14);overflow:visible;z-index:2}
+.lg-gauge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#b5924f,#e8cf95);
+  box-shadow:0 0 14px rgba(232,207,149,.5);transition:width .5s ease}
+.lg-gauge-mark{position:absolute;top:-5px;width:2px;height:23px;background:rgba(255,255,255,.65)}
+.lg-gauge-mark span{position:absolute;top:26px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  font-size:10px;font-weight:700;opacity:.8}
+.lg-team-foot{margin-top:26px;font-size:12.5px;opacity:.92;position:relative;z-index:2}
+.lg-reached{font-size:14px;font-weight:800;color:#f0dcae}
+.lg-prize{display:inline-block;margin-left:10px;background:rgba(232,207,149,.16);border:1px solid rgba(232,207,149,.4);
+  color:#f0dcae;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:700}
+
+.lg-me{background:#fff;border:1px solid var(--line-2);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.lg-me-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.lg-me-select{max-width:190px;padding:7px 10px;font-size:13.5px;font-weight:700}
+.lg-me-xp{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:#1b2a4a}
+.lg-me-xp span{font-size:12px;opacity:.6}
+.lg-me-level{display:flex;gap:14px;align-items:center}
+.lg-me-icon{width:56px;height:56px;flex:none;display:flex;align-items:center;justify-content:center;font-size:28px;
+  border-radius:16px;background:linear-gradient(135deg,rgba(181,146,79,.16),rgba(27,42,74,.08));
+  border:1px solid rgba(181,146,79,.35)}
+.lg-me-info{flex:1;min-width:0}
+.lg-me-title{font-size:15px;font-weight:800;color:#1b2a4a;margin-bottom:6px}
+.lg-bar{height:9px;border-radius:999px;background:rgba(27,42,74,.08);overflow:hidden}
+.lg-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#1b2a4a,#b5924f);transition:width .5s ease}
+.lg-me-next{font-size:11.5px;color:var(--text-muted,#78716c);margin-top:5px}
+.lg-me-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.lg-me-stats>div{flex:1;min-width:92px;background:var(--bg-elevated,#faf9f7);border:1px solid var(--line-2);
+  border-radius:10px;padding:9px 12px;font-size:11px;color:var(--text-muted,#78716c);font-weight:600}
+.lg-me-stats b{display:block;font-family:'JetBrains Mono',monospace;font-size:18px;color:#1b2a4a;line-height:1.3}
+.lg-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.lg-badge{display:flex;flex-direction:column;align-items:center;gap:3px;width:76px;padding:9px 4px;
+  border-radius:12px;border:1px dashed var(--line-2);background:#fcfcfb;opacity:.45;cursor:help}
+.lg-badge.on{opacity:1;border-style:solid;border-color:rgba(181,146,79,.55);
+  background:linear-gradient(160deg,rgba(232,207,149,.2),rgba(255,255,255,.9));
+  box-shadow:0 2px 10px rgba(181,146,79,.18)}
+.lg-badge-ic{font-size:21px;filter:grayscale(1)}
+.lg-badge.on .lg-badge-ic{filter:none}
+.lg-badge-nm{font-size:10.5px;font-weight:700;color:#44403c}
+.lg-detail{margin-top:14px;font-size:12.5px}
+.lg-detail summary{cursor:pointer;font-weight:700;color:#1b2a4a;font-size:12px}
+.lg-detail-row{display:flex;justify-content:space-between;padding:5px 2px;border-bottom:1px dashed var(--line-2);
+  color:#57534e}
+.lg-detail-row b{font-family:'JetBrains Mono',monospace;color:#b5924f}
+
+.lg-mvp{background:linear-gradient(135deg,rgba(232,207,149,.18),rgba(255,255,255,.6));
+  border:1px solid rgba(181,146,79,.4);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.lg-mvp-head{font-size:13.5px;font-weight:800;color:#6b5420;margin-bottom:9px}
+.lg-mvp-list{display:flex;gap:7px;flex-wrap:wrap}
+.lg-mvp-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid rgba(181,146,79,.4);
+  border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:700;color:#44403c}
+.lg-mvp-chip i{font-style:normal;font-size:10.5px;font-weight:600;color:#78716c}
+
+.lg-lv-chip{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;
+  background:rgba(27,42,74,.07);color:#1b2a4a;white-space:nowrap}
+.lg-badge-mini{font-size:14px;letter-spacing:1px}
+.lg-rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:7px}
+.lg-rule{display:flex;justify-content:space-between;align-items:center;background:var(--bg-elevated,#faf9f7);
+  border:1px solid var(--line-2);border-radius:9px;padding:8px 12px;font-size:12.5px;color:#44403c}
+.lg-rule b{font-family:'JetBrains Mono',monospace;color:#b5924f;font-size:13px}
+.lg-strip{display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:14px;padding:10px 14px;
+  border-radius:11px;border:1px solid rgba(181,146,79,.38);
+  background:linear-gradient(100deg,rgba(27,42,74,.045),rgba(232,207,149,.16));font-size:12.5px;color:#44403c}
+.lg-strip:hover{border-color:rgba(181,146,79,.7);background:linear-gradient(100deg,rgba(27,42,74,.07),rgba(232,207,149,.26))}
+.lg-strip-ic{font-size:16px;margin-right:6px}
+.lg-strip-main{flex:none;display:flex;align-items:center}
+.lg-strip-main b{color:#1b2a4a}
+.lg-strip-warn{margin-left:9px;background:rgba(185,28,28,.1);color:#b91c1c;border-radius:999px;
+  padding:1px 9px;font-size:11px;font-weight:800}
+.lg-strip-ok{margin-left:9px;background:rgba(5,150,105,.12);color:#047857;border-radius:999px;
+  padding:1px 9px;font-size:11px;font-weight:800}
+.lg-strip-bar{flex:1;min-width:60px;height:6px;border-radius:999px;background:rgba(27,42,74,.09);overflow:hidden}
+.lg-strip-bar i{display:block;height:100%;background:linear-gradient(90deg,#1b2a4a,#b5924f)}
+.lg-strip-go{flex:none;font-size:11.5px;font-weight:800;color:#b5924f}
+@media (max-width:720px){ .lg-strip-bar{display:none} }
+.lg-admin{border-color:rgba(27,42,74,.25)}
+.lg-admin-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.lg-admin-form label{display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:700;
+  color:var(--text-muted,#78716c);flex:1;min-width:150px}
+.lg-admin-form .input{padding:7px 10px;font-size:13px}
+@media (max-width:720px){
+  .lg-team-pct{font-size:30px}
+  .lg-badge{width:calc(33.333% - 6px)}
+  .lg-me-stats>div{min-width:calc(50% - 5px)}
+}
 </style>
 </head>
 <body>
@@ -2839,7 +2933,12 @@ let ui = {
   studentFilters: { grade: 'all', teacher: 'all', search: '' },
   reportStudentId: null,
   teacherReportName: null,
-  scoreDraft: {}      // 점수 입력 임시 보관 (저장 버튼을 눌러야 반영)
+  scoreDraft: {},     // 점수 입력 임시 보관 (저장 버튼을 눌러야 반영)
+  leagueTeacher: null,
+  gapTab: 'rounds',
+  gapRound: null,
+  gapGrade: '',
+  gapTeacher: ''
 };
 
 // === Persistence ===
@@ -2998,6 +3097,7 @@ function saveState() {
       students: state.students,
       scores: state.scores,
       testPapers: {},
+      config: state.config,
       meta: state.meta
     };
     for (const grade in state.testPapers) {
@@ -3512,6 +3612,7 @@ function commitDrafts() {
       next.absent = false;
     }
     if ('version' in d) next.version = d.version;
+    next.at = Date.now();   // 입력 시각 — 리그 집계용
     if (!state.scores[sid]) state.scores[sid] = {};
     state.scores[sid]['r' + round] = next;
   });
@@ -3592,6 +3693,7 @@ const ROUTES = {
   'scores': { label: '점수 입력', icon: '✏️', render: renderScores },
   'stats': { label: '회차 통계', icon: '📊', render: renderStats },
   'gaps': { label: '미입력 점검', icon: '🔎', render: renderGaps },
+  'league': { label: '리그', icon: '🏆', render: renderLeague },
   'teacher-report': { label: '선생님 리포트', icon: '📋', render: renderTeacherReport },
   'parent-report': { label: '학부모 리포트', icon: '💌', render: renderParentReportEntry },
   'papers': { label: '시험지 관리', icon: '📄', render: renderPapers },
@@ -3681,6 +3783,8 @@ function openHelpModal() {
         el('div', null, el('strong', null, '✏️ 점수 입력'), ' - 회차/학년/선생님 필터 → 점수·결시·오답 입력 (자동 저장)'),
         el('div', null, el('strong', null, '🏛 관리자'), ' - 전체 현황·선생님별 담당 평균 (관리자 비밀번호 필요)'),
         el('div', null, el('strong', null, '📊 회차 통계'), ' - 학년별/선생님별 평균, 공통 오답'),
+        el('div', null, el('strong', null, '🔎 미입력 점검'), ' - 미응시·점수 미입력·사전 입력 누락 학생 명단'),
+        el('div', null, el('strong', null, '🏆 리그'), ' - 입력 기록으로 쌓이는 레벨 · 배지 · 공동 목표'),
         el('div', null, el('strong', null, '📋 선생님 리포트'), ' - 선생님별 담당 학생 분석 리포트 (인쇄 가능)'),
         el('div', null, el('strong', null, '💌 학부모 리포트'), ' - 학생 이름 검색 → 개인 리포트 → 이미지(PNG) 저장 후 카톡 전송'),
         el('div', null, el('strong', null, '📄 시험지 관리'), ' - 회차별 시험지·해설·문항 분석 입력 (입력 시 학부모 리포트 자동 반영)')
@@ -3796,17 +3900,17 @@ function renderHome() {
       el('div', { className: 'stat-value' }, total, el('span', { className: 'stat-unit' }, '명')),
       el('div', { className: 'stat-sub' }, GRADES.join(' · '))
     ),
-    el('div', { className: 'stat-card navy' },
+    el('div', { className: 'stat-card navy', style: { cursor: 'pointer' }, title: '회차별 미입력 학생 보기',
+      onClick: () => { ui.gapTab = 'rounds'; navigate('gaps'); } },
       el('div', { className: 'stat-label' }, '진행 회차'),
       el('div', { className: 'stat-value' }, activeRounds, el('span', { className: 'stat-unit' }, '/' + ROUNDS + '회')),
-      el('div', { className: 'stat-sub' }, '총 ' + totalScores + '건 입력')
+      el('div', { className: 'stat-sub' }, '총 ' + totalScores + '건 입력 · 미입력 점검 \u203a')
     ),
-    el('div', { className: 'stat-card green', style: { cursor: 'pointer' },
-      title: '누가 빠졌는지 보기',
-      onClick: () => { ui.gapsTab = 'pre'; navigate('gaps'); } },
+    el('div', { className: 'stat-card green', style: { cursor: 'pointer' }, title: '누락 학생 명단 보기',
+      onClick: () => { ui.gapTab = 'pre'; navigate('gaps'); } },
       el('div', { className: 'stat-label' }, '사전 입력'),
       el('div', { className: 'stat-value' }, preDone, el('span', { className: 'stat-unit' }, '명')),
-      el('div', { className: 'stat-sub' }, total ? Math.round(preDone/total*100) + '% 완료' : '—')
+      el('div', { className: 'stat-sub' }, (total ? Math.round(preDone/total*100) + '% 완료' : '—') + ' · 누락 명단 \u203a')
     ),
     el('div', { className: 'stat-card pink' },
       el('div', { className: 'stat-label' }, '시험지 업로드'),
@@ -5098,6 +5202,7 @@ function renderScores() {
   ));
 
   wrap.appendChild(renderQuoteCard());
+  wrap.appendChild(renderLeagueStrip());
 
   // Filter bar
   wrap.appendChild(el('div', { className: 'filter-bar' },
@@ -5247,7 +5352,6 @@ function renderScoreSaveBar() {
 // 버전별 통계 — 학생 리포트의 학년 평균은 버전 통합 유지,
 // 선생님용 화면(점수 입력 · 회차 통계 · 선생님 리포트)에만 버전별 수치 제공
 // ============================================================
-// 긴 버전 이름을 V1 / V2 … 짧은 태그로 (버전이 5개여도 화면이 복잡해지지 않도록)
 function versionTag(grade, label) {
   if (!label) return '미지정';
   const list = getVersionsForGrade(grade);
@@ -5257,7 +5361,6 @@ function versionTag(grade, label) {
   return m ? ('V' + m[1]) : String(label).slice(0, 8);
 }
 
-// 한 학년·회차의 버전별 응시/평균 (설정된 버전 순서대로)
 function gradeRoundVersionStats(grade, round) {
   const students = state.students.filter(s => s.grade === grade);
   const total = students.length;
@@ -5290,7 +5393,6 @@ function gradeRoundVersionStats(grade, round) {
     });
 }
 
-// 선생님 담당 학생 기준 · 전 회차 누적 버전별 평균
 function teacherVersionSummary(teacher, grade) {
   const ts = state.students.filter(s => s.teacher === teacher && s.grade === grade);
   const map = {};
@@ -5315,7 +5417,6 @@ function teacherVersionSummary(teacher, grade) {
   });
 }
 
-// 버전별 한 줄 목록 (접었다 펼치는 영역 안에 들어감)
 function renderVersionBreakdown(grade, round) {
   const rows = gradeRoundVersionStats(grade, round);
   if (!rows.length) return null;
@@ -5491,317 +5592,777 @@ function markRowDirty(row) { row.classList.add('dirty'); }
 
 
 // ============================================================
-// 회차 통계
 // ============================================================
+// 🏆 수만프 리그 — 선생님 동기부여 (협동 중심)
+//   · 모든 수치는 기존 입력 데이터에서 계산 (별도 입력 없음)
+//   · 순위는 '경쟁'이 아니라 '함께 채우기' 관점으로 표시
 // ============================================================
-// 미입력 점검 — 회차별 미응시 학생 · 사전 입력 누락 학생을 이름까지
-// ============================================================
-const PRE_FIELDS = [
-  { key: 'prevScore', label: '전학기' },
-  { key: 'studentGoal', label: '학생목표' },
-  { key: 'teacherPossible', label: '강사가능' },
-  { key: 'teacherGoal', label: '강사목표' }
+const LEAGUE_LEVELS = [
+  { lv: 1,  min: 0,    icon: '🌱', title: '수만프 새내기' },
+  { lv: 2,  min: 150,  icon: '📘', title: '기록 도우미' },
+  { lv: 3,  min: 400,  icon: '✏️', title: '입력 장인' },
+  { lv: 4,  min: 800,  icon: '🧭', title: '성장 안내자' },
+  { lv: 5,  min: 1400, icon: '🔍', title: '분석 코치' },
+  { lv: 6,  min: 2200, icon: '🎯', title: '목표 설계자' },
+  { lv: 7,  min: 3200, icon: '🚀', title: '상승 메이커' },
+  { lv: 8,  min: 4400, icon: '👑', title: '수만프 마스터' },
+  { lv: 9,  min: 5800, icon: '💎', title: '전설의 지도자' },
+  { lv: 10, min: 7500, icon: '🏆', title: '명예의 전당' }
 ];
 
-// 한 학생의 한 회차 상태: 'score'(점수 입력) | 'absent'(결시 처리) | 'none'(아무것도 안 됨)
-function roundEntryStatus(sid, round) {
-  const rd = getRoundData(sid, round);
-  if (!rd) return 'none';
-  if (isAbsent(rd)) return 'absent';
-  if (rd.score != null && String(rd.score).trim() !== '') return 'score';
-  return 'none';
-}
+const XP_RULES = [
+  { label: '점수 1건 입력', xp: 10 },
+  { label: '결시 처리 1건', xp: 5 },
+  { label: '오답 문항까지 입력', xp: 5 },
+  { label: '사전 입력 완료 1명', xp: 15 },
+  { label: '한 회차 담당 전원 입력', xp: 50 },
+  { label: '목표 점수 도달 학생 1명', xp: 25 },
+  { label: '담당 평균 상승 (첫 회차 대비 +3점)', xp: 30 }
+];
 
-// 그 학생이 전 회차 중 미입력인 회차 수 (시작된 회차까지만 계산)
-function missingRoundCount(sid, upTo) {
-  let n = 0;
-  for (let r = 1; r <= (upTo || ROUNDS); r++) if (roundEntryStatus(sid, r) === 'none') n++;
-  return n;
-}
+const LEAGUE_BADGES = [
+  { key: 'speed',  icon: '⚡', name: '스피드런',  desc: '한 회차를 48시간 안에 담당 전원 입력 완료' },
+  { key: 'full',   icon: '🎯', name: '올출석',    desc: '진행된 회차에서 담당 학생 결시 0명' },
+  { key: 'zero',   icon: '📝', name: '빈칸제로',  desc: '진행된 회차에 미입력 칸이 하나도 없음' },
+  { key: 'detail', icon: '🔍', name: '꼼꼼이',    desc: '점수 입력 건의 80% 이상에 오답 문항까지 기록' },
+  { key: 'rise',   icon: '📈', name: '상승왕',    desc: '담당 평균이 첫 회차 대비 3점 이상 상승' },
+  { key: 'goal',   icon: '🌱', name: '목표달성',  desc: '목표 점수에 도달한 담당 학생 3명 이상' }
+];
 
-// 실제로 진행된(누군가 입력한) 회차 수
-function startedRounds() {
-  const out = [];
-  for (let r = 1; r <= ROUNDS; r++) {
-    const any = state.students.some(s => GRADES.includes(s.grade) && roundEntryStatus(s.id, r) !== 'none');
-    if (any) out.push(r);
+function leagueConfig() {
+  if (!state.config) state.config = defaultConfig();
+  if (!state.config.league || typeof state.config.league !== 'object') {
+    state.config.league = { goal: 95, prize: '', season: '' };
   }
-  return out;
+  const L = state.config.league;
+  if (typeof L.goal !== 'number' || L.goal < 50 || L.goal > 100) L.goal = 95;
+  if (typeof L.prize !== 'string') L.prize = '';
+  if (typeof L.season !== 'string') L.season = '';
+  return L;
 }
 
-function preInputMissingFields(s) {
-  return PRE_FIELDS.filter(f => String(s[f.key] == null ? '' : s[f.key]).trim() === '');
+function levelFor(xp) {
+  let cur = LEAGUE_LEVELS[0];
+  for (const l of LEAGUE_LEVELS) if (xp >= l.min) cur = l;
+  const next = LEAGUE_LEVELS.find(l => l.min > xp) || null;
+  const span = next ? next.min - cur.min : 1;
+  const into = next ? xp - cur.min : 1;
+  return { cur, next, pct: next ? Math.max(0, Math.min(100, into / span * 100)) : 100, toNext: next ? next.min - xp : 0 };
 }
 
-function scopeStudents(filter) {
-  return state.students.filter(s => {
-    if (!GRADES.includes(s.grade)) return false;
-    if (filter.grade && filter.grade !== 'all' && s.grade !== filter.grade) return false;
-    if (filter.teacher && filter.teacher !== 'all' && s.teacher !== filter.teacher) return false;
-    return true;
+// 선생님 1명의 리그 성적표
+function teacherLeagueCard(teacher) {
+  const rounds = startedRounds();
+  const students = state.students.filter(s => (s.teacher || '담당 미지정') === teacher);
+  const cells = students.length * rounds.length;
+
+  let scored = 0, absent = 0, empty = 0, withErrors = 0, xp = 0;
+  const detail = [];
+  students.forEach(s => {
+    rounds.forEach(r => {
+      const st = roundEntryStatus(s.id, r);
+      if (st === 'scored') {
+        scored++;
+        const rd = getRoundData(s.id, r);
+        if (rd && rd.errors && String(rd.errors).trim()) withErrors++;
+      } else if (st === 'absent') absent++;
+      else empty++;
+    });
   });
-}
+  xp += scored * 10 + absent * 5 + withErrors * 5;
+  if (scored || absent) detail.push({ label: '입력 ' + scored + '건 · 결시 ' + absent + '건', xp: scored * 10 + absent * 5 });
+  if (withErrors) detail.push({ label: '오답 문항 기록 ' + withErrors + '건', xp: withErrors * 5 });
 
-function downloadCSV(filename, rows) {
-  const csv = rows.map(r => r.map(c => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
-}
+  const preDone = students.filter(s => preInputMissingFields(s).length === 0).length;
+  xp += preDone * 15;
+  if (preDone) detail.push({ label: '사전 입력 완료 ' + preDone + '명', xp: preDone * 15 });
 
-function copyNameList(list, title) {
-  const byTeacher = {};
-  list.forEach(s => { (byTeacher[s.teacher || '(미배정)'] = byTeacher[s.teacher || '(미배정)'] || []).push(s); });
-  const lines = [title, ''];
-  Object.keys(byTeacher).sort().forEach(t => {
-    lines.push(`■ ${t} (${byTeacher[t].length}명)`);
-    byTeacher[t].forEach(s => lines.push(`  · ${s.grade} ${s.name} (${s.school || '학교 미입력'})`));
-    lines.push('');
+  // 회차 완주 보너스 + 스피드런 판정
+  let perfectRounds = 0, speed = false;
+  rounds.forEach(r => {
+    if (!students.length) return;
+    const all = students.every(s => roundEntryStatus(s.id, r) !== 'empty');
+    if (!all) return;
+    perfectRounds++;
+    const ts = students.map(s => (getRoundData(s.id, r) || {}).at).filter(t => typeof t === 'number');
+    if (ts.length === students.length && (Math.max(...ts) - Math.min(...ts)) <= 48 * 3600 * 1000) speed = true;
   });
-  navigator.clipboard.writeText(lines.join('\n'))
-    .then(() => showToast('명단을 복사했습니다 · 카톡에 붙여넣으세요 ✓', 'success'))
-    .catch(() => showToast('복사에 실패했습니다', 'error'));
+  xp += perfectRounds * 50;
+  if (perfectRounds) detail.push({ label: '회차 완주 ' + perfectRounds + '회', xp: perfectRounds * 50 });
+
+  // 목표 도달 · 평균 상승
+  let goalHit = 0, rise = 0, riseCount = 0;
+  students.forEach(s => {
+    const a = analyzeStudent(s.id);
+    const goal = Number(s.teacherGoal) || Number(s.studentGoal) || null;
+    if (goal && a.latestScore != null && a.latestScore >= goal) goalHit++;
+    if (a.firstScore != null && a.latestScore != null) { rise += a.delta; riseCount++; }
+  });
+  const avgRise = riseCount ? rise / riseCount : 0;
+  xp += goalHit * 25;
+  if (goalHit) detail.push({ label: '목표 도달 학생 ' + goalHit + '명', xp: goalHit * 25 });
+  if (avgRise >= 3) { xp += 30; detail.push({ label: '담당 평균 상승 +' + avgRise.toFixed(1) + '점', xp: 30 }); }
+
+  const badges = {
+    speed: speed,
+    full: rounds.length > 0 && students.length > 0 && absent === 0 && empty === 0,
+    zero: rounds.length > 0 && students.length > 0 && empty === 0,
+    detail: scored >= 5 && withErrors / scored >= 0.8,
+    rise: avgRise >= 3,
+    goal: goalHit >= 3
+  };
+
+  return {
+    teacher, students: students.length, cells, scored, absent, empty, withErrors,
+    preDone, preTotal: students.length, perfectRounds, goalHit, avgRise, xp,
+    rate: cells ? (scored + absent) / cells : 0,
+    errorRate: scored ? withErrors / scored : 0,
+    badges, badgeCount: Object.keys(badges).filter(k => badges[k]).length,
+    detail, level: levelFor(xp)
+  };
 }
 
-// 공통 명단 표
-function gapTable(list, extraCol) {
-  if (!list.length) {
-    return el('div', { className: 'empty', style: { padding: '40px' } },
-      el('div', { className: 'empty-icon' }, '✅'),
-      el('div', { className: 'empty-text' }, '해당 조건에 누락된 학생이 없습니다'));
-  }
-  return el('div', { className: 'table-wrap' },
-    el('table', { className: 'dt' },
-      el('thead', null, el('tr', null,
-        el('th', null, '학년'), el('th', null, '학생'), el('th', null, '학교'),
-        el('th', null, '담당 선생님'), extraCol ? el('th', null, extraCol.head) : null
-      )),
-      el('tbody', null, ...list.map(s => el('tr', null,
-        el('td', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade)),
-        el('td', { style: { fontWeight: 700 } }, s.name),
-        el('td', { className: 'text-sm' }, s.school || el('span', { className: 'muted' }, '—')),
-        el('td', { className: 'text-sm' }, s.teacher || el('span', { className: 'muted' }, '미배정')),
-        extraCol ? el('td', null, extraCol.cell(s)) : null
-      )))
-    )
+function leagueBoard() {
+  return getAllTeachers().map(teacherLeagueCard).sort((a, b) => b.xp - a.xp);
+}
+
+// 학원 전체 협동 게이지
+function leagueTeamStats() {
+  const rounds = startedRounds();
+  const all = state.students;
+  let scored = 0, absent = 0, empty = 0;
+  all.forEach(s => rounds.forEach(r => {
+    const st = roundEntryStatus(s.id, r);
+    if (st === 'scored') scored++; else if (st === 'absent') absent++; else empty++;
+  }));
+  const cells = all.length * rounds.length;
+  const preDone = all.filter(s => preInputMissingFields(s).length === 0).length;
+  return {
+    rounds, cells, scored, absent, empty,
+    rate: cells ? (scored + absent) / cells : 0,
+    preDone, preTotal: all.length,
+    preRate: all.length ? preDone / all.length : 0
+  };
+}
+
+// 점수 입력 화면 상단 — 내 진행 상황 한 줄 요약
+function renderLeagueStrip() {
+  if (!state.students.length) return null;
+  const team = leagueTeamStats();
+  if (!team.rounds.length) return null;
+  const L = leagueConfig();
+  const pct = Math.round(team.rate * 100);
+  const t = ui.scoreFilters.teacher;
+  const mine = (t && t !== 'all') ? teacherLeagueCard(t) : null;
+
+  return el('div', { className: 'lg-strip', onClick: () => navigate('league'), title: '리그 페이지로 이동' },
+    el('div', { className: 'lg-strip-main' },
+      el('span', { className: 'lg-strip-ic' }, '🏆'),
+      mine
+        ? el('span', null,
+            el('b', null, mine.level.cur.icon + ' Lv.' + mine.level.cur.lv + ' ' + mine.level.cur.title),
+            ' · ' + mine.xp.toLocaleString() + ' XP',
+            mine.empty ? el('span', { className: 'lg-strip-warn' }, '남은 칸 ' + mine.empty + '개') : el('span', { className: 'lg-strip-ok' }, '빈칸 없음 👏')
+          )
+        : el('span', null, el('b', null, '우리 학원 공동 목표 ' + L.goal + '%'), ' · 현재 ', el('b', null, pct + '%'),
+            team.empty ? ' · 남은 칸 ' + team.empty + '개' : ' · 모두 완료 🎉')
+    ),
+    el('div', { className: 'lg-strip-bar' }, el('i', { style: { width: Math.min(100, mine ? Math.round(mine.rate * 100) : pct) + '%' } })),
+    el('span', { className: 'lg-strip-go' }, '리그 \u203a')
   );
 }
 
-function renderGaps() {
-  if (!ui.gapsFilter) ui.gapsFilter = { grade: 'all', teacher: 'all', round: null };
-  if (!ui.gapsTab) ui.gapsTab = 'rounds';
-  const f = ui.gapsFilter;
-  const done = startedRounds();
-  if (f.round == null) f.round = done.length ? done[done.length - 1] : 1;
-
+function renderLeague() {
   const wrap = el('div');
+  const L = leagueConfig();
+
   wrap.appendChild(el('div', { className: 'page-header' },
-    el('div', { className: 'page-title' }, '미입력 점검'),
-    el('div', { className: 'page-subtitle' }, '회차별 미응시 학생과 사전 입력이 빠진 학생을 이름·학교·담당 선생님까지 확인합니다')
+    el('div', { className: 'page-title' }, '수만프 리그'),
+    el('div', { className: 'page-subtitle' },
+      (L.season ? L.season + ' · ' : '') + '선생님들이 함께 채워가는 기록 — 입력하신 자료가 그대로 점수가 됩니다')
   ));
 
-  wrap.appendChild(el('div', { className: 'tabs' },
-    el('div', { className: 'tab' + (ui.gapsTab === 'rounds' ? ' active' : ''),
-      onClick: () => { ui.gapsTab = 'rounds'; render(); } }, '📝 회차별 미응시'),
-    el('div', { className: 'tab' + (ui.gapsTab === 'pre' ? ' active' : ''),
-      onClick: () => { ui.gapsTab = 'pre'; render(); } }, '🎯 사전 입력 누락'),
-    el('div', { className: 'tab' + (ui.gapsTab === 'teacher' ? ' active' : ''),
-      onClick: () => { ui.gapsTab = 'teacher'; render(); } }, '👨‍🏫 선생님별 요약')
-  ));
-
-  // 공통 필터
-  function filterBar(extra) {
-    return el('div', { className: 'filter-bar' },
-      el('div', { className: 'filter-label' }, '학년'),
-      el('div', { className: 'filter-chips' },
-        ...['all', ...GRADES].map(g => el('button', {
-          className: 'chip' + (f.grade === g ? ' active' : ''),
-          onClick: () => { f.grade = g; render(); }
-        }, g === 'all' ? '전체' : g))
-      ),
-      el('div', { className: 'filter-label', style: { marginLeft: '12px' } }, '선생님'),
-      el('select', {
-        className: 'select', style: { width: '150px' },
-        onChange: e => { f.teacher = e.target.value; render(); }
-      },
-        el('option', { value: 'all', selected: f.teacher === 'all' }, '전체'),
-        ...getAllTeachers().map(t => el('option', { value: t, selected: f.teacher === t }, t))
-      ),
-      extra || null
-    );
+  if (!state.students.length) {
+    wrap.appendChild(el('div', { className: 'empty' },
+      el('div', { className: 'empty-icon' }, '🏆'),
+      el('div', { className: 'empty-text' }, '학생 명단이 등록되면 리그가 시작됩니다')
+    ));
+    return wrap;
   }
 
-  // ---------- ① 회차별 미응시 ----------
-  if (ui.gapsTab === 'rounds') {
-    wrap.appendChild(el('div', { className: 'filter-bar', style: { marginBottom: '10px' } },
-      el('div', { className: 'filter-label' }, '회차'),
-      el('div', { className: 'filter-chips' },
-        ...roundNumbers().map(r => el('button', {
-          className: 'chip' + (f.round === r ? ' active' : ''),
-          onClick: () => { f.round = r; render(); }
-        }, r + '회' + (done.includes(r) ? '' : ' ·')))
-      )
-    ));
-    wrap.appendChild(filterBar());
+  const team = leagueTeamStats();
+  const board = leagueBoard();
 
-    const list = scopeStudents(f);
-    const missing = list.filter(s => roundEntryStatus(s.id, f.round) === 'none');
-    const absent = list.filter(s => roundEntryStatus(s.id, f.round) === 'absent');
-    const scored = list.filter(s => roundEntryStatus(s.id, f.round) === 'score');
-    const pct = list.length ? Math.round(scored.length / list.length * 100) : 0;
-
-    wrap.appendChild(el('div', { className: 'stat-grid' },
-      el('div', { className: 'stat-card', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, f.round + '회 입력 완료'),
-        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, scored.length,
-          el('span', { className: 'stat-unit' }, '/ ' + list.length + '명')),
-        el('div', { className: 'stat-sub' }, pct + '% 응시 입력')
+  // ── 1. 학원 전체 목표 (협동) ──
+  const pct = Math.round(team.rate * 100);
+  const reached = pct >= L.goal;
+  const gauge = el('div', { className: 'lg-team' + (reached ? ' reached' : '') },
+    el('div', { className: 'lg-team-head' },
+      el('div', null,
+        el('div', { className: 'lg-team-label' }, '🤝 우리 학원 공동 목표'),
+        el('div', { className: 'lg-team-sub' },
+          team.rounds.length
+            ? team.rounds.map(r => r + '회').join(' · ') + ' 기준 · 전체 ' + (team.scored + team.absent) + '/' + team.cells + '칸'
+            : '아직 진행된 회차가 없습니다')
       ),
-      el('div', { className: 'stat-card navy', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, '결시 처리'),
-        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, absent.length,
-          el('span', { className: 'stat-unit' }, '명')),
-        el('div', { className: 'stat-sub' }, '결시 버튼으로 처리됨')
+      el('div', { className: 'lg-team-pct' }, pct, el('span', null, '%'))
+    ),
+    el('div', { className: 'lg-gauge' },
+      el('div', { className: 'lg-gauge-fill', style: { width: Math.min(100, pct) + '%' } }),
+      el('div', { className: 'lg-gauge-mark', style: { left: L.goal + '%' } }, el('span', null, '목표 ' + L.goal + '%'))
+    ),
+    el('div', { className: 'lg-team-foot' },
+      reached
+        ? el('div', { className: 'lg-reached' }, '🎉 공동 목표 달성! ' + (L.prize ? '— ' + L.prize : '모두 수고하셨습니다'))
+        : el('div', null,
+            el('strong', null, '남은 칸 ' + team.empty + '개'),
+            ' · 함께 채우면 목표 ' + L.goal + '% 달성',
+            L.prize ? el('span', { className: 'lg-prize' }, '🎁 ' + L.prize) : null
+          )
+    )
+  );
+  wrap.appendChild(gauge);
+
+  // ── 2. 내 레벨 카드 ──
+  const teachers = board.map(b => b.teacher);
+  if (teachers.length) {
+    if (!ui.leagueTeacher || teachers.indexOf(ui.leagueTeacher) < 0) ui.leagueTeacher = teachers[0];
+    const me = board.find(b => b.teacher === ui.leagueTeacher) || board[0];
+    const lvl = me.level;
+
+    wrap.appendChild(el('div', { className: 'lg-me' },
+      el('div', { className: 'lg-me-top' },
+        el('select', {
+          className: 'input lg-me-select',
+          onChange: e => { ui.leagueTeacher = e.target.value; render(); }
+        }, ...teachers.map(t => el('option', { value: t, selected: t === ui.leagueTeacher }, t))),
+        el('div', { className: 'lg-me-xp' }, me.xp.toLocaleString(), el('span', null, ' XP'))
       ),
-      el('div', { className: 'stat-card pink', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, '미입력 (확인 필요)'),
-        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, missing.length,
-          el('span', { className: 'stat-unit' }, '명')),
-        el('div', { className: 'stat-sub' }, '점수도 결시도 입력되지 않음')
-      )
+      el('div', { className: 'lg-me-level' },
+        el('div', { className: 'lg-me-icon' }, lvl.cur.icon),
+        el('div', { className: 'lg-me-info' },
+          el('div', { className: 'lg-me-title' }, 'Lv.' + lvl.cur.lv + ' ' + lvl.cur.title),
+          el('div', { className: 'lg-bar' }, el('i', { style: { width: lvl.pct + '%' } })),
+          el('div', { className: 'lg-me-next' },
+            lvl.next ? ('다음 등급 ' + lvl.next.icon + ' ' + lvl.next.title + '까지 ' + lvl.toNext.toLocaleString() + ' XP')
+                     : '최고 등급입니다 — 명예의 전당 🏆')
+        )
+      ),
+      el('div', { className: 'lg-me-stats' },
+        el('div', null, el('b', null, me.students), '담당 학생'),
+        el('div', null, el('b', null, Math.round(me.rate * 100) + '%'), '입력률'),
+        el('div', null, el('b', null, me.perfectRounds), '회차 완주'),
+        el('div', null, el('b', null, me.goalHit), '목표 도달'),
+        el('div', null, el('b', null, me.avgRise >= 0 ? '+' + me.avgRise.toFixed(1) : me.avgRise.toFixed(1)), '평균 변화')
+      ),
+      el('div', { className: 'lg-badges' },
+        ...LEAGUE_BADGES.map(b => el('div', {
+          className: 'lg-badge' + (me.badges[b.key] ? ' on' : ''),
+          title: b.desc
+        },
+          el('span', { className: 'lg-badge-ic' }, b.icon),
+          el('span', { className: 'lg-badge-nm' }, b.name)
+        ))
+      ),
+      me.detail.length ? el('details', { className: 'lg-detail' },
+        el('summary', null, 'XP 내역 보기'),
+        ...me.detail.map(d => el('div', { className: 'lg-detail-row' },
+          el('span', null, d.label), el('b', null, '+' + d.xp)
+        ))
+      ) : null
     ));
+  }
 
-    wrap.appendChild(el('div', { className: 'flex gap-8 flex-wrap mb-12' },
-      el('button', { className: 'btn btn-ghost btn-sm',
-        onClick: () => copyNameList(missing, `[${f.round}회 미입력 ${missing.length}명]`) }, '📋 명단 복사'),
-      el('button', { className: 'btn btn-ghost btn-sm',
-        onClick: () => downloadCSV(`${f.round}회_미입력_${dateStr()}.csv`,
-          [['학년','학생','학교','담당 선생님','누적 미입력 회차']].concat(
-            missing.map(s => [s.grade, s.name, s.school || '', s.teacher || '', missingRoundCount(s.id, Math.max(...done, f.round))]))) }, '⬇ CSV 저장'),
-      el('button', { className: 'btn btn-ghost btn-sm',
-        onClick: () => { ui.currentPage = 'scores'; ui.scoreFilters.round = f.round;
-          ui.scoreFilters.grade = f.grade; ui.scoreFilters.teacher = f.teacher; render(); } }, '✏️ 이 회차 점수 입력으로 이동')
-    ));
-
-    const maxR = Math.max(...done, f.round);
-    wrap.appendChild(gapTable(missing, {
-      head: '누적 미입력',
-      cell: s => {
-        const n = missingRoundCount(s.id, maxR);
-        return el('span', {
-          className: 'badge ' + (n >= 3 ? 'badge-danger' : n >= 2 ? 'badge-warning' : ''),
-        }, n + '회');
-      }
-    }));
-
-    if (absent.length) {
-      wrap.appendChild(el('div', { className: 'card mt-18' },
-        el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), `${f.round}회 결시 처리된 학생 ${absent.length}명`),
-        el('div', { className: 'flex gap-8 flex-wrap' },
-          ...absent.map(s => el('span', { className: 'badge' },
-            `${s.grade} ${s.name}` + (s.teacher ? ' · ' + s.teacher : '')))
+  // ── 3. 이번 회차 고마운 분 ──
+  if (team.rounds.length) {
+    const r = team.rounds[team.rounds.length - 1];
+    const done = board.filter(b => {
+      const ss = state.students.filter(s => (s.teacher || '담당 미지정') === b.teacher);
+      return ss.length > 0 && ss.every(s => roundEntryStatus(s.id, r) !== 'empty');
+    });
+    if (done.length) {
+      wrap.appendChild(el('div', { className: 'lg-mvp' },
+        el('div', { className: 'lg-mvp-head' }, '🙌 ' + r + '회를 가장 먼저 끝내주신 분들'),
+        el('div', { className: 'lg-mvp-list' },
+          ...done.map(b => el('span', { className: 'lg-mvp-chip' },
+            b.level.cur.icon, ' ', b.teacher,
+            el('i', null, b.students + '명 완료')
+          ))
         )
       ));
     }
   }
 
-  // ---------- ② 사전 입력 누락 ----------
-  if (ui.gapsTab === 'pre') {
-    wrap.appendChild(filterBar());
-    const list = scopeStudents(f);
-    const incomplete = list.filter(s => preInputMissingFields(s).length > 0);
-    const doneCnt = list.length - incomplete.length;
-    const pct = list.length ? Math.round(doneCnt / list.length * 100) : 0;
+  // ── 4. 리그 보드 ──
+  wrap.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), '리그 보드'),
+    el('div', { className: 'ver-note', style: { margin: '0 0 12px 0' } },
+      '순위는 경쟁이 아니라 기여도입니다. 담당 학생 수가 다르므로 입력률 · 배지도 함께 보아 주세요.'),
+    el('div', { className: 'table-wrap' },
+      el('table', { className: 'dt' },
+        el('thead', null, el('tr', null,
+          el('th', null, '#'), el('th', null, '선생님'), el('th', null, '등급'),
+          el('th', null, 'XP'), el('th', null, '담당'), el('th', null, '입력률'),
+          el('th', null, '사전 입력'), el('th', null, '배지')
+        )),
+        el('tbody', null, ...board.map((b, i) => el('tr', null,
+          el('td', { className: 'num' }, i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)),
+          el('td', null, el('strong', null, b.teacher)),
+          el('td', null, el('span', { className: 'lg-lv-chip' }, b.level.cur.icon + ' Lv.' + b.level.cur.lv),
+            el('div', { style: { fontSize: '10.5px', color: '#78716c', marginTop: '2px' } }, b.level.cur.title)),
+          el('td', { className: 'num', style: { fontWeight: 800 } }, b.xp.toLocaleString()),
+          el('td', { className: 'num' }, b.students + '명'),
+          el('td', { className: 'num' }, el('span', {
+            className: 'gap-badge ' + (b.rate >= 0.9 ? 'ok' : b.rate >= 0.7 ? 'warn' : 'bad')
+          }, Math.round(b.rate * 100) + '%')),
+          el('td', { className: 'num' }, el('span', {
+            className: 'gap-badge ' + (b.preDone === b.preTotal ? 'ok' : 'warn')
+          }, b.preDone + '/' + b.preTotal)),
+          el('td', null, el('span', { className: 'lg-badge-mini' },
+            LEAGUE_BADGES.filter(x => b.badges[x.key]).map(x => x.icon).join(' ') || '—'))
+        )))
+      )
+    )
+  ));
 
-    const byField = {};
-    PRE_FIELDS.forEach(pf => { byField[pf.key] = list.filter(s => String(s[pf.key] || '').trim() === '').length; });
+  // ── 5. XP 규칙 ──
+  wrap.appendChild(el('div', { className: 'card mt-18' },
+    el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), 'XP는 이렇게 쌓입니다'),
+    el('div', { className: 'lg-rules' },
+      ...XP_RULES.map(r => el('div', { className: 'lg-rule' },
+        el('span', null, r.label), el('b', null, '+' + r.xp)
+      ))
+    ),
+    el('div', { className: 'ver-note', style: { margin: '10px 0 0 0' } },
+      '별도로 입력하실 것은 없습니다. 평소처럼 점수 · 오답 · 사전 입력을 해 주시면 자동으로 반영됩니다.')
+  ));
 
-    wrap.appendChild(el('div', { className: 'stat-grid' },
-      el('div', { className: 'stat-card', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, '사전 입력 완료'),
-        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, doneCnt,
-          el('span', { className: 'stat-unit' }, '/ ' + list.length + '명')),
-        el('div', { className: 'stat-sub' }, pct + '% 완료')
-      ),
-      el('div', { className: 'stat-card pink', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, '미완료'),
-        el('div', { className: 'stat-value', style: { fontSize: '24px' } }, incomplete.length,
-          el('span', { className: 'stat-unit' }, '명')),
-        el('div', { className: 'stat-sub' }, '항목이 하나라도 비어 있음')
-      ),
-      el('div', { className: 'stat-card navy', style: { padding: '16px' } },
-        el('div', { className: 'stat-label' }, '항목별 빈칸'),
-        el('div', { className: 'text-sm', style: { marginTop: '6px', lineHeight: '1.9' } },
-          ...PRE_FIELDS.map(pf => el('div', null,
-            pf.label + ' ', el('strong', { style: { color: byField[pf.key] ? 'var(--red)' : 'var(--green)' } }, byField[pf.key] + '명')))
-        )
+  // ── 6. 관리자 전용: 시상 집계 ──
+  if (isAdmin()) {
+    const adminBox = el('div', { className: 'card mt-18 lg-admin' },
+      el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), '🔒 관리자 — 시즌 설정 · 시상 집계')
+    );
+
+    let goalInput, prizeInput, seasonInput;
+    adminBox.appendChild(el('div', { className: 'lg-admin-form' },
+      el('label', null, '시즌 이름',
+        seasonInput = el('input', { className: 'input', value: L.season, placeholder: '예: 2학기 중간 시즌' })),
+      el('label', null, '공동 목표(%)',
+        goalInput = el('input', { className: 'input', type: 'number', min: 50, max: 100, value: L.goal })),
+      el('label', null, '달성 시 포상',
+        prizeInput = el('input', { className: 'input', value: L.prize, placeholder: '예: 전 강사 회식 / 문화상품권' })),
+      el('button', {
+        className: 'btn btn-orange', onClick: () => {
+          const g = parseInt(goalInput.value, 10);
+          L.goal = (isNaN(g) ? 95 : Math.max(50, Math.min(100, g)));
+          L.prize = String(prizeInput.value || '').trim();
+          L.season = String(seasonInput.value || '').trim();
+          saveState(); showToast('리그 설정을 저장했습니다', 'success'); render();
+        }
+      }, '저장')
+    ));
+
+    adminBox.appendChild(el('div', { className: 'table-wrap mt-12' },
+      el('table', { className: 'dt' },
+        el('thead', null, el('tr', null,
+          el('th', null, '선생님'), el('th', null, 'XP'), el('th', null, '담당'),
+          el('th', null, '입력'), el('th', null, '결시'), el('th', null, '미입력'),
+          el('th', null, '오답기록률'), el('th', null, '사전'), el('th', null, '회차완주'),
+          el('th', null, '목표도달'), el('th', null, '평균변화'), el('th', null, '배지')
+        )),
+        el('tbody', null, ...board.map(b => el('tr', null,
+          el('td', null, el('strong', null, b.teacher)),
+          el('td', { className: 'num', style: { fontWeight: 800 } }, b.xp.toLocaleString()),
+          el('td', { className: 'num' }, b.students),
+          el('td', { className: 'num' }, b.scored),
+          el('td', { className: 'num' }, b.absent),
+          el('td', { className: 'num' }, b.empty ? el('span', { className: 'gap-badge bad' }, b.empty) : '0'),
+          el('td', { className: 'num' }, Math.round(b.errorRate * 100) + '%'),
+          el('td', { className: 'num' }, b.preDone + '/' + b.preTotal),
+          el('td', { className: 'num' }, b.perfectRounds),
+          el('td', { className: 'num' }, b.goalHit),
+          el('td', { className: 'num' }, (b.avgRise >= 0 ? '+' : '') + b.avgRise.toFixed(1)),
+          el('td', { className: 'num' }, b.badgeCount + '/6')
+        )))
       )
     ));
 
-    wrap.appendChild(el('div', { className: 'flex gap-8 flex-wrap mb-12' },
-      el('button', { className: 'btn btn-ghost btn-sm',
-        onClick: () => copyNameList(incomplete, `[사전 입력 미완료 ${incomplete.length}명]`) }, '📋 명단 복사'),
-      el('button', { className: 'btn btn-ghost btn-sm',
-        onClick: () => downloadCSV(`사전입력_미완료_${dateStr()}.csv`,
-          [['학년','학생','학교','담당 선생님','빠진 항목']].concat(
-            incomplete.map(s => [s.grade, s.name, s.school || '', s.teacher || '',
-              preInputMissingFields(s).map(x => x.label).join(' / ')]))) }, '⬇ CSV 저장'),
-      el('button', { className: 'btn btn-orange btn-sm',
-        onClick: () => { ui.currentPage = 'students'; render(); setTimeout(openPreInputModal, 120); } }, '📝 사전 입력 화면 열기')
+    adminBox.appendChild(el('div', { className: 'gap-actions mt-12' },
+      el('button', {
+        className: 'btn btn-ghost btn-sm', onClick: () => downloadCSV(
+          '수만프리그_시상집계_' + new Date().toISOString().slice(0, 10) + '.csv',
+          [['선생님', 'XP', '등급', '칭호', '담당', '입력', '결시', '미입력', '오답기록률(%)', '사전입력', '회차완주', '목표도달', '평균변화', '배지']]
+            .concat(board.map(b => [
+              b.teacher, b.xp, 'Lv.' + b.level.cur.lv, b.level.cur.title, b.students,
+              b.scored, b.absent, b.empty, Math.round(b.errorRate * 100),
+              b.preDone + '/' + b.preTotal, b.perfectRounds, b.goalHit,
+              (b.avgRise >= 0 ? '+' : '') + b.avgRise.toFixed(1),
+              LEAGUE_BADGES.filter(x => b.badges[x.key]).map(x => x.name).join(' ')
+            ]))
+        )
+      }, '⬇ 시상 집계 CSV')
     ));
 
-    wrap.appendChild(gapTable(incomplete, {
-      head: '빠진 항목',
-      cell: s => el('div', { className: 'flex gap-8 flex-wrap' },
-        ...preInputMissingFields(s).map(pf => el('span', { className: 'badge badge-warning' }, pf.label)))
-    }));
-  }
-
-  // ---------- ③ 선생님별 요약 ----------
-  if (ui.gapsTab === 'teacher') {
-    const teachers = getAllTeachers();
-    const rounds = done.length ? done : [1];
-    const head = el('tr', null,
-      el('th', null, '선생님'), el('th', null, '담당'), el('th', null, '사전 입력'),
-      ...rounds.map(r => el('th', null, r + '회'))
-    );
-    const rows = teachers.map(t => {
-      const ts = state.students.filter(s => s.teacher === t && GRADES.includes(s.grade));
-      if (!ts.length) return null;
-      const preInc = ts.filter(s => preInputMissingFields(s).length > 0).length;
-      const cells = [
-        el('td', { style: { fontWeight: 700 } }, t),
-        el('td', { className: 'num' }, ts.length + '명'),
-        el('td', null, el('span', {
-          className: 'badge ' + (preInc === 0 ? 'badge-success' : preInc > ts.length / 2 ? 'badge-danger' : 'badge-warning'),
-          style: { cursor: 'pointer' },
-          onClick: () => { ui.gapsTab = 'pre'; f.teacher = t; f.grade = 'all'; render(); }
-        }, preInc === 0 ? '완료' : preInc + '명 누락'))
-      ];
-      rounds.forEach(r => {
-        const miss = ts.filter(s => roundEntryStatus(s.id, r) === 'none').length;
-        cells.push(el('td', null, el('span', {
-          className: 'badge ' + (miss === 0 ? 'badge-success' : miss > ts.length / 2 ? 'badge-danger' : 'badge-warning'),
-          style: { cursor: 'pointer' },
-          onClick: () => { ui.gapsTab = 'rounds'; f.round = r; f.teacher = t; f.grade = 'all'; render(); }
-        }, miss === 0 ? '✓' : miss + '명')));
-      });
-      return el('tr', null, ...cells);
-    }).filter(Boolean);
-
-    wrap.appendChild(el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '10px' } },
-      '숫자는 아직 입력되지 않은 학생 수입니다. 숫자를 누르면 그 선생님의 해당 명단으로 바로 이동합니다.'));
-    wrap.appendChild(el('div', { className: 'table-wrap' },
-      el('table', { className: 'dt' }, el('thead', null, head), el('tbody', null, ...rows))
-    ));
+    wrap.appendChild(adminBox);
   }
 
   return wrap;
 }
 
+// 미입력 점검 — 미응시 / 점수 미입력 / 사전 입력 누락 학생을 이름으로 확인
+// ============================================================
+const PRE_FIELDS = [
+  { key: 'prevScore', label: '전학기' },
+  { key: 'studentGoal', label: '학생목표' },
+  { key: 'teacherPossible', label: '가능(강사)' },
+  { key: 'teacherGoal', label: '목표(강사)' }
+];
+
+function hasPreValue(s, key) {
+  const v = s[key];
+  if (v === undefined || v === null) return false;
+  const t = String(v).trim();
+  return t !== '';
+}
+
+function preInputMissingFields(s) {
+  return PRE_FIELDS.filter(f => !hasPreValue(s, f.key));
+}
+
+// 'absent' | 'scored' | 'empty'
+function roundEntryStatus(sid, round) {
+  const rd = getRoundData(sid, round);
+  if (!rd) return 'empty';
+  if (isAbsent(rd)) return 'absent';
+  return getScore(rd) != null ? 'scored' : 'empty';
+}
+
+function startedRounds() {
+  const out = [];
+  for (let r = 1; r <= ROUNDS; r++) {
+    let any = false;
+    for (let i = 0; i < state.students.length; i++) {
+      if (roundEntryStatus(state.students[i].id, r) !== 'empty') { any = true; break; }
+    }
+    if (any) out.push(r);
+  }
+  return out;
+}
+
+function missingRoundCount(s, rounds) {
+  let n = 0;
+  rounds.forEach(r => { if (roundEntryStatus(s.id, r) === 'empty') n++; });
+  return n;
+}
+
+function scopeStudents() {
+  return state.students.filter(s =>
+    (!ui.gapGrade || s.grade === ui.gapGrade) &&
+    (!ui.gapTeacher || (s.teacher || '') === ui.gapTeacher)
+  );
+}
+
+function downloadCSV(name, rows) {
+  const csv = rows.map(r => r.map(c => {
+    const t = (c === null || c === undefined) ? '' : String(c);
+    return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+  }).join(',')).join('\r\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  showToast('CSV를 내려받았습니다', 'success');
+}
+
+function copyNameList(students) {
+  if (!students.length) { showToast('복사할 학생이 없습니다'); return; }
+  const txt = students.map(s => `${s.name}(${s.grade}·${s.school || '학교 미입력'}·${s.teacher || '담당 미지정'})`).join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt)
+      .then(() => showToast(students.length + '명 명단을 복사했습니다', 'success'))
+      .catch(() => showToast('복사에 실패했습니다. CSV를 사용해 주세요'));
+  } else {
+    showToast('이 브라우저에서는 복사를 지원하지 않습니다. CSV를 사용해 주세요');
+  }
+}
+
+function gapTable(cols, rows, emptyMsg) {
+  if (!rows.length) {
+    return el('div', { className: 'gap-empty' }, '\u2713 ' + (emptyMsg || '해당하는 학생이 없습니다'));
+  }
+  return el('div', { className: 'table-wrap' },
+    el('table', { className: 'dt' },
+      el('thead', null, el('tr', null, ...cols.map(c => el('th', null, c)))),
+      el('tbody', null, ...rows)
+    )
+  );
+}
+
+function gapFilterBar() {
+  const teachers = getAllTeachers();
+  return el('div', { className: 'gap-filter' },
+    el('select', {
+      className: 'input',
+      value: ui.gapGrade || '',
+      onChange: e => { ui.gapGrade = e.target.value; render(); }
+    },
+      el('option', { value: '' }, '전체 학년'),
+      ...GRADES.map(g => el('option', { value: g, selected: ui.gapGrade === g }, g))
+    ),
+    el('select', {
+      className: 'input',
+      value: ui.gapTeacher || '',
+      onChange: e => { ui.gapTeacher = e.target.value; render(); }
+    },
+      el('option', { value: '' }, '전체 선생님'),
+      ...teachers.map(t => el('option', { value: t, selected: ui.gapTeacher === t }, t))
+    ),
+    (ui.gapGrade || ui.gapTeacher) ? el('button', {
+      className: 'btn btn-ghost btn-sm',
+      onClick: () => { ui.gapGrade = ''; ui.gapTeacher = ''; render(); }
+    }, '필터 해제') : null
+  );
+}
+
+function renderGaps() {
+  const wrap = el('div');
+  wrap.appendChild(el('div', { className: 'page-header' },
+    el('div', { className: 'page-title' }, '미입력 점검'),
+    el('div', { className: 'page-subtitle' }, '회차별 미응시 · 점수 미입력 · 사전 입력 누락 학생을 이름으로 확인합니다')
+  ));
+
+  if (!state.students.length) {
+    wrap.appendChild(el('div', { className: 'empty' },
+      el('div', { className: 'empty-icon' }, '👥'),
+      el('div', { className: 'empty-text' }, '학생 명단이 없습니다. [학생 관리]에서 먼저 등록해 주세요')
+    ));
+    return wrap;
+  }
+
+  if (!ui.gapTab) ui.gapTab = 'rounds';
+  wrap.appendChild(el('div', { className: 'tabs' },
+    el('div', { className: 'tab' + (ui.gapTab === 'rounds' ? ' active' : ''), onClick: () => { ui.gapTab = 'rounds'; render(); } }, '\ud83d\udcdd 회차별 미입력'),
+    el('div', { className: 'tab' + (ui.gapTab === 'pre' ? ' active' : ''), onClick: () => { ui.gapTab = 'pre'; render(); } }, '\ud83c\udfaf 사전 입력 누락'),
+    el('div', { className: 'tab' + (ui.gapTab === 'teacher' ? ' active' : ''), onClick: () => { ui.gapTab = 'teacher'; render(); } }, '\ud83d\udc68\u200d\ud83c\udfeb 선생님별 집계')
+  ));
+
+  wrap.appendChild(gapFilterBar());
+
+  if (ui.gapTab === 'rounds') wrap.appendChild(renderGapsRounds());
+  else if (ui.gapTab === 'pre') wrap.appendChild(renderGapsPre());
+  else wrap.appendChild(renderGapsTeacher());
+
+  return wrap;
+}
+
+function renderGapsRounds() {
+  const box = el('div');
+  const rounds = startedRounds();
+  if (!rounds.length) {
+    box.appendChild(el('div', { className: 'empty' },
+      el('div', { className: 'empty-icon' }, '📝'),
+      el('div', { className: 'empty-text' }, '아직 점수가 입력된 회차가 없습니다. 1회 점수를 입력하면 여기서 미입력 학생을 확인할 수 있습니다')
+    ));
+    return box;
+  }
+
+  if (!ui.gapRound || rounds.indexOf(ui.gapRound) < 0) ui.gapRound = rounds[rounds.length - 1];
+
+  const chips = el('div', { className: 'gap-chips' },
+    el('span', { className: 'gap-chips-label' }, '회차'),
+    ...rounds.map(r => {
+      const list = scopeStudents().filter(s => roundEntryStatus(s.id, r) === 'empty');
+      return el('button', {
+        className: 'gap-chip' + (ui.gapRound === r ? ' active' : '') + (list.length ? '' : ' done'),
+        onClick: () => { ui.gapRound = r; render(); }
+      }, r + '회', el('b', null, list.length ? list.length : '\u2713'));
+    })
+  );
+  box.appendChild(chips);
+
+  const round = ui.gapRound;
+  const scope = scopeStudents();
+  const missing = scope.filter(s => roundEntryStatus(s.id, round) === 'empty');
+  const absent = scope.filter(s => roundEntryStatus(s.id, round) === 'absent');
+  const scored = scope.length - missing.length - absent.length;
+
+  box.appendChild(el('div', { className: 'gap-sum' },
+    el('div', { className: 'gap-sum-item ok' }, el('b', null, scored), '점수 입력'),
+    el('div', { className: 'gap-sum-item warn' }, el('b', null, absent.length), '결시 처리'),
+    el('div', { className: 'gap-sum-item bad' }, el('b', null, missing.length), '미입력'),
+    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length ? Math.round((scored + absent.length) / scope.length * 100) + '%' : '—'), '처리율')
+  ));
+
+  box.appendChild(el('div', { className: 'gap-actions' },
+    el('button', { className: 'btn btn-ghost btn-sm', onClick: () => copyNameList(missing) }, '\ud83d\udccb 미입력 명단 복사'),
+    el('button', { className: 'btn btn-ghost btn-sm', onClick: () => downloadCSV(
+      `미입력_${round}회_${new Date().toISOString().slice(0,10)}.csv`,
+      [['학년', '학생', '학교', '담당 선생님', '회차', '상태']].concat(
+        missing.map(s => [s.grade, s.name, s.school || '', s.teacher || '', round + '회', '미입력'])
+      )
+    ) }, '\u2b07 CSV 내려받기'),
+    el('button', { className: 'btn btn-orange btn-sm', onClick: () => { commitDraftsBeforeLeaving(); ui.scoreFilters.round = round; navigate('scores'); } }, '\u270f\ufe0f 점수 입력으로 이동')
+  ));
+
+  const sorted = missing.slice().sort((a, b) =>
+    (GRADES.indexOf(a.grade) - GRADES.indexOf(b.grade)) ||
+    String(a.teacher || '').localeCompare(String(b.teacher || '')) ||
+    String(a.name).localeCompare(String(b.name))
+  );
+
+  const rows = sorted.map(s => {
+    const other = startedRounds().filter(r => r !== round && roundEntryStatus(s.id, r) === 'empty');
+    return el('tr', null,
+      el('td', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade)),
+      el('td', null, el('strong', null, s.name)),
+      el('td', null, s.school || el('span', { className: 'muted' }, '—')),
+      el('td', null, s.teacher || el('span', { className: 'muted' }, '담당 미지정')),
+      el('td', { className: 'num' }, other.length
+        ? el('span', { className: 'gap-badge bad' }, other.map(r => r + '회').join(', '))
+        : el('span', { className: 'muted' }, '없음')),
+      el('td', null, el('button', {
+        className: 'btn btn-ghost btn-sm',
+        onClick: () => { commitDraftsBeforeLeaving(); ui.scoreFilters.round = round; ui.scoreFilters.grade = s.grade; ui.scoreFilters.teacher = 'all'; navigate('scores'); }
+      }, '입력'))
+    );
+  });
+
+  box.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }),
+      `${round}회 미입력 학생 ${missing.length}명`),
+    gapTable(['학년', '학생', '학교', '담당 선생님', '다른 미입력 회차', ''], rows,
+      `${round}회는 대상 학생 전원이 처리되었습니다`)
+  ));
+
+  return box;
+}
+
+function renderGapsPre() {
+  const box = el('div');
+  const scope = scopeStudents();
+  const incomplete = scope.filter(s => preInputMissingFields(s).length > 0);
+  const done = scope.length - incomplete.length;
+
+  box.appendChild(el('div', { className: 'gap-sum' },
+    el('div', { className: 'gap-sum-item ok' }, el('b', null, done), '입력 완료'),
+    el('div', { className: 'gap-sum-item bad' }, el('b', null, incomplete.length), '누락'),
+    el('div', { className: 'gap-sum-item' }, el('b', null, scope.length ? Math.round(done / scope.length * 100) + '%' : '—'), '완료율')
+  ));
+
+  box.appendChild(el('div', { className: 'gap-actions' },
+    el('button', { className: 'btn btn-ghost btn-sm', onClick: () => copyNameList(incomplete) }, '\ud83d\udccb 누락 명단 복사'),
+    el('button', { className: 'btn btn-ghost btn-sm', onClick: () => downloadCSV(
+      `사전입력_누락_${new Date().toISOString().slice(0,10)}.csv`,
+      [['학년', '학생', '학교', '담당 선생님', '누락 항목']].concat(
+        incomplete.map(s => [s.grade, s.name, s.school || '', s.teacher || '', preInputMissingFields(s).map(f => f.label).join(' / ')])
+      )
+    ) }, '\u2b07 CSV 내려받기'),
+    el('button', { className: 'btn btn-orange btn-sm', onClick: openPreInputModal }, '\ud83d\udcdd 사전 입력 열기')
+  ));
+
+  const sorted = incomplete.slice().sort((a, b) =>
+    (GRADES.indexOf(a.grade) - GRADES.indexOf(b.grade)) ||
+    String(a.teacher || '').localeCompare(String(b.teacher || '')) ||
+    String(a.name).localeCompare(String(b.name))
+  );
+
+  const rows = sorted.map(s => {
+    const miss = preInputMissingFields(s).map(f => f.key);
+    return el('tr', null,
+      el('td', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade)),
+      el('td', null, el('strong', null, s.name)),
+      el('td', null, s.school || el('span', { className: 'muted' }, '—')),
+      el('td', null, s.teacher || el('span', { className: 'muted' }, '담당 미지정')),
+      ...PRE_FIELDS.map(f => el('td', { className: 'num' },
+        miss.indexOf(f.key) >= 0
+          ? el('span', { className: 'gap-badge bad' }, '누락')
+          : el('span', { className: 'gap-badge ok' }, String(s[f.key]).trim())
+      )),
+      el('td', null, el('button', { className: 'btn btn-ghost btn-sm', onClick: () => openStudentModal(s.id) }, '편집'))
+    );
+  });
+
+  box.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }),
+      `사전 입력 누락 ${incomplete.length}명`),
+    gapTable(['학년', '학생', '학교', '담당 선생님', ...PRE_FIELDS.map(f => f.label), ''], rows,
+      '대상 학생 전원의 사전 입력이 완료되었습니다')
+  ));
+
+  return box;
+}
+
+function renderGapsTeacher() {
+  const box = el('div');
+  const rounds = startedRounds();
+  const scope = scopeStudents();
+  const keys = [];
+  const map = {};
+  scope.forEach(s => {
+    const k = (s.teacher || '담당 미지정') + '|' + s.grade;
+    if (!map[k]) { map[k] = { teacher: s.teacher || '담당 미지정', grade: s.grade, students: [] }; keys.push(k); }
+    map[k].students.push(s);
+  });
+
+  keys.sort((a, b) => {
+    const A = map[a], B = map[b];
+    return String(A.teacher).localeCompare(String(B.teacher)) || (GRADES.indexOf(A.grade) - GRADES.indexOf(B.grade));
+  });
+
+  const rows = keys.map(k => {
+    const g = map[k];
+    const totalCells = g.students.length * rounds.length;
+    let miss = 0;
+    g.students.forEach(s => { miss += missingRoundCount(s, rounds); });
+    const preMiss = g.students.filter(s => preInputMissingFields(s).length > 0);
+    const rate = totalCells ? (totalCells - miss) / totalCells : 1;
+    const level = rate >= 0.9 ? 'ok' : rate >= 0.7 ? 'warn' : 'bad';
+    const worst = g.students.filter(s => missingRoundCount(s, rounds) > 0)
+      .sort((a, b) => missingRoundCount(b, rounds) - missingRoundCount(a, rounds)).slice(0, 4);
+    return el('tr', null,
+      el('td', null, el('strong', null, g.teacher)),
+      el('td', null, el('span', { className: 'badge badge-grade-' + g.grade }, g.grade)),
+      el('td', { className: 'num' }, g.students.length + '명'),
+      el('td', { className: 'num' }, el('span', { className: 'gap-badge ' + level }, Math.round(rate * 100) + '%')),
+      el('td', { className: 'num' }, miss ? el('span', { className: 'gap-badge bad' }, miss + '칸') : el('span', { className: 'gap-badge ok' }, '0')),
+      el('td', { className: 'num' }, preMiss.length ? el('span', { className: 'gap-badge warn' }, preMiss.length + '명') : el('span', { className: 'gap-badge ok' }, '완료')),
+      el('td', { style: { fontSize: '11.5px', color: '#57534e' } },
+        worst.length ? worst.map(s => s.name + '(' + missingRoundCount(s, rounds) + ')').join(', ') : '—')
+    );
+  });
+
+  box.appendChild(el('div', { className: 'card' },
+    el('div', { className: 'card-title' }, el('div', { className: 'card-title-accent' }), '선생님별 입력 현황'),
+    el('div', { className: 'ver-note', style: { margin: '0 0 12px 0' } },
+      `진행 중인 회차 ${rounds.length ? rounds.map(r => r + '회').join(' · ') : '없음'} 기준 · 결시 처리도 '입력 완료'로 집계합니다`),
+    gapTable(['선생님', '학년', '담당', '입력률', '미입력', '사전 입력', '미입력 많은 학생'], rows, '집계할 학생이 없습니다')
+  ));
+
+  if (rows.length) {
+    box.appendChild(el('div', { className: 'gap-actions' },
+      el('button', { className: 'btn btn-ghost btn-sm', onClick: () => downloadCSV(
+        `선생님별_입력현황_${new Date().toISOString().slice(0,10)}.csv`,
+        [['선생님', '학년', '담당 인원', '입력률(%)', '미입력 칸', '사전 입력 누락(명)']].concat(
+          keys.map(k => {
+            const g = map[k];
+            const totalCells = g.students.length * rounds.length;
+            let miss = 0; g.students.forEach(s => { miss += missingRoundCount(s, rounds); });
+            const preMiss = g.students.filter(s => preInputMissingFields(s).length > 0).length;
+            return [g.teacher, g.grade, g.students.length, totalCells ? Math.round((totalCells - miss) / totalCells * 100) : 100, miss, preMiss];
+          })
+        )
+      ) }, '\u2b07 CSV 내려받기')
+    ));
+  }
+
+  return box;
+}
+
+// ============================================================
+// 회차 통계
+// ============================================================
 function renderStats() {
   const wrap = el('div');
   wrap.appendChild(el('div', { className: 'page-header' },
@@ -5846,28 +6407,8 @@ function renderGradeStatsTab() {
     );
   }
 
-  const body = [];
-  GRADES.forEach(g => {
-    const hasVersions = getVersionsForGrade(g).length > 1;
-    const verLabels = Array.from(new Set(
-      roundNumbers().flatMap(r => gradeRoundVersionStats(g, r).map(v => v.label))
-    ));
-    const cells = [el('td', null,
-      hasVersions && verLabels.length
-        ? el('button', {
-            className: 'ver-expand',
-            onClick: (e) => {
-              const open = e.target.dataset.open !== '1';
-              e.target.dataset.open = open ? '1' : '0';
-              e.target.textContent = open ? '▾' : '▸';
-              document.querySelectorAll('tr[data-vergrade="' + g + '"]').forEach(tr => {
-                tr.style.display = open ? '' : 'none';
-              });
-            }
-          }, '▸')
-        : null,
-      el('span', { className: 'badge badge-grade-' + g }, g)
-    )];
+  const body = GRADES.map(g => {
+    const cells = [el('td', null, el('span', { className: 'badge badge-grade-' + g }, g))];
     for (let r = 1; r <= ROUNDS; r++) {
       const st = gradeRoundStats(g, r);
       const rate = attendanceRate(st);
@@ -5875,7 +6416,7 @@ function renderGradeStatsTab() {
       cells.push(el('td', { className: 'num ' + scoreClass(st.avg), style: { borderLeft: '2px solid var(--line-2)' } }, st.avg != null ? fmt(st.avg) : '—'));
       cells.push(el('td', { className: 'num' }, st.max != null ? fmt(st.max, 0) : '—'));
       cells.push(el('td', { className: 'num' }, st.min != null ? fmt(st.min, 0) : '—'));
-      cells.push(el('td', { className: 'num' },
+      cells.push(el('td', { className: 'num' }, 
         rate != null && st.count > 0 ?
           el('span', { className: 'attendance-badge ' + level },
             `${st.count}/${st.total}`,
@@ -5884,42 +6425,67 @@ function renderGradeStatsTab() {
           el('span', { className: 'muted' }, '—')
       ));
     }
-    body.push(el('tr', null, ...cells));
-
-    // 버전별 행 (기본 숨김)
-    if (hasVersions) {
-      const order = getVersionsForGrade(g);
-      const sorted = verLabels.slice().sort((a2, b2) => {
-        const ia = a2 ? order.indexOf(a2) : 999, ib = b2 ? order.indexOf(b2) : 999;
-        return (ia < 0 ? 998 : ia) - (ib < 0 ? 998 : ib);
-      });
-      sorted.forEach(label => {
-        const vcells = [el('td', { style: { paddingLeft: '30px' } },
-          el('span', { className: 'ver-tag' + (label ? '' : ' none'), title: label || '버전 미지정' }, versionTag(g, label))
-        )];
-        for (let r = 1; r <= ROUNDS; r++) {
-          const v = gradeRoundVersionStats(g, r).find(x => x.label === label);
-          vcells.push(el('td', { className: 'num ' + (v ? scoreClass(v.avg) : ''), style: { borderLeft: '2px solid var(--line-2)' } },
-            v && v.avg != null ? fmt(v.avg) : '—'));
-          vcells.push(el('td', { className: 'num muted' }, v && v.max != null ? fmt(v.max, 0) : '—'));
-          vcells.push(el('td', { className: 'num muted' }, v && v.min != null ? fmt(v.min, 0) : '—'));
-          vcells.push(el('td', { className: 'num muted' }, v && v.count ? `${v.count}명` : '—'));
-        }
-        const tr = el('tr', { className: 'ver-sub-row', style: { display: 'none' } }, ...vcells);
-        tr.dataset.vergrade = g;
-        body.push(tr);
-      });
+    const hasVer = getVersionsForGrade(g).length >= 2;
+    if (hasVer) {
+      cells[0] = el('td', null,
+        el('span', { className: 'ver-expand', 'data-vergrade': g }, '\u25b8'),
+        el('span', { className: 'badge badge-grade-' + g }, g)
+      );
     }
+    return el('tr', null, ...cells);
   });
 
-  container.appendChild(el('div', { className: 'text-sm', style: { color: 'var(--ink-3)', marginBottom: '8px' } },
-    '학년 왼쪽 ▸ 를 누르면 그 학년의 시험지 버전별 평균·응시 인원이 펼쳐집니다. (학부모 리포트의 학년 평균은 버전 구분 없이 계산됩니다)'));
-  container.appendChild(el('div', { className: 'table-wrap mb-18' },
+  // 학년별 버전 상세 행 (기본 숨김)
+  const bodyRows = [];
+  GRADES.forEach((g, gi) => {
+    bodyRows.push(body[gi]);
+    const vers = getVersionsForGrade(g);
+    if (vers.length < 2) return;
+    const used = {};
+    for (let r = 1; r <= ROUNDS; r++) gradeRoundVersionStats(g, r).forEach(v => { used[v.label] = true; });
+    const labels = vers.filter(v => used[v]);
+    if (used['']) labels.push('');
+    labels.forEach(lb => {
+      const tds = [el('td', { style: { paddingLeft: '26px' } },
+        el('span', { className: 'ver-tag' + (lb ? '' : ' none'), style: { display: 'inline-block', padding: '2px 6px' } }, versionTag(g, lb)),
+        el('span', { style: { marginLeft: '6px', color: '#78716c' } }, lb || '버전 미지정')
+      )];
+      for (let r = 1; r <= ROUNDS; r++) {
+        const v = gradeRoundVersionStats(g, r).find(x => x.label === lb);
+        tds.push(el('td', { className: 'num', style: { borderLeft: '2px solid var(--line-2)' } }, v && v.avg != null ? fmt(v.avg) : '—'));
+        tds.push(el('td', { className: 'num' }, v && v.max != null ? fmt(v.max, 0) : '—'));
+        tds.push(el('td', { className: 'num' }, v && v.min != null ? fmt(v.min, 0) : '—'));
+        tds.push(el('td', { className: 'num' }, v ? (v.count + '명' + (v.absent ? ' /결' + v.absent : '')) : '—'));
+      }
+      const tr = el('tr', { className: 'ver-sub-row' }, ...tds);
+      tr.style.display = 'none';
+      tr.dataset.versub = g;
+      bodyRows.push(tr);
+    });
+  });
+
+  const tableWrap = el('div', { className: 'table-wrap mb-18' },
     el('table', { className: 'dt' },
       el('thead', null, header, subHeader),
-      el('tbody', null, ...body)
+      el('tbody', null, ...bodyRows)
     )
-  ));
+  );
+  tableWrap.addEventListener('click', e => {
+    const t = e.target.closest('.ver-expand');
+    if (!t) return;
+    const g = t.getAttribute('data-vergrade');
+    const open = t.textContent.indexOf('\u25be') < 0;
+    t.textContent = open ? '\u25be' : '\u25b8';
+    tableWrap.querySelectorAll('tr.ver-sub-row').forEach(tr => {
+      if (tr.dataset.versub === g) tr.style.display = open ? '' : 'none';
+    });
+  });
+  container.appendChild(tableWrap);
+  if (GRADES.some(g => getVersionsForGrade(g).length >= 2)) {
+    container.appendChild(el('div', { className: 'ver-note' },
+      '학년 왼쪽 \u25b8 를 누르면 그 학년의 시험지 버전별 평균 · 응시 인원이 펼쳐집니다. (학부모 리포트의 학년 평균은 버전 구분 없이 계산됩니다)'
+    ));
+  }
 
   // 각 학년별 차트
   container.appendChild(el('div', { className: 'card' },
@@ -6402,22 +6968,24 @@ function renderTeacherGradeSection(teacher, grade, students) {
     section.appendChild(compareRow);
   }
 
-  // 버전별 담당 평균 (전 회차 누적) — 버전이 2개 이상인 학년만
-  if (getVersionsForGrade(grade).length > 1) {
-    const vs = teacherVersionSummary(teacher, grade);
-    if (vs.length) {
-      const vrow = el('div', { className: 'ver-summary-row' },
-        el('strong', null, '🎯 버전별 담당 평균'),
-        el('span', { className: 'text-sm muted' }, '(전 회차 누적 · 응시 건 기준)'),
-        el('div', { className: 'flex gap-8 flex-wrap', style: { marginTop: '8px' } },
-          ...vs.map(v => el('span', { className: 'ver-chip', title: v.label || '버전 미지정' },
-            el('span', { className: 'ver-tag' + (v.label ? '' : ' none') }, v.tag),
-            el('strong', null, fmt(v.avg) + '점'),
-            el('span', { className: 'muted' }, v.n + '건')
+  // 3-1. 버전별 담당 평균 (버전이 2개 이상인 학년만)
+  if (getVersionsForGrade(grade).length >= 2) {
+    const vsum = teacherVersionSummary(teacher, grade);
+    if (vsum.length > 0) {
+      const vBox = el('div', { className: 'mb-12', style: { padding: '12px', background: 'var(--bg-elevated)', borderRadius: '8px' } },
+        el('div', { style: { marginBottom: '2px', fontSize: '13px' } },
+          el('strong', { style: { color: 'var(--orange-deep)' } }, '\ud83c\udfaf 버전별 담당 평균'),
+          el('span', { style: { fontSize: '11px', color: '#78716c', marginLeft: '8px' } }, '1~' + ROUNDS + '회 전체 · 결시 제외')
+        ),
+        el('div', { className: 'ver-tsum' },
+          ...vsum.map(v => el('span', { className: 'ver-tchip', title: v.label || '버전 미지정' },
+            el('b', null, v.tag),
+            el('span', { className: scoreClass(v.avg) }, fmt(v.avg) + '점'),
+            el('span', { style: { color: '#78716c', fontWeight: 600 } }, v.n + '건')
           ))
         )
       );
-      section.appendChild(vrow);
+      section.appendChild(vBox);
     }
   }
 
