@@ -2694,18 +2694,61 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-team::after{content:'';position:absolute;right:-40px;top:-50px;width:190px;height:190px;border-radius:50%;
   background:radial-gradient(circle,rgba(212,184,118,.26),transparent 68%);pointer-events:none}
 .lg-team.reached{background:linear-gradient(135deg,#1b2a4a 0%,#3b3015 55%,#6b5420 100%)}
-.lg-team-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:12px;position:relative;z-index:2}
+.lg-team-body{display:flex;align-items:center;gap:22px;position:relative;z-index:2}
+.lg-team-txt{flex:1;min-width:0}
 .lg-team-label{font-size:15px;font-weight:800;letter-spacing:-.01em}
 .lg-team-sub{font-size:11.5px;opacity:.72;margin-top:3px}
-.lg-team-pct{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:800;line-height:1;color:#e8cf95}
-.lg-team-pct span{font-size:16px;margin-left:2px;opacity:.75}
-.lg-gauge{position:relative;height:13px;border-radius:999px;background:rgba(255,255,255,.14);overflow:visible;z-index:2}
-.lg-gauge-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#b5924f,#e8cf95);
-  box-shadow:0 0 14px rgba(232,207,149,.5);transition:width .5s ease}
-.lg-gauge-mark{position:absolute;top:-5px;width:2px;height:23px;background:rgba(255,255,255,.65)}
-.lg-gauge-mark span{position:absolute;top:26px;left:50%;transform:translateX(-50%);white-space:nowrap;
-  font-size:10px;font-weight:700;opacity:.8}
-.lg-team-foot{margin-top:26px;font-size:12.5px;opacity:.92;position:relative;z-index:2}
+.lg-team-foot{margin-top:14px;font-size:12.5px;opacity:.92}
+.lg-ring-wrap{position:relative;flex:none;width:146px;height:146px}
+.ring-svg{width:100%;height:100%;display:block}
+.lg-ring-face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  pointer-events:none}
+.lg-ring-pct{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:800;line-height:1;color:#f0dcae;
+  text-shadow:0 0 18px rgba(232,207,149,.45)}
+.lg-ring-pct i{font-style:normal;font-size:14px;opacity:.7;margin-left:1px}
+.lg-ring-goal{font-size:10px;font-weight:700;opacity:.62;margin-top:5px;letter-spacing:.04em}
+.lg-team.reached .lg-ring-pct{color:#fff}
+
+/* 레벨 아이콘 링 */
+.lg-me-icon{position:relative}
+.lg-me-icon .ring-svg{position:absolute;inset:0}
+.lg-me-emoji{position:relative;z-index:2;font-size:26px;line-height:1}
+
+/* 진행 지도 (선생님 × 회차 히트맵) */
+.lg-map{margin-bottom:16px;border-radius:14px;padding:16px 18px 18px;
+  background:linear-gradient(150deg,#1b2a4a 0%,#223253 62%,#2b3d63 100%);
+  border:1px solid rgba(232,207,149,.26);box-shadow:0 8px 24px rgba(27,42,74,.2)}
+.lg-map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:13px}
+.lg-map-title{font-size:14px;font-weight:800;color:#f0dcae}
+.lg-map-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
+.lg-map-legend{display:flex;gap:10px;flex-wrap:wrap}
+.lg-map-legend span{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:rgba(255,255,255,.65)}
+.lg-map-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+.lg-map-grid{display:grid;gap:4px;align-items:center;justify-content:start}
+.lg-map-corner{height:18px}
+.lg-map-colhead{font-size:10px;font-weight:700;color:rgba(255,255,255,.55);text-align:center;letter-spacing:.02em}
+.lg-map-rowhead{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.86);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;padding-right:6px}
+.lg-map-cell{height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  opacity:0;transform:scale(.72);animation:heatPop .42s cubic-bezier(.2,.9,.3,1.3) forwards}
+.lg-map-cell:hover{outline:2px solid rgba(232,207,149,.85);outline-offset:1px}
+.lg-map-check{font-size:12px;font-weight:800;color:rgba(27,42,74,.78)}
+.lg-map-cell.h0,.lg-map-legend i.h0{background:rgba(255,255,255,.07)}
+.lg-map-cell.h1,.lg-map-legend i.h1{background:rgba(232,207,149,.2)}
+.lg-map-cell.h2,.lg-map-legend i.h2{background:rgba(232,207,149,.42)}
+.lg-map-cell.h3,.lg-map-legend i.h3{background:rgba(232,207,149,.68)}
+.lg-map-cell.h4,.lg-map-legend i.h4{background:linear-gradient(135deg,#d8bb7d,#f3e3bb);
+  box-shadow:0 0 9px rgba(232,207,149,.42)}
+@keyframes heatPop{to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){
+  .lg-map-cell{animation:none;opacity:1;transform:none}
+}
+@media (max-width:760px){
+  .lg-team-body{flex-direction:column;align-items:stretch}
+  .lg-ring-wrap{align-self:center}
+  .lg-map-grid{font-size:10px}
+  .lg-map-cell{height:22px}
+}
 .lg-reached{font-size:14px;font-weight:800;color:#f0dcae}
 .lg-prize{display:inline-block;margin-left:10px;background:rgba(232,207,149,.16);border:1px solid rgba(232,207,149,.4);
   color:#f0dcae;border-radius:999px;padding:2px 10px;font-size:11.5px;font-weight:700}
@@ -3807,6 +3850,61 @@ function render() {
 // 화면 진입 연출 — 숫자 카운트업 · 막대 차오름 · 행 순차 등장
 //   data-count-to / data-fill-to / data-rise 가 붙은 요소만 움직인다
 // ============================================================
+const SVG_NS = 'http://www.w3.org/2000/svg';
+let _svgSeq = 0;
+
+function sv(tag, attrs) {
+  const n = document.createElementNS(SVG_NS, tag);
+  if (attrs) for (const k in attrs) { if (attrs[k] != null) n.setAttribute(k, attrs[k]); }
+  for (let i = 2; i < arguments.length; i++) { const c = arguments[i]; if (c) n.appendChild(c); }
+  return n;
+}
+
+// 금박 원형 게이지 — 목표 눈금 포함, 진입할 때 시계방향으로 그려진다
+function ringGauge(pct, opts) {
+  const o = opts || {};
+  const size = o.size || 136, sw = o.stroke || 11;
+  const r = (size - sw) / 2 - 2, cx = size / 2, cy = size / 2;
+  const circ = 2 * Math.PI * r;
+  const gid = 'ringgrad' + (++_svgSeq);
+
+  const svg = sv('svg', { viewBox: '0 0 ' + size + ' ' + size, class: 'ring-svg' });
+  const defs = sv('defs');
+  const grad = sv('linearGradient', { id: gid, x1: '0', y1: '0', x2: '1', y2: '1' });
+  grad.appendChild(sv('stop', { offset: '0%', 'stop-color': o.from || '#b5924f' }));
+  grad.appendChild(sv('stop', { offset: '100%', 'stop-color': o.to || '#f0dcae' }));
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+
+  svg.appendChild(sv('circle', {
+    cx: cx, cy: cy, r: r, fill: 'none',
+    stroke: o.track || 'rgba(255,255,255,.13)', 'stroke-width': sw
+  }));
+
+  const arc = sv('circle', {
+    cx: cx, cy: cy, r: r, fill: 'none',
+    stroke: 'url(#' + gid + ')', 'stroke-width': sw, 'stroke-linecap': 'round',
+    transform: 'rotate(-90 ' + cx + ' ' + cy + ')'
+  });
+  arc.dataset.ringTo = Math.max(0, Math.min(100, pct));
+  arc.dataset.ringCirc = circ;
+  arc.style.strokeDasharray = circ;
+  arc.style.strokeDashoffset = circ * (1 - Math.max(0, Math.min(100, pct)) / 100);
+  svg.appendChild(arc);
+
+  // 목표 눈금
+  if (o.goal != null) {
+    const ang = (-90 + o.goal * 3.6) * Math.PI / 180;
+    const r1 = r - sw / 2 - 2, r2 = r + sw / 2 + 2;
+    svg.appendChild(sv('line', {
+      x1: cx + r1 * Math.cos(ang), y1: cy + r1 * Math.sin(ang),
+      x2: cx + r2 * Math.cos(ang), y2: cy + r2 * Math.sin(ang),
+      stroke: 'rgba(255,255,255,.75)', 'stroke-width': 2, 'stroke-linecap': 'round'
+    }));
+  }
+  return svg;
+}
+
 function prefersReducedMotion() {
   try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
   catch (e) { return false; }
@@ -3873,6 +3971,20 @@ function runEntryAnimations(root) {
       else n.textContent = show(to);
     };
     requestAnimationFrame(step);
+  });
+
+  // 원형 게이지 — 12시 방향에서 시계방향으로 그려짐
+  root.querySelectorAll('[data-ring-to]').forEach(n => {
+    const circ = parseFloat(n.dataset.ringCirc) || 0;
+    const to = Math.max(0, Math.min(100, parseFloat(n.dataset.ringTo) || 0));
+    const off = circ * (1 - to / 100);
+    if (reduce) { n.style.strokeDashoffset = off; return; }
+    n.style.transition = 'none';
+    n.style.strokeDasharray = circ;
+    n.style.strokeDashoffset = circ;
+    void n.getBoundingClientRect();
+    n.style.transition = 'stroke-dashoffset 1.05s cubic-bezier(.2,.85,.25,1) 90ms';
+    n.style.strokeDashoffset = off;
   });
 
   // 행·카드 — 위에서부터 한 겹씩 떠오름
@@ -6036,6 +6148,55 @@ function renderLeagueStrip() {
   );
 }
 
+// 선생님 × 회차 진행 지도 — 칸 하나가 '그 선생님의 그 회차' 처리율
+function renderProgressMap(board) {
+  const rounds = startedRounds();
+  if (!rounds.length || !board.length) return null;
+
+  const box = el('div', { className: 'lg-map' },
+    el('div', { className: 'lg-map-head' },
+      el('div', null,
+        el('div', { className: 'lg-map-title' }, '🗺 진행 지도'),
+        el('div', { className: 'lg-map-sub' }, '칸 하나 = 그 선생님의 그 회차 · 누르면 미입력 명단으로 이동')
+      ),
+      el('div', { className: 'lg-map-legend' },
+        el('span', null, el('i', { className: 'h4' }), '완료'),
+        el('span', null, el('i', { className: 'h3' }), '거의'),
+        el('span', null, el('i', { className: 'h2' }), '절반'),
+        el('span', null, el('i', { className: 'h1' }), '시작'),
+        el('span', null, el('i', { className: 'h0' }), '없음')
+      )
+    )
+  );
+
+  const grid = el('div', { className: 'lg-map-grid',
+    style: { gridTemplateColumns: '96px repeat(' + rounds.length + ', minmax(30px, 72px))' } });
+  grid.appendChild(el('div', { className: 'lg-map-corner' }));
+  rounds.forEach(r => grid.appendChild(el('div', { className: 'lg-map-colhead' }, r + '회')));
+
+  let idx = 0;
+  board.forEach(b => {
+    const ss = state.students.filter(x => (x.teacher || '담당 미지정') === b.teacher);
+    grid.appendChild(el('div', { className: 'lg-map-rowhead', title: b.teacher + ' · ' + ss.length + '명' }, b.teacher));
+    rounds.forEach(r => {
+      let done = 0;
+      ss.forEach(x => { if (roundEntryStatus(x.id, r) !== 'empty') done++; });
+      const rate = ss.length ? done / ss.length : 0;
+      const lvl = rate >= 1 ? 4 : rate >= 0.75 ? 3 : rate >= 0.4 ? 2 : rate > 0 ? 1 : 0;
+      const cell = el('div', {
+        className: 'lg-map-cell h' + lvl,
+        title: b.teacher + ' · ' + r + '회 — ' + done + '/' + ss.length + '명 (' + Math.round(rate * 100) + '%)',
+        onClick: () => { ui.gapTab = 'rounds'; ui.gapRound = r; ui.gapTeacher = b.teacher; ui.gapGrade = ''; navigate('gaps'); }
+      }, lvl === 4 ? el('span', { className: 'lg-map-check' }, '✓') : null);
+      cell.style.animationDelay = (idx++ * 11) + 'ms';
+      grid.appendChild(cell);
+    });
+  });
+
+  box.appendChild(grid);
+  return box;
+}
+
 function renderLeague() {
   const wrap = el('div');
   const L = leagueConfig();
@@ -6061,28 +6222,30 @@ function renderLeague() {
   const pct = Math.round(team.rate * 100);
   const reached = pct >= L.goal;
   const gauge = el('div', { className: 'lg-team' + (reached ? ' reached' : '') },
-    el('div', { className: 'lg-team-head' },
-      el('div', null,
+    el('div', { className: 'lg-team-body' },
+      el('div', { className: 'lg-team-txt' },
         el('div', { className: 'lg-team-label' }, '🤝 우리 학원 공동 목표'),
         el('div', { className: 'lg-team-sub' },
           team.rounds.length
             ? team.rounds.map(r => r + '회').join(' · ') + ' 기준 · 전체 ' + (team.scored + team.absent) + '/' + team.cells + '칸'
-            : '아직 진행된 회차가 없습니다')
+            : '아직 진행된 회차가 없습니다'),
+        el('div', { className: 'lg-team-foot' },
+          reached
+            ? el('div', { className: 'lg-reached' }, '🎉 공동 목표 달성! ' + (L.prize ? '— ' + L.prize : '모두 수고하셨습니다'))
+            : el('div', null,
+                el('strong', null, '남은 칸 ' + team.empty + '개'),
+                ' · 함께 채우면 목표 ' + L.goal + '% 달성',
+                L.prize ? el('span', { className: 'lg-prize' }, '🎁 ' + L.prize) : null
+              )
+        )
       ),
-      el('div', { className: 'lg-team-pct' }, countUp(el('span'), pct), el('span', null, '%'))
-    ),
-    el('div', { className: 'lg-gauge' },
-      fillBar(el('div', { className: 'lg-gauge-fill' }), Math.min(100, pct)),
-      el('div', { className: 'lg-gauge-mark', style: { left: L.goal + '%' } }, el('span', null, '목표 ' + L.goal + '%'))
-    ),
-    el('div', { className: 'lg-team-foot' },
-      reached
-        ? el('div', { className: 'lg-reached' }, '🎉 공동 목표 달성! ' + (L.prize ? '— ' + L.prize : '모두 수고하셨습니다'))
-        : el('div', null,
-            el('strong', null, '남은 칸 ' + team.empty + '개'),
-            ' · 함께 채우면 목표 ' + L.goal + '% 달성',
-            L.prize ? el('span', { className: 'lg-prize' }, '🎁 ' + L.prize) : null
-          )
+      el('div', { className: 'lg-ring-wrap' },
+        ringGauge(Math.min(100, pct), { goal: L.goal, size: 146, stroke: 12 }),
+        el('div', { className: 'lg-ring-face' },
+          el('div', { className: 'lg-ring-pct' }, countUp(el('span'), pct), el('i', null, '%')),
+          el('div', { className: 'lg-ring-goal' }, '목표 ' + L.goal + '%')
+        )
+      )
     )
   );
   wrap.appendChild(gauge);
@@ -6104,7 +6267,10 @@ function renderLeague() {
         el('div', { className: 'lg-me-xp' }, countUp(el('span'), me.xp, { comma: true }), el('span', null, ' XP'))
       ),
       el('div', { className: 'lg-me-level' },
-        el('div', { className: 'lg-me-icon' }, lvl.cur.icon),
+        el('div', { className: 'lg-me-icon' },
+          ringGauge(lvl.pct, { size: 64, stroke: 5, track: 'rgba(27,42,74,.1)' }),
+          el('span', { className: 'lg-me-emoji' }, lvl.cur.icon)
+        ),
         el('div', { className: 'lg-me-info' },
           el('div', { className: 'lg-me-title' }, 'Lv.' + lvl.cur.lv + ' ' + lvl.cur.title),
           el('div', { className: 'lg-bar' }, fillBar(el('i'), lvl.pct, 2)),
@@ -6185,6 +6351,10 @@ function renderLeague() {
       ));
     }
   }
+
+  // ── 3-1. 진행 지도 ──
+  const pmap = renderProgressMap(board);
+  if (pmap) wrap.appendChild(pmap);
 
   // ── 4. 리그 보드 ──
   wrap.appendChild(el('div', { className: 'card' },
