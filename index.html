@@ -2873,6 +2873,30 @@ tr.ver-sub-row td{font-size:11px!important;padding-top:3px!important;padding-bot
 .lg-strip-bar i{display:block;height:100%;background:linear-gradient(90deg,#1b2a4a,#b5924f);
   transition:width .55s cubic-bezier(.2,.8,.2,1)}
 .lg-strip-go{flex:none;font-size:11.5px;font-weight:800;color:#b5924f}
+/* 추가 응시(중복 버전) 입력 줄 */
+.score-row.sub{background:rgba(27,42,74,.035);border-left:3px solid rgba(181,146,79,.55)}
+.score-row.sub .score-input,.score-row.sub .errors-input{background:#fff}
+.sub-mark{font-size:11px;font-weight:800;color:#b5924f;white-space:nowrap}
+.sub-add{margin-top:5px;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;cursor:pointer;
+  background:#fff;border:1px dashed var(--line-2);color:#78716c}
+.sub-add:hover{border-color:rgba(181,146,79,.7);color:#8a6c2e;border-style:solid}
+.sub-x{margin-left:8px;font-size:10px;font-weight:800;border:none;background:transparent;color:#b91c1c;cursor:pointer}
+.ver-cell{display:flex;align-items:center;gap:6px;min-width:0}
+.ver-cell .version-select{flex:1;min-width:0}
+.ver-dup{font-size:9.5px;font-weight:800;color:#b91c1c;background:rgba(185,28,28,.1);
+  border-radius:4px;padding:1px 5px;white-space:nowrap}
+.sub-note{font-size:11.5px;color:var(--text-muted,#78716c);line-height:1.6;margin-bottom:10px}
+.sub-chips{display:flex;gap:8px;flex-wrap:wrap}
+.sub-chip{display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:62px;padding:8px 12px;
+  border-radius:10px;background:var(--bg-elevated,#faf9f7);border:1px solid var(--line-2)}
+.sub-chip b{font-size:10.5px;font-weight:700;color:var(--text-muted,#78716c)}
+.sub-chip span{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;color:#1b2a4a}
+.sub-chip.absent span{font-size:12px;color:#b45309}
+.wrong-sub-tag{margin-left:8px;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;
+  background:rgba(181,146,79,.16);color:#8a6c2e;border:1px solid rgba(181,146,79,.4)}
+.sub-inline{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:#8a6c2e;
+  margin-top:1px;white-space:nowrap}
+
 .lg-strip-locked{justify-content:space-between}
 .lg-strip-locked .lg-strip-main{flex:1}
 @media (max-width:720px){ .lg-strip-bar{display:none} }
@@ -3323,6 +3347,56 @@ function setRoundData(sid, r, data) {
   saveState();
 }
 
+// ============================================================
+// 추가 응시 — 한 학생이 같은 회차에 다른 버전 시험지를 한 번 더 본 경우
+//   저장 키: 주 기록 'r3', 추가 기록 'r3b'
+//   학년 평균 · 응시율 · 미입력 점검은 '주 기록'만 본다.
+//   버전별 통계 · 오답 분석 · 학부모 리포트에는 추가 기록도 들어간다.
+// ============================================================
+function subRoundKey(r) { return 'r' + r + 'b'; }
+
+function getSubRoundData(sid, r) {
+  const sc = state.scores[sid];
+  if (!sc) return null;
+  return sc[subRoundKey(r)] || null;
+}
+
+// 실제로 내용이 있는 추가 기록인지 (빈 껍데기는 없는 것으로 본다)
+function hasSubEntry(sid, r) {
+  const d = getSubRoundData(sid, r);
+  if (!d) return false;
+  return isAbsent(d) || getScore(d) != null || !!String(d.version || '').trim();
+}
+
+function studentUsesSub(sid) {
+  for (let r = 1; r <= ROUNDS; r++) if (hasSubEntry(sid, r)) return true;
+  return false;
+}
+
+// 버전별 통계 · 오답 분석용 — 그 회차의 모든 응시 기록
+function allRoundEntries(sid, r) {
+  const out = [];
+  const a = getRoundData(sid, r);
+  if (a) out.push(a);
+  const b = getSubRoundData(sid, r);
+  if (b && (isAbsent(b) || getScore(b) != null)) out.push(b);
+  return out;
+}
+
+// 추가 응시 기록 목록 (학부모 리포트용)
+function subEntryList(sid) {
+  const out = [];
+  for (let r = 1; r <= ROUNDS; r++) {
+    const d = getSubRoundData(sid, r);
+    if (!d) continue;
+    if (isAbsent(d)) { out.push({ round: r, absent: true, version: d.version || '', errors: d.errors || '' }); continue; }
+    const n = getScore(d);
+    if (n == null) continue;
+    out.push({ round: r, score: n, version: d.version || '', errors: d.errors || '' });
+  }
+  return out;
+}
+
 function isAbsent(rd) { return rd && rd.absent === true; }
 
 function getScore(rd) {
@@ -3418,11 +3492,12 @@ function commonWrongs(grade, round, top, version) {
   const counter = {};
   let total = 0;
   ids.forEach(id => {
-    const rd = getRoundData(id, round);
-    if (!rd || isAbsent(rd) || !rd.errors) return;
-    if (version !== undefined && (rd.version || '') !== version) return;
-    total++;
-    parseErrors(rd.errors).forEach(e => { counter[e] = (counter[e] || 0) + 1; });
+    allRoundEntries(id, round).forEach(rd => {
+      if (isAbsent(rd) || !rd.errors) return;
+      if (version !== undefined && (rd.version || '') !== version) return;
+      total++;
+      parseErrors(rd.errors).forEach(e => { counter[e] = (counter[e] || 0) + 1; });
+    });
   });
   return { entries: Object.entries(counter).sort((a,b) => b[1] - a[1]).slice(0, top), total };
 }
@@ -3431,10 +3506,11 @@ function commonWrongs(grade, round, top, version) {
 function versionsUsedInRound(grade, round) {
   const counts = {};
   state.students.filter(s => s.grade === grade).forEach(s => {
-    const rd = getRoundData(s.id, round);
-    if (!rd || isAbsent(rd) || (rd.score == null || rd.score === '')) return;
-    const v = rd.version || '';
-    counts[v] = (counts[v] || 0) + 1;
+    allRoundEntries(s.id, round).forEach(rd => {
+      if (isAbsent(rd) || rd.score == null || rd.score === '') return;
+      const v = rd.version || '';
+      counts[v] = (counts[v] || 0) + 1;
+    });
   });
   return Object.keys(counts)
     .map(v => ({ label: v, count: counts[v] }))
@@ -3676,21 +3752,21 @@ function getCommonWeakUnits(teacher, grade, topN) {
 // 점수 입력 초안(draft) — 입력 중에는 화면을 다시 그리지 않고
 // [저장]을 눌렀을 때 한 번에 반영 + 동기화
 // ============================================================
-function draftKey(sid, round) { return sid + '|' + round; }
+function draftKey(sid, round, sub) { return sid + '|' + round + (sub ? '|b' : ''); }
 function draftCount() { return Object.keys(ui.scoreDraft || {}).length; }
 function hasDrafts() { return draftCount() > 0; }
 
 // 저장된 값 위에 초안을 덮어쓴 '현재 화면 기준' 데이터
-function mergedRoundData(sid, round) {
-  const stored = getRoundData(sid, round) || {};
-  const d = (ui.scoreDraft || {})[draftKey(sid, round)];
+function mergedRoundData(sid, round, sub) {
+  const stored = (sub ? getSubRoundData(sid, round) : getRoundData(sid, round)) || {};
+  const d = (ui.scoreDraft || {})[draftKey(sid, round, sub)];
   return d ? Object.assign({}, stored, d) : stored;
 }
 
-function setDraft(sid, round, patch) {
+function setDraft(sid, round, patch, sub) {
   if (!ui.scoreDraft) ui.scoreDraft = {};
-  const k = draftKey(sid, round);
-  ui.scoreDraft[k] = Object.assign({ _sid: sid, _round: round }, ui.scoreDraft[k] || {}, patch);
+  const k = draftKey(sid, round, sub);
+  ui.scoreDraft[k] = Object.assign({ _sid: sid, _round: round, _sub: !!sub }, ui.scoreDraft[k] || {}, patch, { _sub: !!sub });
   updateSaveBar();
 }
 
@@ -3705,8 +3781,8 @@ function commitDrafts() {
   if (!keys.length) return 0;
   keys.forEach(k => {
     const d = ui.scoreDraft[k];
-    const sid = d._sid, round = d._round;
-    const next = Object.assign({}, getRoundData(sid, round) || {});
+    const sid = d._sid, round = d._round, sub = !!d._sub;
+    const next = Object.assign({}, (sub ? getSubRoundData(sid, round) : getRoundData(sid, round)) || {});
     if ('absent' in d) next.absent = d.absent;
     if (next.absent === true) {
       next.score = ''; next.errors = '';
@@ -3718,7 +3794,14 @@ function commitDrafts() {
     if ('version' in d) next.version = d.version;
     next.at = Date.now();   // 입력 시각 — 리그 집계용
     if (!state.scores[sid]) state.scores[sid] = {};
-    state.scores[sid]['r' + round] = next;
+    if (sub) {
+      // 추가 응시 줄을 비워 저장하면 기록을 지운다
+      const empty = !isAbsent(next) && getScore(next) == null && !String(next.version || '').trim();
+      if (empty) delete state.scores[sid][subRoundKey(round)];
+      else state.scores[sid][subRoundKey(round)] = next;
+    } else {
+      state.scores[sid]['r' + round] = next;
+    }
   });
   ui.scoreDraft = {};
   saveState();
@@ -5494,7 +5577,7 @@ function renderScores() {
   const wrap = el('div');
   wrap.appendChild(el('div', { className: 'page-header' },
     el('div', { className: 'page-title' }, '점수 입력'),
-    el('div', { className: 'page-subtitle' }, '회차별로 점수 · 버전 · 오답 문항을 입력한 뒤 아래 [저장] 버튼을 누르세요. 버전이 여러 개인 학년은 학년 제목 옆에서 회차별로 일괄 지정할 수 있습니다.')
+    el('div', { className: 'page-subtitle' }, '회차별로 점수 · 버전 · 오답 문항을 입력한 뒤 아래 [저장] 버튼을 누르세요. 버전이 여러 개인 학년은 학년 제목 옆에서 회차별로 일괄 지정할 수 있습니다. 같은 회차에 다른 버전 시험지도 본 학생은 학생 이름 아래 [＋ 다른 버전]을 눌러 한 줄 더 입력하세요.')
   ));
 
   wrap.appendChild(renderQuoteCard());
@@ -5662,12 +5745,12 @@ function gradeRoundVersionStats(grade, round) {
   const total = students.length;
   const map = {};
   students.forEach(s => {
-    const rd = getRoundData(s.id, round);
-    if (!rd) return;
-    const v = rd.version || '';
-    const rec = map[v] || (map[v] = { label: v, scores: [], absent: 0 });
-    if (isAbsent(rd)) rec.absent++;
-    else { const n = getScore(rd); if (n != null) rec.scores.push(n); }
+    allRoundEntries(s.id, round).forEach(rd => {
+      const v = rd.version || '';
+      const rec = map[v] || (map[v] = { label: v, scores: [], absent: 0 });
+      if (isAbsent(rd)) rec.absent++;
+      else { const n = getScore(rd); if (n != null) rec.scores.push(n); }
+    });
   });
   const order = getVersionsForGrade(grade);
   return Object.keys(map).map(k => {
@@ -5694,12 +5777,13 @@ function teacherVersionSummary(teacher, grade) {
   const map = {};
   ts.forEach(s => {
     for (let r = 1; r <= ROUNDS; r++) {
-      const rd = getRoundData(s.id, r);
-      if (!rd || isAbsent(rd)) continue;
-      const n = getScore(rd);
-      if (n == null) continue;
-      const v = rd.version || '';
-      (map[v] || (map[v] = [])).push(n);
+      allRoundEntries(s.id, r).forEach(rd => {
+        if (isAbsent(rd)) return;
+        const n = getScore(rd);
+        if (n == null) return;
+        const v = rd.version || '';
+        (map[v] || (map[v] = [])).push(n);
+      });
     }
   });
   const order = getVersionsForGrade(grade);
@@ -5796,11 +5880,15 @@ function renderScoreTable(students, round) {
     ...headerColumns.map(c => el('div', null, c))
   );
 
-  const rows = students.map(s => {
-    const rd = mergedRoundData(s.id, round);
+  // 한 줄(주 기록 또는 추가 응시 기록) 만들기
+  function buildRow(s, sub, onRemove) {
+    const rd = mergedRoundData(s.id, round, sub);
     let absent = isAbsent(rd);
 
-    const row = el('div', { className: 'score-row' + (absent ? ' is-absent' : ''), style: { gridTemplateColumns: headerGrid } });
+    const row = el('div', {
+      className: 'score-row' + (absent ? ' is-absent' : '') + (sub ? ' sub' : ''),
+      style: { gridTemplateColumns: headerGrid }
+    });
 
     const scoreInput = el('input', {
       className: 'score-input' + (absent ? ' absent' : ''),
@@ -5810,9 +5898,9 @@ function renderScoreTable(students, round) {
       disabled: absent,
       placeholder: absent ? '결시' : '점수',
       // 입력 중에는 화면을 다시 그리지 않고 초안에만 담아둔다
-      onInput: e => { setDraft(s.id, round, { score: e.target.value }); markRowDirty(row); }
+      onInput: e => { setDraft(s.id, round, { score: e.target.value }, sub); markRowDirty(row); }
     });
-    // Enter → 다음 학생 점수 칸으로 이동 (연속 입력 편의)
+    // Enter → 다음 점수 칸으로 이동 (연속 입력 편의)
     scoreInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -5829,14 +5917,14 @@ function renderScoreTable(students, round) {
       value: rd.errors || '',
       disabled: absent,
       placeholder: '예: 5,12,18',
-      onInput: e => { setDraft(s.id, round, { errors: e.target.value }); markRowDirty(row); }
+      onInput: e => { setDraft(s.id, round, { errors: e.target.value }, sub); markRowDirty(row); }
     });
 
     const absentBtn = el('button', {
       className: 'absent-toggle' + (absent ? ' on' : ''),
       onClick: () => {
         absent = !absent;
-        setDraft(s.id, round, absent ? { absent: true, score: '', errors: '' } : { absent: false });
+        setDraft(s.id, round, absent ? { absent: true, score: '', errors: '' } : { absent: false }, sub);
         // 화면 전체를 다시 그리지 않고 이 줄만 갱신
         absentBtn.className = 'absent-toggle' + (absent ? ' on' : '');
         absentBtn.textContent = absent ? '✓ 결시' : '결시';
@@ -5854,33 +5942,92 @@ function renderScoreTable(students, round) {
     // 학년별 버전 옵션 (회차마다 선생님이 직접 선택)
     const versions = getVersionsForGrade(s.grade);
     const curVersion = rd.version || '';
+    const otherVersion = (mergedRoundData(s.id, round, !sub) || {}).version || '';
+    const dupWarn = el('span', {
+      className: 'ver-dup',
+      style: { display: (curVersion && curVersion === otherVersion) ? 'inline-block' : 'none' }
+    }, '같은 버전');
     const versionSelect = el('select', {
       className: 'version-select',
       value: curVersion,
-      onChange: e => { setDraft(s.id, round, { version: e.target.value }); markRowDirty(row); }
+      onChange: e => {
+        setDraft(s.id, round, { version: e.target.value }, sub);
+        dupWarn.style.display = (e.target.value && e.target.value === otherVersion) ? 'inline-block' : 'none';
+        markRowDirty(row);
+      }
     },
       el('option', { value: '' }, '버전 선택...'),
       ...versions.map(v => el('option', { value: v, selected: curVersion === v }, v))
     );
 
+    const firstCell = sub
+      ? el('div', { className: 'sub-mark', title: '추가 응시 — 다른 버전 시험지' }, '└ 추가')
+      : el('div', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade));
+
+    const nameCell = sub
+      ? el('div', { className: 'text-sm muted' }, s.name + ' · 두 번째 버전',
+          onRemove ? el('button', { className: 'sub-x', title: '추가 응시 줄 닫기', onClick: onRemove }, '✕') : null)
+      : el('div', null,
+          el('div', { style: { fontWeight: 600 } }, s.name),
+          el('div', { className: 'text-sm muted' }, s.school || '')
+        );
+
     [
-      el('div', null, el('span', { className: 'badge badge-grade-' + s.grade }, s.grade)),
-      el('div', null,
-        el('div', { style: { fontWeight: 600 } }, s.name),
-        el('div', { className: 'text-sm muted' }, s.school || '')
-      ),
-      el('div', { className: 'text-sm', style: { fontWeight: 600 } }, s.teacher || '—'),
+      firstCell,
+      nameCell,
+      sub ? el('div') : el('div', { className: 'text-sm', style: { fontWeight: 600 } }, s.teacher || '—'),
       scoreInput,
       absentBtn,
-      versionSelect,
+      el('div', { className: 'ver-cell' }, versionSelect, dupWarn),
       errorsInput
     ].forEach(node => row.appendChild(node));
 
-    if ((ui.scoreDraft || {})[draftKey(s.id, round)]) row.classList.add('dirty');
+    if ((ui.scoreDraft || {})[draftKey(s.id, round, sub)]) row.classList.add('dirty');
     return row;
+  }
+
+  const grid = el('div', { className: 'score-grid' }, header);
+
+  students.forEach(s => {
+    const mainRow = buildRow(s, false);
+
+    // 추가 응시 줄을 띄울지 — 기록이 있거나, 선생님이 이 학생에 대해 열어둔 경우
+    const opened = !!(ui.subOpen || {})[s.id];
+    const showSub = studentUsesSub(s.id) || opened ||
+      !!(ui.scoreDraft || {})[draftKey(s.id, round, true)];
+
+    if (!showSub) {
+      // 주 기록 줄 안에 '＋ 다른 버전' 버튼을 붙인다
+      const addBtn = el('button', {
+        className: 'sub-add',
+        title: '이 학생이 같은 회차에 다른 버전 시험지도 응시한 경우',
+        onClick: () => {
+          if (!ui.subOpen) ui.subOpen = {};
+          ui.subOpen[s.id] = true;
+          const sr = buildRow(s, true, () => {
+            delete ui.subOpen[s.id];
+            sr.remove();
+            addBtn.style.display = '';
+          });
+          mainRow.after(sr);
+          addBtn.style.display = 'none';
+          const inp = sr.querySelector('.score-input');
+          if (inp) inp.focus();
+        }
+      }, '＋ 다른 버전');
+      mainRow.children[1].appendChild(addBtn);
+    }
+
+    grid.appendChild(mainRow);
+    if (showSub) {
+      grid.appendChild(buildRow(s, true, hasSubEntry(s.id, round) ? null : () => {
+        if (ui.subOpen) delete ui.subOpen[s.id];
+        render();
+      }));
+    }
   });
 
-  return el('div', { className: 'score-grid' }, header, ...rows);
+  return grid;
 }
 
 // 아직 저장되지 않은 줄 표시
@@ -6082,6 +6229,21 @@ function teacherLeagueCard(teacher) {
   xp += scored * 10 + absent * 5 + withErrors * 5;
   if (scored || absent) detail.push({ label: '입력 ' + scored + '건 · 결시 ' + absent + '건', xp: scored * 10 + absent * 5 });
   if (withErrors) detail.push({ label: '오답 문항 기록 ' + withErrors + '건', xp: withErrors * 5 });
+
+  // 추가 응시(다른 버전 중복 응시) — 입력률에는 넣지 않고 실적만 인정
+  let subScored = 0, subErrors = 0;
+  students.forEach(s => {
+    rounds.forEach(r => {
+      const d = getSubRoundData(s.id, r);
+      if (!d || isAbsent(d) || getScore(d) == null) return;
+      subScored++;
+      if (d.errors && String(d.errors).trim()) subErrors++;
+    });
+  });
+  if (subScored) {
+    xp += subScored * 10 + subErrors * 5;
+    detail.push({ label: '추가 응시 입력 ' + subScored + '건', xp: subScored * 10 + subErrors * 5 });
+  }
 
   const preDone = students.filter(s => preInputMissingFields(s).length === 0).length;
   xp += preDone * 15;
@@ -7592,11 +7754,16 @@ function renderStudentDetailTable(students, grade) {
 
     for (let r = 1; r <= ROUNDS; r++) {
       const rd = getRoundData(s.id, r);
-      if (!rd) { cells.push(el('td', { className: 'muted' }, '—')); continue; }
-      if (isAbsent(rd)) { cells.push(el('td', { className: 'absent' }, '결시')); continue; }
+      const sub = getSubRoundData(s.id, r);
+      const subTag = (sub && !isAbsent(sub) && getScore(sub) != null)
+        ? el('div', { className: 'sub-inline', title: '추가 응시(' + (sub.version || '버전 미지정') + ')' },
+            '＋' + fmt(getScore(sub)))
+        : null;
+      if (!rd) { cells.push(el('td', { className: 'muted' }, '—', subTag)); continue; }
+      if (isAbsent(rd)) { cells.push(el('td', { className: 'absent' }, '결시', subTag)); continue; }
       const sc = Number(rd.score);
-      if (isNaN(sc)) { cells.push(el('td', null, '—')); continue; }
-      cells.push(el('td', { className: 'num ' + scoreClass(sc) }, fmt(sc)));
+      if (isNaN(sc)) { cells.push(el('td', null, '—', subTag)); continue; }
+      cells.push(el('td', { className: 'num ' + scoreClass(sc) }, fmt(sc), subTag));
     }
 
     // 추세
@@ -8163,6 +8330,14 @@ function buildSharedReportDOM(sid) {
         wrongs.push({ round: r, errors: errList, version: rd.version || '' });
       }
     }
+    // 추가 응시(다른 버전)의 오답도 그 시험지 기준으로 함께 분석
+    const sub = getSubRoundData(sid, r);
+    if (sub && !isAbsent(sub) && sub.errors) {
+      const subList = parseErrors(sub.errors);
+      if (subList.length > 0) {
+        wrongs.push({ round: r, errors: subList, version: sub.version || '', isSub: true });
+      }
+    }
   }
   const validScores = myRounds.map(rd => getScore(rd)).filter(x => x != null);
   const myAvg = avg(validScores);
@@ -8304,6 +8479,30 @@ function buildSharedReportDOM(sid) {
     el('div', { className: 'rounds-grid' }, ...roundCards)
   ));
 
+  // === 2-1. 추가 응시 기록 (다른 버전 시험지를 함께 본 경우) ===
+  const subs = subEntryList(sid);
+  if (subs.length > 0) {
+    const subVer = (subs.find(x => x.version) || {}).version || '';
+    const taken = subs.filter(x => !x.absent);
+    const subAvg = taken.length ? taken.reduce((a, b) => a + b.score, 0) / taken.length : null;
+    wrap.appendChild(el('div', { className: 'report-section' },
+      el('div', { className: 'report-section-header' },
+        el('div', { className: 'report-section-icon' }, '📐'),
+        el('div', { className: 'report-section-title' }, '추가 응시 기록'),
+        el('div', { className: 'report-section-sub' },
+          (subVer ? subVer + ' · ' : '') + taken.length + '회 응시' + (subAvg != null ? ' · 평균 ' + fmt(subAvg) + '점' : ''))
+      ),
+      el('div', { className: 'sub-note' },
+        '위 추이와는 범위가 다른 시험지를 추가로 응시한 기록입니다. 위의 학년 평균 비교에는 포함되지 않습니다.'),
+      el('div', { className: 'sub-chips' },
+        ...subs.map(x => el('div', { className: 'sub-chip' + (x.absent ? ' absent' : '') },
+          el('b', null, x.round + '회'),
+          el('span', null, x.absent ? '결시' : fmt(x.score) + '점')
+        ))
+      )
+    ));
+  }
+
   // === 3. 추이 차트 ===
   const chartId = 'shared-trend-' + sid + '-' + (++_sharedChartSeq);
   wrap.appendChild(el('div', { className: 'report-section' },
@@ -8343,7 +8542,8 @@ function buildSharedReportDOM(sid) {
         el('div', { className: 'wrong-round-head' },
           el('div', { className: 'wrong-round-title' },
             el('span', { className: 'wrong-round-title-num' }, `${w.round}회`),
-            `오답 ${w.errors.length}문항`
+            `오답 ${w.errors.length}문항`,
+            w.isSub ? el('span', { className: 'wrong-sub-tag' }, '추가 응시') : null
           ),
           el('div', { className: 'wrong-badges' },
             ...w.errors.map(n => el('span', { className: 'wrong-num-badge' }, n + '번'))
@@ -8841,15 +9041,16 @@ function generateStudentAnalysisLines(sid) {
   // 약점 단원 (시험지 태그 기반)
   const unitWrong = {};
   for (let r = 1; r <= ROUNDS; r++) {
-    const rd = getRoundData(sid, r);
-    if (!rd || isAbsent(rd) || !rd.errors) continue;
-    const paper = getPaperForStudent(s.grade, r, rd.version);
-    if (!paper || !paper.problems) continue;
-    parseErrors(rd.errors).forEach(n => {
-      const p = paper.problems[n - 1];
-      if (p && p.unit) {
-        unitWrong[p.unit] = (unitWrong[p.unit] || 0) + 1;
-      }
+    allRoundEntries(sid, r).forEach(rd => {
+      if (isAbsent(rd) || !rd.errors) return;
+      const paper = getPaperForStudent(s.grade, r, rd.version);
+      if (!paper || !paper.problems) return;
+      parseErrors(rd.errors).forEach(n => {
+        const p = paper.problems[n - 1];
+        if (p && p.unit) {
+          unitWrong[p.unit] = (unitWrong[p.unit] || 0) + 1;
+        }
+      });
     });
   }
   const topWeakUnits = Object.entries(unitWrong).sort((a,b) => b[1] - a[1]).slice(0, 2);
